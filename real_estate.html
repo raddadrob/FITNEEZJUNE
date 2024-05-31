@@ -99,7 +99,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "YOUR_ACTUAL_API_KEY",
+            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
             authDomain: "cockrumfinance.firebaseapp.com",
             projectId: "cockrumfinance",
             storageBucket: "cockrumfinance.appspot.com",
@@ -128,6 +128,8 @@
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'login.html';
+                } else {
+                    console.log('User is already logged in.');
                 }
             });
         });
