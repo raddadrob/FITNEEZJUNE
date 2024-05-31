@@ -218,11 +218,13 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index:
+            z-index: 1000;
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
@@ -236,6 +238,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         function logOff() {
             auth.signOut().then(() => {
@@ -250,9 +253,77 @@
                 if (!user) {
                     console.log('No user is logged in');
                     window.location.href = 'login.html';
+                } else {
+                    loadData();
                 }
             });
         });
+
+        async function loadData() {
+            try {
+                const stocksAndBondsSnapshot = await db.collection('stocks_and_bonds').get();
+                const stocksAndBonds = stocksAndBondsSnapshot.docs.map(doc => doc.data());
+
+                const realEstateSnapshot = await db.collection('real_estate').get();
+                const realEstate = realEstateSnapshot.docs.map(doc => doc.data());
+
+                const miscAssetsSnapshot = await db.collection('misc_assets').get();
+                const miscAssets = miscAssetsSnapshot.docs.map(doc => doc.data());
+
+                const liabilitiesSnapshot = await db.collection('liabilities').get();
+                const liabilities = liabilitiesSnapshot.docs.map(doc => doc.data());
+
+                const totalStocksAndBonds = stocksAndBonds.reduce((sum, item) => sum + item.value, 0);
+                const totalRealEstate = realEstate.reduce((sum, item) => sum + item.value, 0);
+                const totalMiscAssets = miscAssets.reduce((sum, item) => sum + item.value, 0);
+                const totalLiabilities = liabilities.reduce((sum, item) => sum + item.value, 0);
+                const totalAssets = totalStocksAndBonds + totalRealEstate + totalMiscAssets;
+                const netWorth = totalAssets - totalLiabilities;
+
+                document.getElementById('total-stocks-and-bonds').innerText = `$${formatNumber(totalStocksAndBonds)}`;
+                document.getElementById('total-real-estate').innerText = `$${formatNumber(totalRealEstate)}`;
+                document.getElementById('total-misc-assets').innerText = `$${formatNumber(totalMiscAssets)}`;
+                document.getElementById('total-assets').innerText = `$${formatNumber(totalAssets)}`;
+                document.getElementById('total-liabilities').innerText = `$${formatNumber(totalLiabilities)}`;
+                document.getElementById('net-worth').innerText = `$${formatNumber(netWorth)}`;
+
+                renderChart(netWorth);
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function formatNumber(number) {
+            return number.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function renderChart(netWorth) {
+            const ctx = document.getElementById('net-worth-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    datasets: [{
+                        label: 'Net Worth',
+                        data: [netWorth, netWorth, netWorth, netWorth, netWorth, netWorth, netWorth, netWorth, netWorth, netWorth, netWorth, netWorth],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                        },
+                        y: {
+                            beginAtZero: true,
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </head>
 <body>
@@ -274,9 +345,12 @@
         <div class="content">
             <div class="left-pane">
                 <div class="summary-tiles-container">
-                    <div class="summary-tile">Total Assets</div>
-                    <div class="summary-tile">Total Liabilities</div>
-                    <div class="summary-tile">Net Worth</div>
+                    <div class="summary-tile" id="total-stocks-and-bonds">Total Stocks & Bonds</div>
+                    <div class="summary-tile" id="total-real-estate">Total Real Estate</div>
+                    <div class="summary-tile" id="total-misc-assets">Total Misc. Assets</div>
+                    <div class="summary-tile" id="total-assets">Total Assets</div>
+                    <div class="summary-tile" id="total-liabilities">Total Liabilities</div>
+                    <div class="summary-tile" id="net-worth">Net Worth</div>
                 </div>
             </div>
             <div class="middle-pane">
