@@ -32,13 +32,19 @@
         h2 {
             font-size: 1.25rem;
         }
+        .menu-bar-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            background: #0f0;
+        }
         .menu-bar {
+            max-width: 1200px;
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px;
-            background: #333;
             color: #fff;
         }
         .menu-links {
@@ -213,7 +219,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+            z-index: 10;
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -324,16 +330,18 @@
 <body>
     <div class="container">
         <h1>Fitneez</h1>
-        <div class="menu-bar">
-            <div class="menu-icon" onclick="toggleMenu()">
-                &#9776;
-            </div>
-            <div class="menu-links" id="menu-links">
-                <a href="index.html">Summary</a>
-                <a href="details.html">Balance Sheet</a>
-                <a href="calendar.html">Cash Flow</a>
-                <a href="real_estate.html">Real Estate</a>
-                <a href="credit_cards.html">Credit Cards</a>
+        <div class="menu-bar-container">
+            <div class="menu-bar">
+                <div class="menu-icon" onclick="toggleMenu()">
+                    &#9776;
+                </div>
+                <div class="menu-links" id="menu-links">
+                    <a href="index.html">Summary</a>
+                    <a href="details.html">Balance Sheet</a>
+                    <a href="calendar.html">Cash Flow</a>
+                    <a href="real_estate.html">Real Estate</a>
+                    <a href="credit_cards.html">Credit Cards</a>
+                </div>
             </div>
         </div>
         <button class="logoff-button" onclick="logOff()">Log Off</button>
