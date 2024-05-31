@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitneez</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            text-align: left;
+            color: #0f0;
+        }
+        .menu-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+        }
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            display: none;
+        }
+        .menu-links {
+            display: flex;
+            gap: 15px;
+        }
+        .menu-bar a {
+            color: #0f0;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #444;
+            border-radius: 4px;
+        }
+        .menu-bar a:hover {
+            background: #0c0;
+        }
+        .menu-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .logoff-button {
+            background: #0f0;
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .logoff-button:hover {
+            background: #0c0;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dropdown {
+            display: flex;
+            align-items: center;
+        }
+        .dropdown label {
+            margin-right: 10px;
+            color: #0f0;
+        }
+        .dropdown select {
+            padding: 10px;
+            background: #444;
+            color: #0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        .day {
+            background: #444;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .day header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .day input {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #222;
+            color: #fff;
+        }
+        .day input.credit {
+            color: green;
+        }
+        .day input.debit {
+            color: red;
+        }
+        .day input.description {
+            color: #fff;
+        }
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 10px;
+        }
+        .calendar-header div {
+            text-align: center;
+            font-weight: bold;
+        }
+        .ending-balance {
+            margin-top: 20px;
+            padding: 10px;
+            background: #444;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .cash-value {
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .menu-icon {
+                display: block;
+            }
+            .menu-links {
+                display: none;
+                flex-direction: column;
+            }
+            .menu-links.active {
+                display: flex;
+            }
+            .calendar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .calendar-header {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            authDomain: "cockrumfinance.firebaseapp.com",
+            projectId: "cockrumfinance",
+            storageBucket: "cockrumfinance.appspot.com",
+            messagingSenderId: "446623626941",
+            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
+            measurementId: "G-JFRC4K0BBF"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let initialCashBalance = 0;
+        const cashBalances = {};
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        function logOff() {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
+        }
+
+        function toggleMenu() {
+            const menuLinks = document.getElementById('menu-links');
+            menuLinks.classList.toggle('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    document.getElementById('initial-cash-balance').addEventListener('change', setInitialCashBalance);
+                    renderMonthSelector();
+                    renderCalendar();
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+
+        function setInitialCashBalance(event) {
+            const value = parseFloat(event.target.value.replace(/[^\d.-]/g, '')) || 0;
+            initialCashBalance = value;
+            event.target.value = `$${formatNumber(value)}`;
+            db.collection('calendar').doc(`${currentYear}-${currentMonth}-initial_balance`).set({ balance: initialCashBalance });
+            calculateBalances();
+        }
+
+        function calculateBalances() {
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            let previousDayBalance = initialCashBalance;
+            for (let day = 1; day <= daysInMonth; day++) {
+                const creditInput = document.getElementById(`credit-${day}`);
+                const debitInput = document.getElementById(`debit-${day}`);
+                const creditDescription = document.getElementById(`credit-description-${day}`);
+                const debitDescription = document.getElementById(`debit-description-${day}`);
+                const credit = parseFloat(creditInput.value.replace(/[^\d.-]/g, '')) || 0;
+                const debit = parseFloat(debitInput.value.replace(/[^\d.-]/g, '')) || 0;
+                const cashBalance = previousDayBalance + credit - Math.abs(debit);
+                cashBalances[day] = cashBalance;
+                const cashElement = document.getElementById(`cash-${day}`);
+                cashElement.innerText = `$${formatNumber(cashBalance)}`;
+                cashElement.style.fontWeight = 'bold';
+                if (cashBalance > 5000) {
+                    cashElement.style.color = '#0f0';
+                } else if (cashBalance >= 0 && cashBalance <= 4999) {
+                    cashElement.style.color = 'yellow';
+                } else {
+                    cashElement.style.color = 'red';
+                }
+                creditInput.value = credit !== 0 ? `$${formatNumber(credit)}` : '';
+                debitInput.value = debit !== 0 ? `-$${formatNumber(Math.abs(debit))}` : '';
+                previousDayBalance = cashBalance;
+
+                db.collection('calendar').doc(`${currentYear}-${currentMonth}-day-${day}`).set({
+                    credit: credit,
+                    debit: debit,
+                    cash: cashBalance,
+                    creditDescription: creditDescription.value,
+                    debitDescription: debitDescription.value
+                }).catch(error => {
+                    console.error("Error storing document: ", error);
+                });
+            }
+            document.getElementById('ending-balance').innerText = `Ending Balance: $${formatNumber(previousDayBalance)}`;
+        }
+
+        async function renderCalendar() {
+            const calendar = document.querySelector('.calendar');
+            const month = monthNames[currentMonth] + ' ' + currentYear;
+            document.getElementById('month').innerText = month;
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const startDay = new Date(currentYear, currentMonth, 1).getDay();
+
+            const initialBalanceDoc = await db.collection('calendar').doc(`${currentYear}-${currentMonth}-initial_balance`).get();
+            if (initialBalanceDoc.exists) {
+                initialCashBalance = initialBalanceDoc.data().balance;
+                document.getElementById('initial-cash-balance').value = `$${formatNumber(initialCashBalance)}`;
+            } else {
+                initialCashBalance = 0;
+                document.getElementById('initial-cash-balance').value = '';
+            }
+
+            calendar.innerHTML = '';
+
+            for (let i = 0; i < startDay; i++) {
+                const emptyElement = document.createElement('div');
+                emptyElement.classList.add('day');
+                calendar.appendChild(emptyElement);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+                dayElement.innerHTML = `
+                    <header>${day}</header>
+                    <input type="text" id="credit-${day}" class="credit" placeholder="Credit" onchange="calculateBalances()">
+                    <input type="text" id="credit-description-${day}" class="description" placeholder="Description" onchange="calculateBalances()">
+                    <input type="text" id="debit-${day}" class="debit" placeholder="Debit" onchange="calculateBalances()">
+                    <input type="text" id="debit-description-${day}" class="description" placeholder="Description" onchange="calculateBalances()">
+                    <div id="cash-${day}" class="cash-value">$0</div>
+                `;
+                calendar.appendChild(dayElement);
+
+                const dayDoc = await db.collection('calendar').doc(`${currentYear}-${currentMonth}-day-${day}`).get();
+                if (dayDoc.exists) {
+                    const data = dayDoc.data();
+                    document.getElementById(`credit-${day}`).value = data.credit ? `$${formatNumber(data.credit)}` : '';
+                    document.getElementById(`credit-description-${day}`).value = data.creditDescription || '';
+                    document.getElementById(`debit-${day}`).value = data.debit ? `-$${formatNumber(Math.abs(data.debit))}` : '';
+                    document.getElementById(`debit-description-${day}`).value = data.debitDescription || '';
+                    const cashElement = document.getElementById(`cash-${day}`);
+                    cashElement.innerText = `$${formatNumber(data.cash)}`;
+                    cashElement.style.fontWeight = 'bold';
+                    if (data.cash > 5000) {
+                        cashElement.style.color = '#0f0';
+                    } else if (data.cash >= 0 && data.cash <= 4999) {
+                        cashElement.style.color = 'yellow';
+                    } else {
+                        cashElement.style.color = 'red';
+                    }
+                }
+            }
+
+            calculateBalances();
+        }
+
+        function renderMonthSelector() {
+            const monthSelect = document.getElementById('month-select');
+            const yearSelect = document.getElementById('year-select');
+            monthSelect.innerHTML = '';
+            yearSelect.innerHTML = '';
+
+            monthNames.forEach((monthName, index) => {
+                const monthOption = document.createElement('option');
+                monthOption.value = monthName;
+                monthOption.innerText = monthName;
+                monthSelect.appendChild(monthOption);
+            });
+
+            for (let year = 2020; year <= 2030; year++) {
+                const yearOption = document.createElement('option');
+                yearOption.value = year;
+                yearOption.innerText = year;
+                yearSelect.appendChild(yearOption);
+            }
+
+            monthSelect.value = monthNames[currentMonth];
+            yearSelect.value = currentYear;
+
+            monthSelect.addEventListener('change', () => {
+                currentMonth = monthNames.indexOf(monthSelect.value);
+                renderCalendar();
+            });
+
+            yearSelect.addEventListener('change', () => {
+                currentYear = parseInt(yearSelect.value, 10);
+                renderCalendar();
+            });
+        }
+
+        function formatNumber(value) {
+            return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+    </script>
+</head>
+<body>
+    <div id="finance-tracker" class="container">
+        <h1>Fitneez</h1>
+        <div class="menu-bar">
+            <div class="menu-icon" onclick="toggleMenu()">
+                &#9776;
+            </div>
+            <div class="menu-links" id="menu-links">
+                <a href="index.html">Summary</a>
+                <a href="details.html">Balance Sheet</a>
+                <a href="calendar.html">Cash Flow</a>
+                <a href="real_estate.html">Real Estate</a>
+            </div>
+            <div class="menu-buttons">
+                <button class="logoff-button" onclick="logOff()">Log Off</button>
+            </div>
+        </div>
+        <div id="content" style="flex: 1;">
+            <div class="controls">
+                <div class="dropdown">
+                    <label>Select Month:</label>
+                    <select id="month-select"></select>
+                    <select id="year-select"></select>
+                </div>
+                <h2>Cash Flow</h2>
+            </div>
+            <div class="form-group">
+                <label for="initial-cash-balance">Initial Cash Balance:</label>
+                <input type="text" id="initial-cash-balance" placeholder="Enter initial cash balance">
+            </div>
+            <h2 id="month" style="text-align: center;"></h2>
+            <div class="calendar-header">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+            <div class="calendar"></div>
+            <div class="ending-balance">
+                <span id="ending-balance">Ending Balance: $0</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

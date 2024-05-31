@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cockrum Finances Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #0f0;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        .button-group button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .button-group button:hover {
+            background-color: #0c0;
+        }
+        .logoff-button {
+            background: #0f0;
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .logoff-button:hover {
+            background: #0c0;
+        }
+        .summary {
+            margin-top: 20px;
+        }
+        .summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .summary table, th, td {
+            border: 1px solid #555;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #444;
+        }
+        .total {
+            font-weight: bold;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            authDomain: "cockrumfinance.firebaseapp.com",
+            projectId: "cockrumfinance",
+            storageBucket: "cockrumfinance.appspot.com",
+            messagingSenderId: "446623626941",
+            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
+            measurementId: "G-JFRC4K0BBF"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        console.log('Firebase initialized');
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('User is logged in:', user.email);
+                loadData();
+            } else {
+                console.log('No user is logged in');
+                window.location.href = 'index.html'; // Redirect to login if not logged in
+            }
+        });
+
+        function logOff() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
+        }
+
+        async function loadData() {
+            try {
+                const stocksAndBondsSnapshot = await db.collection('stocks_and_bonds').get();
+                const stocksAndBonds = stocksAndBondsSnapshot.docs.map(doc => doc.data());
+
+                const realEstateSnapshot = await db.collection('real_estate').get();
+                const realEstate = realEstateSnapshot.docs.map(doc => doc.data());
+
+                const miscAssetsSnapshot = await db.collection('misc_assets').get();
+                const miscAssets = miscAssetsSnapshot.docs.map(doc => doc.data());
+
+                const liabilitiesSnapshot = await db.collection('liabilities').get();
+                const liabilities = liabilitiesSnapshot.docs.map(doc => doc.data());
+
+                const totalStocksAndBonds = stocksAndBonds.reduce((sum, item) => sum + item.value, 0);
+                const totalRealEstate = realEstate.reduce((sum, item) => sum + item.value, 0);
+                const totalMiscAssets = miscAssets.reduce((sum, item) => sum + item.value, 0);
+                const totalLiabilities = liabilities.reduce((sum, item) => sum + item.value, 0);
+                const totalAssets = totalStocksAndBonds + totalRealEstate + totalMiscAssets;
+                const netWorth = totalAssets - totalLiabilities;
+
+                document.getElementById('total-stocks-and-bonds').innerText = `$${formatNumber(totalStocksAndBonds)}`;
+                document.getElementById('total-real-estate').innerText = `$${formatNumber(totalRealEstate)}`;
+                document.getElementById('total-misc-assets').innerText = `$${formatNumber(totalMiscAssets)}`;
+                document.getElementById('total-assets').innerText = `$${formatNumber(totalAssets)}`;
+                document.getElementById('total-liabilities').innerText = `$${formatNumber(totalLiabilities)}`;
+                document.getElementById('net-worth').innerText = `$${formatNumber(netWorth)}`;
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function formatNumber(number) {
+            return number.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        // Inactivity Timer
+        let inactivityTimer;
+        let promptTimer;
+        let countdownTimer;
+        let countdownElement;
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            clearTimeout(promptTimer);
+            clearInterval(countdownTimer);
+            if (countdownElement) {
+                countdownElement.remove();
+                countdownElement = null;
+            }
+            startInactivityTimer();
+        }
+
+        function startInactivityTimer() {
+            inactivityTimer = setTimeout(() => {
+                const popup = document.createElement('div');
+                popup.style.position = 'fixed';
+                popup.style.top = '50%';
+                popup.style.left = '50%';
+                popup.style.transform = 'translate(-50%, -50%)';
+                popup.style.backgroundColor = '#444';
+                popup.style.color = '#fff';
+                popup.style.padding = '20px';
+                popup.style.borderRadius = '5px';
+                popup.style.zIndex = '1000';
+                popup.innerText = 'You have been inactive for a while. You will be logged out in 30 seconds unless you respond.';
+                document.body.appendChild(popup);
+
+                countdownElement = document.createElement('div');
+                countdownElement.style.marginTop = '10px';
+                popup.appendChild(countdownElement);
+
+                let countdown = 30;
+                countdownElement.innerText = `You will be logged out in ${countdown} seconds`;
+
+                countdownTimer = setInterval(() => {
+                    countdown -= 1;
+                    countdownElement.innerText = `You will be logged out in ${countdown} seconds`;
+                    if (countdown <= 0) {
+                        clearInterval(countdownTimer);
+                        logOff();
+                    }
+                }, 1000);
+
+                promptTimer = setTimeout(() => {
+                    logOff();
+                }, 30000);  // 30 seconds after the initial prompt
+            }, 120000); // 120 seconds of inactivity before showing the popup
+        }
+
+        document.addEventListener('mousemove', resetInactivityTimer);
+        document.addEventListener('keydown', resetInactivityTimer);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Cockrum Finances Summary</h1>
+        <div class="button-group">
+            <button onclick="window.location.href='details.html'">View Details</button>
+            <button class="logoff-button" onclick="logOff()">Log Off</button>
+        </div>
+        <div class="summary">
+            <table>
+                <tr>
+                    <th>Total Stocks & Bonds</th>
+                    <td id="total-stocks-and-bonds">$0</td>
+                </tr>
+                <tr>
+                    <th>Total Real Estate</th>
+                    <td id="total-real-estate">$0</td>
+                </tr>
+                <tr>
+                    <th>Total Misc. Assets</th>
+                    <td id="total-misc-assets">$0</td>
+                </tr>
+                <tr>
+                    <th>Total Assets</th>
+                    <td id="total-assets">$0</td>
+                </tr>
+                <tr>
+                    <th>Total Liabilities</th>
+                    <td id="total-liabilities">$0</td>
+                </tr>
+                <tr class="total">
+                    <th>Net Worth</th>
+                    <td id="net-worth">$0</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+

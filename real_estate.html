@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate - Fitneez</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            text-align: center;
+            color: #0f0;
+        }
+        .menu-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+        }
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            display: none;
+        }
+        .menu-links {
+            display: flex;
+            gap: 15px;
+        }
+        .menu-bar a {
+            color: #0f0;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #444;
+            border-radius: 4px;
+        }
+        .menu-bar a:hover {
+            background: #0c0;
+        }
+        .menu-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .logoff-button {
+            background: #0f0;
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .logoff-button:hover {
+            background: #0c0;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .house {
+            background: #444;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 600px) {
+            .menu-icon {
+                display: block;
+            }
+            .menu-links {
+                display: none;
+                flex-direction: column;
+            }
+            .menu-links.active {
+                display: flex;
+            }
+            .house {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            authDomain: "cockrumfinance.firebaseapp.com",
+            projectId: "cockrumfinance",
+            storageBucket: "cockrumfinance.appspot.com",
+            messagingSenderId: "446623626941",
+            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
+            measurementId: "G-JFRC4K0BBF"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        function logOff() {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
+        }
+
+        function toggleMenu() {
+            const menuLinks = document.getElementById('menu-links');
+            menuLinks.classList.toggle('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="finance-tracker" class="container">
+        <h1>Fitneez</h1>
+        <div class="menu-bar">
+            <div class="menu-icon" onclick="toggleMenu()">
+                &#9776;
+            </div>
+            <div class="menu-links" id="menu-links">
+                <a href="index.html">Summary</a>
+                <a href="details.html">Balance Sheet</a>
+                <a href="calendar.html">Cash Flow</a>
+                <a href="real_estate.html">Real Estate</a>
+            </div>
+            <div class="menu-buttons">
+                <button class="logoff-button" onclick="logOff()">Log Off</button>
+            </div>
+        </div>
+        <div id="content" style="flex: 1;">
+            <div class="section house">
+                <h2 style="color: #0f0;">Glass House</h2>
+                <p>Address: 3327 W. Glass Ave., Spokane, WA 99205</p>
+            </div>
+            <div class="section house">
+                <h2 style="color: #0f0;">Winston House</h2>
+                <p>Address: 6510 N. Winston Dr., Spokane, WA 99208</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitneez</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align */
+        }
+        h1 {
+            text-align: center;
+            color: #0f0;
+            font-size: 1.5rem; /* Smaller font size */
+        }
+        h2 {
+            font-size: 1.25rem; /* Smaller font size */
+        }
+        .menu-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+            width: 100%;
+        }
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            display: none;
+        }
+        .menu-links {
+            display: flex;
+            gap: 15px;
+        }
+        .menu-bar a {
+            color: #0f0;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #444;
+            border-radius: 4px;
+            font-size: 0.875rem; /* Smaller font size */
+        }
+        .menu-bar a:hover {
+            background: #0c0;
+        }
+        .menu-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .logoff-button {
+            background: #0f0;
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem; /* Smaller font size */
+        }
+        .logoff-button:hover {
+            background: #0c0;
+        }
+        .section {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #555;
+            padding: 8px; /* Reduced padding */
+            text-align: left;
+            font-size: 0.875rem; /* Smaller font size */
+        }
+        th {
+            background-color: #444;
+        }
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .form-group input {
+            padding: 8px; /* Reduced padding */
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #222;
+            color: #fff;
+            font-size: 0.875rem; /* Smaller font size */
+        }
+        .form-group button {
+            padding: 8px 16px; /* Reduced padding */
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem; /* Smaller font size */
+        }
+        .form-group button:hover {
+            background-color: #0c0;
+        }
+        .delta-positive {
+            color: green;
+        }
+        .delta-negative {
+            color: red;
+        }
+        th:nth-child(1), td:nth-child(1) {
+            width: 50%;
+        }
+        th:nth-child(2), td:nth-child(2) {
+            width: 25%;
+        }
+        th:nth-child(3), td:nth-child(3) {
+            width: 25%;
+        }
+        .popover {
+            position: fixed; /* Fixed position to center on the screen */
+            top: 50%; /* Center vertically */
+            left: 50%; /* Center horizontally */
+            transform: translate(-50%, -50%); /* Offset by half of its own size */
+            z-index: 10;
+            background: #444;
+            color: #fff;
+            padding: 20px; /* Adjusted padding */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            font-size: 0.875rem; /* Smaller font size */
+            width: 50%; /* Adjusted width */
+            max-width: 300px; /* Limit the width on larger screens */
+        }
+        .popover input {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #222;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+        .popover button {
+            padding: 8px;
+            background: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .popover button:hover {
+            background: #0c0;
+        }
+        @media (max-width: 600px) {
+            .menu-icon {
+                display: block;
+            }
+            .menu-links {
+                display: none;
+                flex-direction: column;
+            }
+            .menu-links.active {
+                display: flex;
+            }
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .form-group input, .form-group button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            table {
+                font-size: 0.75rem; /* Even smaller font size for mobile */
+            }
+            .popover {
+                width: 90%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            authDomain: "cockrumfinance.firebaseapp.com",
+            projectId: "cockrumfinance",
+            storageBucket: "cockrumfinance.appspot.com",
+            messagingSenderId: "446623626941",
+            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
+            measurementId: "G-JFRC4K0BBF"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let stocksAndBonds = [];
+        let realEstate = [];
+        let miscAssets = [];
+        let liabilities = [];
+
+        function logOff() {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
+        }
+
+        function toggleMenu() {
+            const menuLinks = document.getElementById('menu-links');
+            menuLinks.classList.toggle('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    loadData();
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+
+        async function loadData() {
+            await loadCollection('stocks_and_bonds', stocksAndBonds, updateTable);
+            await loadCollection('real_estate', realEstate, updateTable);
+            await loadCollection('misc_assets', miscAssets, updateTable);
+            await loadCollection('liabilities', liabilities, updateTable);
+            updateSummary();
+        }
+
+        async function loadCollection(collection, dataArray, callback) {
+            const snapshot = await db.collection(collection).get();
+            dataArray.length = 0;
+            snapshot.docs.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                dataArray.push(data);
+            });
+            dataArray.sort((a, b) => b.value - a.value);
+            callback(collection, dataArray);
+        }
+
+        function updateTable(collection, dataArray) {
+            const tableBody = document.getElementById(`${collection}-table`).getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            dataArray.forEach((item) => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).innerText = item.description;
+                const previousValueCell = row.insertCell(1);
+                const valueCell = row.insertCell(2);
+                if (collection === 'liabilities') {
+                    previousValueCell.innerText = item.previousValue ? `-$${formatNumber(item.previousValue)}` : '$0';
+                    previousValueCell.style.color = 'red';
+                    valueCell.innerText = item.value ? `-$${formatNumber(item.value)}` : '$0';
+                    valueCell.style.color = 'red';
+                } else {
+                    previousValueCell.innerText = `$${formatNumber(item.previousValue || 0)}`;
+                    valueCell.innerText = `$${formatNumber(item.value)}`;
+                }
+                const delta = item.value - (item.previousValue || 0);
+                const deltaCell = document.createElement('span');
+                deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
+                deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
+                deltaCell.style.fontSize = '0.8em';
+                deltaCell.style.fontStyle = 'italic';
+                valueCell.appendChild(deltaCell);
+                valueCell.onclick = () => showPopover(event, collection, item.id, item.value, item.description);
+                previousValueCell.onclick = () => showPopover(event, collection, item.id, item.previousValue, item.description);
+                row.appendChild(previousValueCell);
+                row.appendChild(valueCell);
+            });
+        }
+
+        function formatNumber(value) {
+            return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function showPopover(event, collection, id, value, description) {
+            const popover = document.getElementById('popover');
+            const popoverDescription = document.getElementById('popover-description');
+            const popoverValue = document.getElementById('popover-value');
+            const saveButton = document.getElementById('saveEditButton');
+
+            popoverDescription.innerText = description;
+            popoverValue.value = formatNumber(value);
+            saveButton.onclick = () => saveEditItem(collection, id);
+
+            popover.style.display = 'flex';
+        }
+
+        function closePopover() {
+            document.getElementById('popover').style.display = 'none';
+        }
+
+        async function saveEditItem(collection, id) {
+            const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
+            if (!isNaN(value)) {
+                await db.collection(collection).doc(id).update({
+                    value: collection === 'liabilities' ? Math.abs(value) : value,
+                    previousValue: getItemById(collection, id).value
+                });
+                loadData();
+                closePopover();
+            }
+        }
+
+        async function addAsset(collection) {
+            const descriptionInput = document.getElementById(`${collection}-description`);
+            const valueInput = document.getElementById(`${collection}-value`);
+
+            if (!descriptionInput || !valueInput) {
+                console.log(`Error: Unable to find input elements for ${collection}`);
+                return;
+            }
+
+            const description = descriptionInput.value;
+            const value = parseFloat(valueInput.value.replace(/[$,]/g, ''));
+
+            if (description && !isNaN(value)) {
+                const newItem = {
+                    description,
+                    value: collection === 'liabilities' ? Math.abs(value) : value,
+                    previousValue: 0
+                };
+                const docRef = await db.collection(collection).add(newItem);
+                newItem.id = docRef.id;
+                console.log(`Added ${collection} item with ID ${newItem.id}`);
+                loadData();
+                descriptionInput.value = '';
+                valueInput.value = '';
+            } else {
+                console.log(`Failed to add item to ${collection}: Invalid input`);
+            }
+        }
+
+        function updateSummary() {
+            const totalStocksAndBonds = stocksAndBonds.reduce((sum, item) => sum + item.value, 0);
+            const totalRealEstate = realEstate.reduce((sum, item) => sum + item.value, 0);
+            const totalMiscAssets = miscAssets.reduce((sum, item) => sum + item.value, 0);
+            const totalLiabilities = liabilities.reduce((sum, item) => sum + item.value, 0);
+            const totalAssets = totalStocksAndBonds + totalRealEstate + totalMiscAssets;
+            const netWorth = totalAssets - totalLiabilities;
+
+            document.getElementById('total-stocks_and_bonds').innerText = `$${formatNumber(totalStocksAndBonds)}`;
+            document.getElementById('total-real_estate').innerText = `$${formatNumber(totalRealEstate)}`;
+            document.getElementById('total-misc_assets').innerText = `$${formatNumber(totalMiscAssets)}`;
+            document.getElementById('total-assets').innerText = `$${formatNumber(totalAssets)}`;
+            document.getElementById('total-liabilities').innerText = `-$${formatNumber(totalLiabilities)}`;
+            document.getElementById('total-liabilities').style.color = 'red';
+            document.getElementById('net-worth').innerText = `$${formatNumber(netWorth)}`;
+        }
+
+        function getItemById(collection, id) {
+            switch (collection) {
+                case 'stocks_and_bonds':
+                    return stocksAndBonds.find(item => item.id === id);
+                case 'real_estate':
+                    return realEstate.find(item => item.id === id);
+                case 'misc_assets':
+                    return miscAssets.find(item => item.id === id);
+                case 'liabilities':
+                    return liabilities.find(item => item.id === id);
+                default:
+                    return null;
+            }
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.popover') && !event.target.closest('td')) {
+                closePopover();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="finance-tracker" class="container">
+        <h1>Fitneez</h1>
+        <div class="menu-bar">
+            <div class="menu-icon" onclick="toggleMenu()">
+                &#9776;
+            </div>
+            <div class="menu-links" id="menu-links">
+                <a href="index.html">Summary</a>
+                <a href="details.html">Balance Sheet</a>
+                <a href="calendar.html">Cash Flow</a>
+                <a href="real_estate.html">Real Estate</a>
+            </div>
+            <div class="menu-buttons">
+                <button class="logoff-button" onclick="logOff()">Log Off</button>
+            </div>
+        </div>
+        <div id="content" style="flex: 1;">
+            <div class="section" id="stocks-and-bonds-section">
+                <h2>Stocks & Bonds</h2>
+                <table id="stocks_and_bonds-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Previous Value</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="form-group">
+                    <input type="text" id="stocks_and_bonds-description" placeholder="Description">
+                    <input type="text" id="stocks_and_bonds-value" placeholder="Value">
+                    <button onclick="addAsset('stocks_and_bonds')">Add Stocks & Bonds</button>
+                </div>
+            </div>
+
+            <div class="section" id="real-estate-section">
+                <h2>Real Estate</h2>
+                <table id="real_estate-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Previous Value</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="form-group">
+                    <input type="text" id="real_estate-description" placeholder="Description">
+                    <input type="text" id="real_estate-value" placeholder="Value">
+                    <button onclick="addAsset('real_estate')">Add Real Estate</button>
+                </div>
+            </div>
+
+            <div class="section" id="misc-assets-section">
+                <h2>Misc. Assets</h2>
+                <table id="misc_assets-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Previous Value</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="form-group">
+                    <input type="text" id="misc_assets-description" placeholder="Description">
+                    <input type="text" id="misc_assets-value" placeholder="Value">
+                    <button onclick="addAsset('misc_assets')">Add Misc. Assets</button>
+                </div>
+            </div>
+
+            <div class="section" id="liabilities-section">
+                <h2>Liabilities</h2>
+                <table id="liabilities-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Previous Value</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="form-group">
+                    <input type="text" id="liabilities-description" placeholder="Description">
+                    <input type="text" id="liabilities-value" placeholder="Value">
+                    <button onclick="addAsset('liabilities')">Add Liability</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Summary</h2>
+                <table>
+                    <tr>
+                        <th>Total Stocks & Bonds</th>
+                        <td id="total-stocks_and_bonds">$0</td>
+                    </tr>
+                    <tr>
+                        <th>Total Real Estate</th>
+                        <td id="total-real_estate">$0</td>
+                    </tr>
+                    <tr>
+                        <th>Total Misc. Assets</th>
+                        <td id="total-misc_assets">$0</td>
+                    </tr>
+                    <tr>
+                        <th>Total Assets</th>
+                        <td id="total-assets" style="text-decoration: underline;">$0</td>
+                    </tr>
+                    <tr>
+                        <th>Total Liabilities</th>
+                        <td id="total-liabilities" style="text-decoration: underline double; color: red;">-$0</td>
+                    </tr>
+                    <tr class="total">
+                        <th>Net Worth</th>
+                        <td id="net-worth">$0</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popover for Editing -->
+    <div id="popover" class="popover">
+        <div id="popover-description"></div>
+        <input type="text" id="popover-value" placeholder="Enter value">
+        <button id="saveEditButton">Save</button>
+        <button onclick="closePopover()">Cancel</button>
+    </div>
+    <script>
+        document.getElementById('popover-value').addEventListener('input', function(e) {
+            const value = e.target.value.replace(/[$,]/g, '');
+            e.target.value = value ? `$${Number(value).toLocaleString()}` : '';
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
