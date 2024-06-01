@@ -119,32 +119,64 @@
             margin-bottom: 20px;
             width: 100%;
         }
-        .summary-table, .credit-cards-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #444;
-            border-radius: 8px;
-        }
-        
-        /* Adjust the width of the columns in the summary table */
-        .summary-table td:nth-child(1) {
-        width: 70%; /* Adjust the width as needed for the first column */
-        }
+       .summary-table, .credit-cards-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #444;
+    border-radius: 8px;
+    margin-bottom: 20px; /* Add some spacing between sections */
+}
 
-        .summary-table td:nth-child(2) {
-        width: 30%; /* Adjust the width as needed for the second column */
-        }
-        .summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td {
-            padding: 10px;
-            text-align: center;
-        }
-        #total-liabilities {
-            color: red;
-        }
-        #net-worth {
-            color: #0f0;
-            font-weight: bold;
-        }
+/* Adjust the width of the columns in the summary table */
+.summary-table td:nth-child(1) {
+    width: 70%; /* Adjust the width as needed for the first column */
+}
+
+.summary-table td:nth-child(2) {
+    width: 30%; /* Adjust the width as needed for the second column */
+}
+
+.summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td {
+    padding: 10px;
+    text-align: center;
+}
+
+#total-liabilities {
+    color: red;
+}
+
+#net-worth {
+    color: #0f0;
+    font-weight: bold;
+}
+
+/* New styles for the updated table */
+.summary-table th {
+    background: #0f0; /* Green background for headers */
+    color: #000; /* Black text color for headers */
+    text-transform: uppercase; /* Uppercase text for headers */
+}
+
+.summary-table .category-header {
+    background: #0f0; /* Green background for category headers */
+    color: #000; /* Black text color for category headers */
+    text-transform: uppercase; /* Uppercase text for category headers */
+}
+
+.summary-table .subtotal {
+    font-weight: bold;
+    text-align: right;
+    color: #fff; /* White text color for subtotals */
+}
+
+.summary-table td:nth-child(2) {
+    text-align: right;
+}
+
+.summary-table tr {
+    border-bottom: 1px solid #666; /* Add border between rows */
+}
+
         .credit-card-total {
             color: red;
             font-weight: bold;
@@ -580,34 +612,55 @@
         <h1>fitneez</h1>
         <div class="content">
             <div class="left-pane section">
-                <h2>summary balance sheet</h2>
-                <table class="summary-table">
-                    <tr>
-                        <td>Total Stocks & Bonds:</td>
-                        <td id="total-stocks_and_bonds">$0</td>
-                    </tr>
-                    <tr>
-                        <td>Total Real Estate:</td>
-                        <td id="total-real_estate">$0</td>
-                    </tr>
-                    <tr>
-                        <td>Total Misc. Assets:</td>
-                        <td id="total-misc_assets">$0</td>
-                    </tr>
-                    <tr>
-                        <td>Total Assets:</td>
-                        <td id="total-assets">$0</td>
-                    </tr>
-                    <tr>
-                        <td>Total Liabilities:</td>
-                        <td id="total-liabilities">-$0</td>
-                    </tr>
-                    <tr>
-                        <td>Net Worth:</td>
-                        <td id="net-worth">$0</td>
-                    </tr>
-                </table>
-            </div>
+    <h2>summary balance sheet</h2>
+    <table class="summary-table">
+        <thead>
+            <tr>
+                <th colspan="2">Assets</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Stocks & Bonds</td>
+                <td id="total-stocks_and_bonds">$0</td>
+            </tr>
+            <tr>
+                <td>Real Estate</td>
+                <td id="total-real_estate">$0</td>
+            </tr>
+            <tr>
+                <td>Misc. Assets</td>
+                <td id="total-misc_assets">$0</td>
+            </tr>
+            <tr class="subtotal">
+                <td>Total Assets</td>
+                <td id="total-assets">$0</td>
+            </tr>
+        </tbody>
+        <thead>
+            <tr>
+                <th colspan="2">Liabilities</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Liabilities</td>
+                <td id="total-liabilities">-$0</td>
+            </tr>
+        </tbody>
+        <thead>
+            <tr>
+                <th colspan="2">Net Worth</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="subtotal">
+                <td>Net Worth</td>
+                <td id="net-worth">$0</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
             <div class="middle-pane section">
                 <div class="spacer-tiles-container">
                     <div class="spacer-tile"></div>
