@@ -28,17 +28,17 @@
             text-align: center;
             color: #0f0;
             font-size: 1.5rem;
-            margin-bottom: 10px; /* reduced space*/
- }
+            margin-bottom: 10px; /* Reduced space */
+        }
         .content {
-            margin-top: 01px; /* Reduced space */
+            margin-top: 10px; /* Reduced space */
             display: flex;
             justify-content: space-between;
-            gap: 05px;
+            gap: 20px;
         }
         h2 {
             font-size: 1.25rem;
-            margin-top: 01px; /*reduced space*/
+            margin-top: 10px; /* Reduced space */
         }
         .menu-bar-container {
             max-width: 1200px;
@@ -119,23 +119,15 @@
             margin-bottom: 20px;
             width: 100%;
         }
-        .summary-tiles-container, .credit-cards-container, .spacer-tiles-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .summary-tile, .credit-card-tile, .spacer-tile {
+        .summary-table, .credit-cards-table {
+            width: 100%;
+            border-collapse: collapse;
             background: #444;
-            padding: 20px;
             border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            flex: 1; /* Ensures even spacing */
         }
-        .spacer-tile {
-            background: transparent; /* Make spacer tiles invisible */
-            pointer-events: none;
-            width: 200px; /* Increase width to spread columns */
+        .summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td {
+            padding: 20px;
+            text-align: center;
         }
         #total-liabilities {
             color: red;
@@ -195,14 +187,6 @@
             .menu-links.active {
                 display: flex;
             }
-            .summary-tile, .credit-card-tile, .spacer-tile {
-                width: 100%;
-            }
-            .popover {
-                width: 90%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-            }
         }
         @media (min-width: 601px) {
             .content {
@@ -216,9 +200,6 @@
                 flex-direction: column;
                 gap: 20px;
                 flex: 1; /* Ensures even spacing */
-            }
-            .summary-tile, .credit-card-tile, .spacer-tile {
-                width: 100%;
             }
             .chart-pane {
                 width: 100%;
@@ -591,26 +572,32 @@
         <div class="content">
             <div class="left-pane section">
                 <h2>summary balance sheet</h2>
-                <div class="summary-tiles-container">
-                    <div class="summary-tile" id="total-stocks_and_bonds-tile">
-                        Total Stocks & Bonds: <span id="total-stocks_and_bonds">$0</span>
-                    </div>
-                    <div class="summary-tile" id="total-real_estate-tile">
-                        Total Real Estate: <span id="total-real_estate">$0</span>
-                    </div>
-                    <div class="summary-tile" id="total-misc_assets-tile">
-                        Total Misc. Assets: <span id="total-misc_assets">$0</span>
-                    </div>
-                    <div class="summary-tile" id="total-assets-tile">
-                        Total Assets: <span id="total-assets">$0</span>
-                    </div>
-                    <div class="summary-tile" id="total-liabilities-tile">
-                        Total Liabilities: <span id="total-liabilities">-$0</span>
-                    </div>
-                    <div class="summary-tile" id="net-worth-tile">
-                        Net Worth: <span id="net-worth">$0</span>
-                    </div>
-                </div>
+                <table class="summary-table">
+                    <tr>
+                        <td>Total Stocks & Bonds:</td>
+                        <td id="total-stocks_and_bonds">$0</td>
+                    </tr>
+                    <tr>
+                        <td>Total Real Estate:</td>
+                        <td id="total-real_estate">$0</td>
+                    </tr>
+                    <tr>
+                        <td>Total Misc. Assets:</td>
+                        <td id="total-misc_assets">$0</td>
+                    </tr>
+                    <tr>
+                        <td>Total Assets:</td>
+                        <td id="total-assets">$0</td>
+                    </tr>
+                    <tr>
+                        <td>Total Liabilities:</td>
+                        <td id="total-liabilities">-$0</td>
+                    </tr>
+                    <tr>
+                        <td>Net Worth:</td>
+                        <td id="net-worth">$0</td>
+                    </tr>
+                </table>
             </div>
             <div class="middle-pane section">
                 <div class="spacer-tiles-container">
@@ -624,9 +611,9 @@
             </div>
             <div class="right-pane section">
                 <h2>credit cards</h2>
-                <div id="credit-cards-container" class="credit-cards-container">
-                    <!-- Credit card tiles will be loaded here dynamically -->
-                </div>
+                <table class="credit-cards-table" id="credit-cards-container">
+                    <!-- Credit card balances will be dynamically loaded here -->
+                </table>
             </div>
         </div>
         <div class="chart-pane">
