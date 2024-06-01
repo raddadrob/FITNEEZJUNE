@@ -36,147 +36,59 @@
             justify-content: space-between;
             gap: 20px;
         }
-        h2 {
-            font-size: 1.25rem;
-            margin-top: 10px; /* Reduced space */
+        .left-pane {
+            flex: 2; /* Adjust the flex-grow value to make this pane wider */
         }
-        .menu-bar-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background: #0f0;
+        .middle-pane, .right-pane {
+            flex: 1; /* Ensure these panes take less space comparatively */
         }
-        .menu-bar {
-            max-width: 1200px;
+        .summary-table, .credit-cards-table {
             width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            color: #fff;
-        }
-        .menu-links {
-            display: flex;
-            gap: 15px;
-        }
-        .menu-links a {
-            color: #0f0;
-            text-decoration: none;
-            padding: 10px 20px;
-            background: #000;
-            border-radius: 4px;
-            font-size: 0.875rem;
-        }
-        .menu-links a:hover {
+            border-collapse: collapse;
             background: #444;
+            border-radius: 8px;
+            margin-bottom: 20px; /* Add some spacing between sections */
         }
-        .dropdown {
-            position: relative;
-            display: inline-block;
+        /* Adjust the width of the columns in the summary table */
+        .summary-table td:nth-child(1) {
+            width: 70%; /* Adjust the width as needed for the first column */
         }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #444;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-            left: 0; /* Align dropdown to the left */
+        .summary-table td:nth-child(2) {
+            width: 30%; /* Adjust the width as needed for the second column */
         }
-        .dropdown-content a {
-            color: #0f0;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {
-            background-color: #0c0;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        .logoff-button {
-            background: #0f0;
-            color: #000;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 200px;
+        .summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td {
+            padding: 10px;
             text-align: center;
         }
-        .logoff-button:hover {
-            background: #0c0;
+        #total-liabilities {
+            color: red;
         }
-        .section {
-            margin-bottom: 20px;
-            width: 100%;
+        #net-worth {
+            color: #0f0;
+            font-weight: bold;
         }
-       .summary-table, .credit-cards-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #444;
-    border-radius: 8px;
-    margin-bottom: 20px; /* Add some spacing between sections */
-}
-
-/* Adjust the width of the columns in the summary table */
-.summary-table td:nth-child(1) {
-    width: 70%; /* Adjust the width as needed for the first column */
-}
-
-.summary-table td:nth-child(2) {
-    width: 30%; /* Adjust the width as needed for the second column */
-}
-
-.summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td {
-    padding: 10px;
-    text-align: center;
-}
-
-#total-liabilities {
-    color: red;
-}
-
-#net-worth {
-    color: #0f0;
-    font-weight: bold;
-}
-
-/* New styles for the updated table */
-.summary-table th {
-    background: #0f0; /* Green background for headers */
-    color: #000; /* Black text color for headers */
-    text-transform: uppercase; /* Uppercase text for headers */
-}
-
-.summary-table .category-header {
-    background: #0f0; /* Green background for category headers */
-    color: #000; /* Black text color for category headers */
-    text-transform: uppercase; /* Uppercase text for category headers */
-}
-
-.summary-table .subtotal {
-    font-weight: bold;
-    text-align: right;
-    color: #fff; /* White text color for subtotals */
-}
-
-.summary-table td:nth-child(2) {
-    text-align: right;
-}
-
-.summary-table tr {
-    border-bottom: 1px solid #666; /* Add border between rows */
-}
-
+        /* New styles for the updated table */
+        .summary-table th {
+            background: #0f0; /* Green background for headers */
+            color: #000; /* Black text color for headers */
+            text-transform: uppercase; /* Uppercase text for headers */
+        }
+        .summary-table .category-header {
+            background: #0f0; /* Green background for category headers */
+            color: #000; /* Black text color for category headers */
+            text-transform: uppercase; /* Uppercase text for category headers */
+        }
+        .summary-table .subtotal {
+            font-weight: bold;
+            text-align: right;
+            color: #fff; /* White text color for subtotals */
+        }
+        .summary-table td:nth-child(2) {
+            text-align: right;
+        }
+        .summary-table tr {
+            border-bottom: 1px solid #666; /* Add border between rows */
+        }
         .credit-card-total {
             color: red;
             font-weight: bold;
@@ -314,16 +226,16 @@
                     document.getElementById('year-select').addEventListener('change', updateChart);
 
                     // Add event listeners for popups
-                    document.getElementById('total-stocks_and_bonds-tile').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds'));
-                    document.getElementById('total-stocks_and_bonds-tile').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-real_estate-tile').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate'));
-                    document.getElementById('total-real_estate-tile').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-misc_assets-tile').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets'));
-                    document.getElementById('total-misc_assets-tile').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-assets-tile').addEventListener('mouseenter', (event) => showDetails(event, 'Total Assets', 'assets'));
-                    document.getElementById('total-assets-tile').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-liabilities-tile').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities'));
-                    document.getElementById('total-liabilities-tile').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-stocks_and_bonds').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds'));
+                    document.getElementById('total-stocks_and_bonds').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-real_estate').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate'));
+                    document.getElementById('total-real_estate').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-misc_assets').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets'));
+                    document.getElementById('total-misc_assets').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-assets').addEventListener('mouseenter', (event) => showDetails(event, 'Total Assets', 'assets'));
+                    document.getElementById('total-assets').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-liabilities').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities'));
+                    document.getElementById('total-liabilities').addEventListener('mouseleave', closePopover);
 
                     // Add event listener for hamburger menu
                     document.querySelector('.menu-icon').addEventListener('click', toggleMenu);
@@ -612,55 +524,55 @@
         <h1>fitneez</h1>
         <div class="content">
             <div class="left-pane section">
-    <h2>summary balance sheet</h2>
-    <table class="summary-table">
-        <thead>
-            <tr>
-                <th colspan="2">Assets</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Stocks & Bonds</td>
-                <td id="total-stocks_and_bonds">$0</td>
-            </tr>
-            <tr>
-                <td>Real Estate</td>
-                <td id="total-real_estate">$0</td>
-            </tr>
-            <tr>
-                <td>Misc. Assets</td>
-                <td id="total-misc_assets">$0</td>
-            </tr>
-            <tr class="subtotal">
-                <td>Total Assets</td>
-                <td id="total-assets">$0</td>
-            </tr>
-        </tbody>
-        <thead>
-            <tr>
-                <th colspan="2">Liabilities</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Total Liabilities</td>
-                <td id="total-liabilities">-$0</td>
-            </tr>
-        </tbody>
-        <thead>
-            <tr>
-                <th colspan="2">Net Worth</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="subtotal">
-                <td>Net Worth</td>
-                <td id="net-worth">$0</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+                <h2>summary balance sheet</h2>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Assets</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="total-stocks_and_bonds-tile">Stocks & Bonds</td>
+                            <td id="total-stocks_and_bonds">$0</td>
+                        </tr>
+                        <tr>
+                            <td id="total-real_estate-tile">Real Estate</td>
+                            <td id="total-real_estate">$0</td>
+                        </tr>
+                        <tr>
+                            <td id="total-misc_assets-tile">Misc. Assets</td>
+                            <td id="total-misc_assets">$0</td>
+                        </tr>
+                        <tr class="subtotal">
+                            <td>Total Assets</td>
+                            <td id="total-assets">$0</td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th colspan="2">Liabilities</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="total-liabilities-tile">Total Liabilities</td>
+                            <td id="total-liabilities">-$0</td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th colspan="2">Net Worth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="subtotal">
+                            <td id="net-worth-tile">Net Worth</td>
+                            <td id="net-worth">$0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div class="middle-pane section">
                 <div class="spacer-tiles-container">
                     <div class="spacer-tile"></div>
@@ -720,6 +632,7 @@
     </div>
 </body>
 </html>
+
 
 
 
