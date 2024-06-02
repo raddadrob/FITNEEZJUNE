@@ -6,11 +6,6 @@
     <title>Fitneez</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(0deg); }
-        }
-
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #000;
@@ -40,6 +35,7 @@
             display: flex;
             justify-content: space-between;
             gap: 20px;
+            width: 100%;
         }
         h2 {
             font-size: 1.25rem;
@@ -53,7 +49,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: #fff;
+            background: #0f0;
         }
         .menu-bar {
             max-width: 1200px;
@@ -124,7 +120,7 @@
             margin-bottom: 20px;
             width: 100%;
         }
-        .summary-table, .credit-cards-table {
+       .summary-table, .credit-cards-table {
             width: 100%;
             border-collapse: collapse;
             background: #444;
@@ -237,9 +233,9 @@
         @media (min-width: 601px) {
             .content {
                 display: flex;
-                justify-content: space-between;
+                flex-direction: column;
                 gap: 20px;
-                margin-top: 80px; /* Space for the fixed menu bar */
+                margin-top: 20px; /* Space for the fixed menu bar */
             }
             .left-pane, .right-pane, .middle-pane {
                 display: flex;
@@ -250,11 +246,6 @@
             .chart-pane {
                 width: 100%;
             }
-        }
-        .large-logo {
-            width: 150px;
-            height: auto;
-            margin-bottom: 20px;
         }
         .popover {
             display: none;
@@ -274,7 +265,7 @@
         .popover table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 0px;
+            margin-top: 10px;
         }
         .popover table, .popover th, .popover td {
             border: 1px solid #666;
@@ -283,6 +274,11 @@
             padding: 8px;
             text-align: left;
             color: #fff;
+        }
+        .large-logo {
+            width: 150px; /* Adjust the size as needed */
+            display: block;
+            margin: 0 auto;
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -596,7 +592,6 @@
     <div class="menu-bar-container">
         <div class="container" style="padding: 0;">
             <div class="menu-bar">
-                <img src="logo.png" alt="Fitneez Logo" style="width: 50px; height: auto;">
                 <div class="menu-links">
                     <a href="index.html">Summary</a>
                     <a href="details.html">Balance Sheet</a>
@@ -619,74 +614,6 @@
     </div>
     <div id="finance-tracker" class="container">
         <img src="logo.png" alt="Fitneez Logo" class="large-logo">
-        <div class="content">
-            <div class="left-pane section">
-    <h2>summary balance sheet</h2>
-    <table class="summary-table">
-        <thead>
-            <tr>
-                <th colspan="2">Assets</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Stocks & Bonds</td>
-                <td id="total-stocks_and_bonds-amount">$0</td>
-            </tr>
-            <tr>
-                <td>Real Estate</td>
-                <td id="total-real_estate-amount">$0</td>
-            </tr>
-            <tr>
-                <td>Misc. Assets</td>
-                <td id="total-misc_assets-amount">$0</td>
-            </tr>
-            <tr class="subtotal">
-                <td>Total Assets</td>
-                <td id="total-assets">$0</td>
-            </tr>
-        </tbody>
-        <thead>
-            <tr>
-                <th colspan="2">Liabilities</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Total Liabilities</td>
-                <td id="total-liabilities-amount">-$0</td>
-            </tr>
-        </tbody>
-        <thead>
-            <tr>
-                <th colspan="2">Net Worth</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="subtotal">
-                <td>Net Worth</td>
-                <td id="net-worth-amount">$0</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-            <div class="middle-pane section">
-                <div class="spacer-tiles-container">
-                    <div class="spacer-tile"></div>
-                    <div class="spacer-tile"></div>
-                    <div class="spacer-tile"></div>
-                    <div class="spacer-tile"></div>
-                    <div class="spacer-tile"></div>
-                    <div class="spacer-tile"></div>
-                </div>
-            </div>
-            <div class="right-pane section">
-                <h2>credit cards</h2>
-                <table class="credit-cards-table" id="credit-cards-container">
-                    <!-- Credit card balances will be dynamically loaded here -->
-                </table>
-            </div>
-        </div>
         <div class="chart-pane">
             <div class="section">
                 <h2>Cash Flow</h2>
@@ -719,6 +646,64 @@
                 </div>
             </div>
         </div>
+        <div class="content">
+            <div class="left-pane section">
+                <h2>summary balance sheet</h2>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Assets</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Stocks & Bonds</td>
+                            <td id="total-stocks_and_bonds-amount">$0</td>
+                        </tr>
+                        <tr>
+                            <td>Real Estate</td>
+                            <td id="total-real_estate-amount">$0</td>
+                        </tr>
+                        <tr>
+                            <td>Misc. Assets</td>
+                            <td id="total-misc_assets-amount">$0</td>
+                        </tr>
+                        <tr class="subtotal">
+                            <td>Total Assets</td>
+                            <td id="total-assets">$0</td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th colspan="2">Liabilities</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Liabilities</td>
+                            <td id="total-liabilities-amount">-$0</td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th colspan="2">Net Worth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="subtotal">
+                            <td>Net Worth</td>
+                            <td id="net-worth-amount">$0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="right-pane section">
+                <h2>credit cards</h2>
+                <table class="credit-cards-table" id="credit-cards-container">
+                    <!-- Credit card balances will be dynamically loaded here -->
+                </table>
+            </div>
+        </div>
         <button class="logoff-button" onclick="logOff()">Log Off</button>
     </div>
 
@@ -729,6 +714,7 @@
     </div>
 </body>
 </html>
+
 
 
 
