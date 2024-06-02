@@ -20,10 +20,11 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center; /* Center the content */
         }
-        h1 {
-            text-align: center;
-            color: #0f0;
+        .large-logo {
+            max-width: 150px;
+            margin-bottom: 20px;
         }
         .form-group {
             margin-bottom: 15px;
@@ -72,7 +73,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            apiKey: "YOUR_FIREBASE_API_KEY",
             authDomain: "cockrumfinance.firebaseapp.com",
             projectId: "cockrumfinance",
             storageBucket: "cockrumfinance.appspot.com",
@@ -147,7 +148,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Fitneez</h1>
+        <img src="logo.png" alt="Fitneez Logo" class="large-logo">
         <div class="form-group">
             <label for="login-email">Email</label>
             <input type="email" id="login-email" placeholder="Enter your email">
@@ -168,6 +169,7 @@
     </div>
 </body>
 </html>
+
 
 
 
