@@ -6,6 +6,11 @@
     <title>Fitneez</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #000;
@@ -36,9 +41,6 @@
             justify-content: space-between;
             gap: 20px;
         }
-        .left-pane {
-            flex: 2; /* Make the left pane wider */
-        }
         h2 {
             font-size: 1.25rem;
             margin-top: 10px; /* Reduced space */
@@ -61,9 +63,6 @@
             align-items: center;
             padding: 10px;
             color: #fff;
-        }
-        .menu-bar img {
-            height: 50px; /* Adjust the height as needed */
         }
         .menu-links {
             display: flex;
@@ -132,49 +131,57 @@
             border-radius: 8px;
             margin-bottom: 20px; /* Add some spacing between sections */
         }
+
         /* Adjust the width of the columns in the summary table */
         .summary-table td:nth-child(1) {
             width: 70%; /* Adjust the width as needed for the first column */
         }
+
         .summary-table td:nth-child(2) {
             width: 30%; /* Adjust the width as needed for the second column */
         }
+
         .summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td {
             padding: 10px;
             text-align: center;
         }
-        #total-liabilities-amount {
+
+        #total-liabilities {
             color: red;
         }
-        #net-worth-amount {
+
+        #net-worth {
             color: #0f0;
             font-weight: bold;
         }
+
         /* New styles for the updated table */
         .summary-table th {
             background: #0f0; /* Green background for headers */
             color: #000; /* Black text color for headers */
             text-transform: uppercase; /* Uppercase text for headers */
         }
+
         .summary-table .category-header {
             background: #0f0; /* Green background for category headers */
             color: #000; /* Black text color for category headers */
             text-transform: uppercase; /* Uppercase text for category headers */
         }
+
         .summary-table .subtotal {
             font-weight: bold;
             text-align: right;
             color: #fff; /* White text color for subtotals */
         }
+
         .summary-table td:nth-child(2) {
             text-align: right;
         }
+
         .summary-table tr {
             border-bottom: 1px solid #666; /* Add border between rows */
         }
-        .credit-cards-table td {
-            text-align: left; /* Align text to the left for better readability */
-        }
+
         .credit-card-total {
             color: red;
             font-weight: bold;
@@ -243,6 +250,12 @@
             .chart-pane {
                 width: 100%;
             }
+        }
+        .large-logo {
+            width: 150px;
+            height: auto;
+            margin-bottom: 20px;
+            animation: spin 5s linear infinite;
         }
         .popover {
             display: none;
@@ -535,13 +548,13 @@
             const snapshot = await db.collection('credit_cards').get();
             snapshot.forEach(doc => {
                 const card = doc.data();
-                const cardRow = document.createElement('tr');
-                cardRow.innerHTML = `
+                const row = document.createElement('tr');
+                row.innerHTML = `
                     <td>${card.name}</td>
                     <td style="color: red;">$${formatNumber(card.balance)}</td>
                 `;
                 totalBalance += card.balance;
-                creditCardsContainer.appendChild(cardRow);
+                creditCardsContainer.appendChild(row);
             });
 
             // Add Total row
@@ -555,7 +568,7 @@
 
         window.onclick = function(event) {
             const popover = document.getElementById('details-popover');
-            if (!event.target.closest('.popover') && !event.target.closest('.summary-table td')) {
+            if (!event.target.closest('.popover') && !event.target.closest('.summary-tile')) {
                 popover.style.display = 'none';
             }
         }
@@ -584,7 +597,7 @@
     <div class="menu-bar-container">
         <div class="container" style="padding: 0;">
             <div class="menu-bar">
-                <img src="logo.png" alt="Logo">
+                <img src="logo.png" alt="Fitneez Logo" style="width: 50px; height: auto;">
                 <div class="menu-links">
                     <a href="index.html">Summary</a>
                     <a href="details.html">Balance Sheet</a>
@@ -606,58 +619,58 @@
         </div>
     </div>
     <div id="finance-tracker" class="container">
-        <h1>fitneez</h1>
+        <img src="logo.png" alt="Fitneez Logo" class="large-logo">
         <div class="content">
             <div class="left-pane section">
-                <h2>summary balance sheet</h2>
-                <table class="summary-table">
-                    <thead>
-                        <tr>
-                            <th colspan="2">Assets</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td id="total-stocks_and_bonds">Stocks & Bonds</td>
-                            <td id="total-stocks_and_bonds-amount">$0</td>
-                        </tr>
-                        <tr>
-                            <td id="total-real_estate">Real Estate</td>
-                            <td id="total-real_estate-amount">$0</td>
-                        </tr>
-                        <tr>
-                            <td id="total-misc_assets">Misc. Assets</td>
-                            <td id="total-misc_assets-amount">$0</td>
-                        </tr>
-                        <tr class="subtotal">
-                            <td>Total Assets</td>
-                            <td id="total-assets">$0</td>
-                        </tr>
-                    </tbody>
-                    <thead>
-                        <tr>
-                            <th colspan="2">Liabilities</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td id="total-liabilities">Total Liabilities</td>
-                            <td id="total-liabilities-amount">-$0</td>
-                        </tr>
-                    </tbody>
-                    <thead>
-                        <tr>
-                            <th colspan="2">Net Worth</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="subtotal">
-                            <td id="net-worth">Net Worth</td>
-                            <td id="net-worth-amount">$0</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <h2>summary balance sheet</h2>
+    <table class="summary-table">
+        <thead>
+            <tr>
+                <th colspan="2">Assets</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Stocks & Bonds</td>
+                <td id="total-stocks_and_bonds-amount">$0</td>
+            </tr>
+            <tr>
+                <td>Real Estate</td>
+                <td id="total-real_estate-amount">$0</td>
+            </tr>
+            <tr>
+                <td>Misc. Assets</td>
+                <td id="total-misc_assets-amount">$0</td>
+            </tr>
+            <tr class="subtotal">
+                <td>Total Assets</td>
+                <td id="total-assets">$0</td>
+            </tr>
+        </tbody>
+        <thead>
+            <tr>
+                <th colspan="2">Liabilities</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Liabilities</td>
+                <td id="total-liabilities-amount">-$0</td>
+            </tr>
+        </tbody>
+        <thead>
+            <tr>
+                <th colspan="2">Net Worth</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="subtotal">
+                <td>Net Worth</td>
+                <td id="net-worth-amount">$0</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
             <div class="middle-pane section">
                 <div class="spacer-tiles-container">
                     <div class="spacer-tile"></div>
@@ -717,6 +730,7 @@
     </div>
 </body>
 </html>
+
 
 
 
