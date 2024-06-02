@@ -37,10 +37,90 @@
             gap: 20px;
         }
         .left-pane {
-            flex: 2; /* Adjust the flex-grow value to make this pane wider */
+            flex: 2; /* Make the left pane wider */
         }
-        .middle-pane, .right-pane {
-            flex: 1; /* Ensure these panes take less space comparatively */
+        h2 {
+            font-size: 1.25rem;
+            margin-top: 10px; /* Reduced space */
+        }
+        .menu-bar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #0f0;
+        }
+        .menu-bar {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            color: #fff;
+        }
+        .menu-links {
+            display: flex;
+            gap: 15px;
+        }
+        .menu-links a {
+            color: #0f0;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #000;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        .menu-links a:hover {
+            background: #444;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #444;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            left: 0; /* Align dropdown to the left */
+        }
+        .dropdown-content a {
+            color: #0f0;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #0c0;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .logoff-button {
+            background: #0f0;
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 200px;
+            text-align: center;
+        }
+        .logoff-button:hover {
+            background: #0c0;
+        }
+        .section {
+            margin-bottom: 20px;
+            width: 100%;
         }
         .summary-table, .credit-cards-table {
             width: 100%;
@@ -281,7 +361,7 @@
             const credits = Array(daysInMonth).fill(0);
             const debits = Array(daysInMonth).fill(0);
             const creditDescriptions = Array(daysInMonth).fill("");
-            const debitDescriptions = Array(daysInMonth).fill("");
+            const debitDescriptions = Array.daysInMonth).fill("");
             const cashBalances = Array(daysInMonth).fill(0);
 
             for (let day = 1; day <= daysInMonth; day++) {
@@ -533,15 +613,15 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td id="total-stocks_and_bonds-tile">Stocks & Bonds</td>
+                            <td>Stocks & Bonds</td>
                             <td id="total-stocks_and_bonds">$0</td>
                         </tr>
                         <tr>
-                            <td id="total-real_estate-tile">Real Estate</td>
+                            <td>Real Estate</td>
                             <td id="total-real_estate">$0</td>
                         </tr>
                         <tr>
-                            <td id="total-misc_assets-tile">Misc. Assets</td>
+                            <td>Misc. Assets</td>
                             <td id="total-misc_assets">$0</td>
                         </tr>
                         <tr class="subtotal">
@@ -556,7 +636,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td id="total-liabilities-tile">Total Liabilities</td>
+                            <td>Total Liabilities</td>
                             <td id="total-liabilities">-$0</td>
                         </tr>
                     </tbody>
@@ -567,7 +647,7 @@
                     </thead>
                     <tbody>
                         <tr class="subtotal">
-                            <td id="net-worth-tile">Net Worth</td>
+                            <td>Net Worth</td>
                             <td id="net-worth">$0</td>
                         </tr>
                     </tbody>
