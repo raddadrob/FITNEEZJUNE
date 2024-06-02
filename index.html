@@ -169,6 +169,9 @@
         .summary-table tr {
             border-bottom: 1px solid #666; /* Add border between rows */
         }
+        .credit-cards-table td {
+            text-align: left; /* Align text to the left for better readability */
+        }
         .credit-card-total {
             color: red;
             font-weight: bold;
@@ -306,16 +309,16 @@
                     document.getElementById('year-select').addEventListener('change', updateChart);
 
                     // Add event listeners for popups
-                    document.getElementById('total-stocks_and_bonds').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds'));
-                    document.getElementById('total-stocks_and_bonds').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-real_estate').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate'));
-                    document.getElementById('total-real_estate').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-misc_assets').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets'));
-                    document.getElementById('total-misc_assets').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds'));
+                    document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-real_estate-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate'));
+                    document.getElementById('total-real_estate-amount').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-misc_assets-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets'));
+                    document.getElementById('total-misc_assets-amount').addEventListener('mouseleave', closePopover);
                     document.getElementById('total-assets').addEventListener('mouseenter', (event) => showDetails(event, 'Total Assets', 'assets'));
                     document.getElementById('total-assets').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-liabilities').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities'));
-                    document.getElementById('total-liabilities').addEventListener('mouseleave', closePopover);
+                    document.getElementById('total-liabilities-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities'));
+                    document.getElementById('total-liabilities-amount').addEventListener('mouseleave', closePopover);
 
                     // Add event listener for hamburger menu
                     document.querySelector('.menu-icon').addEventListener('click', toggleMenu);
@@ -529,24 +532,22 @@
             const snapshot = await db.collection('credit_cards').get();
             snapshot.forEach(doc => {
                 const card = doc.data();
-                const cardTile = document.createElement('div');
-                cardTile.classList.add('credit-card-tile');
-                cardTile.innerHTML = `
-                    <div>${card.name}</div>
-                    <div style="color: red;">$${formatNumber(card.balance)}</div>
+                const cardRow = document.createElement('tr');
+                cardRow.innerHTML = `
+                    <td>${card.name}</td>
+                    <td style="color: red;">$${formatNumber(card.balance)}</td>
                 `;
                 totalBalance += card.balance;
-                creditCardsContainer.appendChild(cardTile);
+                creditCardsContainer.appendChild(cardRow);
             });
 
-            // Add Total tile
-            const totalTile = document.createElement('div');
-            totalTile.classList.add('credit-card-tile');
-            totalTile.innerHTML = `
-                <div>Total</div>
-                <div class="credit-card-total">$${formatNumber(totalBalance)}</div>
+            // Add Total row
+            const totalRow = document.createElement('tr');
+            totalRow.innerHTML = `
+                <td>Total</td>
+                <td class="credit-card-total">$${formatNumber(totalBalance)}</td>
             `;
-            creditCardsContainer.appendChild(totalTile);
+            creditCardsContainer.appendChild(totalRow);
         }
 
         window.onclick = function(event) {
@@ -712,6 +713,7 @@
     </div>
 </body>
 </html>
+
 
 
 
