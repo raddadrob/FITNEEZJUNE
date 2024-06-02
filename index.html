@@ -551,7 +551,7 @@
 
         window.onclick = function(event) {
             const popover = document.getElementById('details-popover');
-            if (!event.target.closest('.popover') && !event.target.closest('.summary-tile')) {
+            if (!event.target.closest('.popover') && !event.target.closest('.summary-table td')) {
                 popover.style.display = 'none';
             }
         }
@@ -613,16 +613,16 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Stocks & Bonds</td>
-                            <td id="total-stocks_and_bonds">$0</td>
+                            <td id="total-stocks_and_bonds">Stocks & Bonds</td>
+                            <td id="total-stocks_and_bonds-amount">$0</td>
                         </tr>
                         <tr>
-                            <td>Real Estate</td>
-                            <td id="total-real_estate">$0</td>
+                            <td id="total-real_estate">Real Estate</td>
+                            <td id="total-real_estate-amount">$0</td>
                         </tr>
                         <tr>
-                            <td>Misc. Assets</td>
-                            <td id="total-misc_assets">$0</td>
+                            <td id="total-misc_assets">Misc. Assets</td>
+                            <td id="total-misc_assets-amount">$0</td>
                         </tr>
                         <tr class="subtotal">
                             <td>Total Assets</td>
@@ -636,8 +636,8 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Total Liabilities</td>
-                            <td id="total-liabilities">-$0</td>
+                            <td id="total-liabilities">Total Liabilities</td>
+                            <td id="total-liabilities-amount">-$0</td>
                         </tr>
                     </tbody>
                     <thead>
@@ -647,8 +647,8 @@
                     </thead>
                     <tbody>
                         <tr class="subtotal">
-                            <td>Net Worth</td>
-                            <td id="net-worth">$0</td>
+                            <td id="net-worth">Net Worth</td>
+                            <td id="net-worth-amount">$0</td>
                         </tr>
                     </tbody>
                 </table>
@@ -712,6 +712,7 @@
     </div>
 </body>
 </html>
+
 
 
 
