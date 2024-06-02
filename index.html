@@ -140,10 +140,10 @@
             padding: 10px;
             text-align: center;
         }
-        #total-liabilities {
+        #total-liabilities-amount {
             color: red;
         }
-        #net-worth {
+        #net-worth-amount {
             color: #0f0;
             font-weight: bold;
         }
@@ -336,12 +336,12 @@
             const totalAssets = stocksAndBonds + realEstate + miscAssets;
             const netWorth = totalAssets - liabilities;
 
-            document.getElementById('total-stocks_and_bonds').innerText = `$${formatNumber(stocksAndBonds)}`;
-            document.getElementById('total-real_estate').innerText = `$${formatNumber(realEstate)}`;
-            document.getElementById('total-misc_assets').innerText = `$${formatNumber(miscAssets)}`;
+            document.getElementById('total-stocks_and_bonds-amount').innerText = `$${formatNumber(stocksAndBonds)}`;
+            document.getElementById('total-real_estate-amount').innerText = `$${formatNumber(realEstate)}`;
+            document.getElementById('total-misc_assets-amount').innerText = `$${formatNumber(miscAssets)}`;
             document.getElementById('total-assets').innerText = `$${formatNumber(totalAssets)}`;
-            document.getElementById('total-liabilities').innerText = `-$${formatNumber(Math.abs(liabilities))}`;
-            document.getElementById('net-worth').innerText = `$${formatNumber(netWorth)}`;
+            document.getElementById('total-liabilities-amount').innerText = `-$${formatNumber(Math.abs(liabilities))}`;
+            document.getElementById('net-worth-amount').innerText = `$${formatNumber(netWorth)}`;
 
             const currentMonth = new Date().getMonth();
             const monthName = new Date().toLocaleString('default', { month: 'long' });
@@ -361,7 +361,7 @@
             const credits = Array(daysInMonth).fill(0);
             const debits = Array(daysInMonth).fill(0);
             const creditDescriptions = Array(daysInMonth).fill("");
-            const debitDescriptions = Array.daysInMonth).fill("");
+            const debitDescriptions = Array(daysInMonth).fill("");
             const cashBalances = Array(daysInMonth).fill(0);
 
             for (let day = 1; day <= daysInMonth; day++) {
