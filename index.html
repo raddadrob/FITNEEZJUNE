@@ -33,6 +33,7 @@
             justify-content: center;
             background: #333;
             border-radius: 0; /* Remove rounded corners */
+            box-shadow: none; /* Remove box shadow if any */
         }
         .menu-bar {
             display: flex;
@@ -572,8 +573,8 @@
     <div class="container">
         <img src="logo.png" alt="Fitneez Logo" class="large-logo">
     </div>
-    <div class="menu-bar-container">
-        <div class="menu-bar">
+    <div class="menu-bar-container" style="background: #000; padding: 0;">
+        <div class="menu-bar" style="max-width: 1200px; margin: 0 auto;">
             <div class="menu-links">
                 <a href="index.html">Summary</a>
                 <a href="details.html">Balance Sheet</a>
