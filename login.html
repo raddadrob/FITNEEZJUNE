@@ -20,38 +20,34 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center; /* Center the content */
         }
-        .large-logo {
-            max-width: 150px;
-            margin-bottom: 20px;
+        h1 {
+            text-align: center;
+            color: #0f0;
         }
         .form-group {
             margin-bottom: 15px;
-            text-align: center; /* Ensure form groups are centered */
         }
         .form-group label {
             display: block;
             margin-bottom: 5px;
         }
         .form-group input {
-            width: 80%; /* Adjust width to ensure centering */
+            width: 100%;
             padding: 10px;
             border: 1px solid #555;
             border-radius: 4px;
             background: #222;
             color: #fff;
-            margin: 0 auto; /* Center the input */
         }
         .form-group button {
-            width: 80%; /* Adjust width to ensure centering */
+            width: 100%;
             padding: 10px;
             background-color: #0f0;
             color: #000;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin: 0 auto; /* Center the button */
         }
         .form-group button:hover {
             background-color: #0c0;
@@ -71,50 +67,13 @@
                 margin-bottom: 10px;
             }
         }
-
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1; 
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #333;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            apiKey: "YOUR_API_KEY",
             authDomain: "cockrumfinance.firebaseapp.com",
             projectId: "cockrumfinance",
             storageBucket: "cockrumfinance.appspot.com",
@@ -125,15 +84,18 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         function logIn() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            console.log('Attempting to log in with email:', email);
 
             auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    console.log('Login successful. Redirecting to index.html');
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    db.collection('users').doc(user.uid).set({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
                     window.location.href = 'index.html';
                 })
                 .catch((error) => {
@@ -145,27 +107,16 @@
         function register() {
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm-password').value;
-
-            if (password !== confirmPassword) {
-                alert("Passwords do not match");
-                return;
-            }
-
-            console.log('Attempting to register with email:', email);
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    console.log('Registration successful. Sending verification email.');
-                    userCredential.user.sendEmailVerification()
-                        .then(() => {
-                            alert('Verification email sent. Please check your inbox.');
-                            closeModal();
-                        })
-                        .catch((error) => {
-                            console.error('Error sending verification email:', error);
-                            alert(`Error sending verification email: ${error.message}`);
-                        });
+                    const user = userCredential.user;
+                    db.collection('users').doc(user.uid).set({
+                        email: user.email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    window.location.href = 'index.html';
                 })
                 .catch((error) => {
                     console.error('Error registering:', error);
@@ -175,11 +126,9 @@
 
         function forgotPassword() {
             const email = document.getElementById('login-email').value;
-            console.log('Attempting to send password reset email to:', email);
 
             auth.sendPasswordResetEmail(email)
                 .then(() => {
-                    console.log('Password reset email sent.');
                     alert('Password reset email sent.');
                 })
                 .catch((error) => {
@@ -188,40 +137,18 @@
                 });
         }
 
-        function showModal() {
-            document.getElementById('register-modal').style.display = "block";
-        }
-
-        function closeModal() {
-            document.getElementById('register-modal').style.display = "none";
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    console.log('User is already logged in. Redirecting to index.html');
                     window.location.href = 'index.html';
                 }
             });
-
-            const modal = document.getElementById('register-modal');
-            const span = document.getElementsByClassName('close')[0];
-
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
         });
     </script>
 </head>
 <body>
     <div class="container">
-        <img src="logo.png" alt="Fitneez Logo" class="large-logo">
+        <h1><img src="path/to/logo.png" alt="Fitneez Logo" style="height: 50px;"></h1>
         <div class="form-group">
             <label for="login-email">Email</label>
             <input type="email" id="login-email" placeholder="Enter your email">
@@ -234,37 +161,15 @@
             <button onclick="logIn()">Log In</button>
         </div>
         <div class="form-group">
-            <button onclick="showModal()">Register</button>
+            <button onclick="register()">Register</button>
         </div>
         <div class="form-group">
             <button onclick="forgotPassword()">Forgot Password</button>
         </div>
     </div>
-
-    <!-- The Modal -->
-    <div id="register-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Register</h2>
-            <div class="form-group">
-                <label for="register-email">Email</label>
-                <input type="email" id="register-email" placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-                <label for="register-password">Password</label>
-                <input type="password" id="register-password" placeholder="Enter your password">
-            </div>
-            <div class="form-group">
-                <label for="register-confirm-password">Confirm Password</label>
-                <input type="password" id="register-confirm-password" placeholder="Confirm your password">
-            </div>
-            <div class="form-group">
-                <button onclick="register()">Register</button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
+
 
 
 
