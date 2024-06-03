@@ -19,6 +19,7 @@
         }
         .container {
             max-width: 400px;
+            width: 100%; /* Ensures the container takes the full width */
             background: #333;
             padding: 20px;
             border-radius: 8px;
@@ -35,14 +36,18 @@
         .form-group {
             margin-bottom: 15px;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .form-group label {
             display: block;
             margin-bottom: 5px;
             text-align: left;
+            width: 100%;
         }
         .form-group input {
-            width: 100%;
+            width: 80%; /* Adjust the width to center the input boxes */
             padding: 10px;
             border: 1px solid #555;
             border-radius: 4px;
@@ -50,7 +55,7 @@
             color: #fff;
         }
         .form-group button {
-            width: 100%;
+            width: 80%; /* Match the width of the input boxes */
             padding: 10px;
             background-color: #0f0;
             color: #000;
@@ -177,7 +182,6 @@
     </div>
 </body>
 </html>
-
 
 
 
