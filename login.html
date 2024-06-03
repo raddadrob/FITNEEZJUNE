@@ -71,6 +71,9 @@
             margin: 15px 0;
             color: #0f0;
         }
+        .register-fields {
+            display: none;
+        }
         @media (max-width: 600px) {
             .container {
                 padding: 10px;
@@ -120,16 +123,23 @@
             console.log('Attempting to register with email:', email);
 
             auth.createUserWithEmailAndPassword(email, password)
-                .then(() => {
-                    console.log('Registration successful. Redirecting to index.html');
-                    window.location.href = 'index.html';
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    user.sendEmailVerification()
+                        .then(() => {
+                            alert('Verification email sent. Please check your inbox.');
+                            // Hide register fields and show login fields
+                            document.querySelector('.register-fields').style.display = 'none';
+                            document.querySelector('.login-fields').style.display = 'block';
+                        })
+                        .catch((error) => {
+                            console.error('Error sending verification email:', error);
+                            alert(`Error sending verification email: ${error.message}`);
+                        });
                 })
                 .catch((error) => {
                     console.error('Error registering:', error);
                     alert(`Error registering: ${error.message}`);
-                    if (error.code === 'auth/email-already-in-use') {
-                        window.location.href = 'login.html';
-                    }
                 });
         }
 
@@ -149,6 +159,11 @@
                 });
         }
 
+        function showRegisterFields() {
+            document.querySelector('.register-fields').style.display = 'block';
+            document.querySelector('.login-fields').style.display = 'none';
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -162,34 +177,42 @@
 <body>
     <div class="container">
         <img src="logo.png" alt="Fitneez Logo" class="large-logo">
-        <div class="form-group">
-            <label for="login-email">Email</label>
-            <input type="email" id="login-email" placeholder="Enter your email">
+        <div class="login-fields">
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Enter your password">
+            </div>
+            <div class="form-group">
+                <button onclick="logIn()">Log In</button>
+            </div>
+            <div class="form-group">
+                <button onclick="showRegisterFields()">Register</button>
+            </div>
+            <div class="form-group">
+                <button onclick="forgotPassword()">Forgot Password</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="login-password">Password</label>
-            <input type="password" id="login-password" placeholder="Enter your password">
-        </div>
-        <div class="form-group">
-            <button onclick="logIn()">Log In</button>
-        </div>
-        <div class="form-group">
-            <label for="register-email">Register Email</label>
-            <input type="email" id="register-email" placeholder="Enter your email">
-        </div>
-        <div class="form-group">
-            <label for="register-password">Register Password</label>
-            <input type="password" id="register-password" placeholder="Enter your password">
-        </div>
-        <div class="form-group">
-            <button onclick="register()">Register</button>
-        </div>
-        <div class="form-group">
-            <button onclick="forgotPassword()">Forgot Password</button>
+        <div class="register-fields">
+            <div class="form-group">
+                <label for="register-email">Register Email</label>
+                <input type="email" id="register-email" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="register-password">Register Password</label>
+                <input type="password" id="register-password" placeholder="Enter your password">
+            </div>
+            <div class="form-group">
+                <button onclick="register()">Register</button>
+            </div>
         </div>
     </div>
 </body>
 </html>
+
 
 
 
