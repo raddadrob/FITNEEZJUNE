@@ -76,7 +76,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
+            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
             authDomain: "cockrumfinance.firebaseapp.com",
             projectId: "cockrumfinance",
             storageBucket: "cockrumfinance.appspot.com",
@@ -105,8 +105,8 @@
         }
 
         function register() {
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
             console.log('Attempting to register with email:', email);
 
             auth.createUserWithEmailAndPassword(email, password)
@@ -117,9 +117,6 @@
                 .catch((error) => {
                     console.error('Error registering:', error);
                     alert(`Error registering: ${error.message}`);
-                    if (error.code === 'auth/email-already-in-use') {
-                        window.location.href = 'login.html';
-                    }
                 });
         }
 
@@ -131,7 +128,6 @@
                 .then(() => {
                     console.log('Password reset email sent.');
                     alert('Password reset email sent.');
-                    window.location.reload();
                 })
                 .catch((error) => {
                     console.error('Error sending password reset email:', error);
@@ -172,6 +168,7 @@
     </div>
 </body>
 </html>
+
 
 
 
