@@ -164,6 +164,11 @@
             document.querySelector('.login-fields').style.display = 'none';
         }
 
+        function showLoginFields() {
+            document.querySelector('.register-fields').style.display = 'none';
+            document.querySelector('.login-fields').style.display = 'block';
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -207,6 +212,9 @@
             </div>
             <div class="form-group">
                 <button onclick="register()">Register</button>
+            </div>
+            <div class="form-group">
+                <button onclick="showLoginFields()">Back to Login</button>
             </div>
         </div>
     </div>
