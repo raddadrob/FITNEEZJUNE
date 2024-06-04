@@ -11,7 +11,7 @@
             background-color: #000;
             color: #fff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
         .container {
             max-width: 1200px;
@@ -22,41 +22,49 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
+            align-items: center; /* Center align */
+        }
+        .large-logo {
+            width: 150px; /* Adjust the size to match login.html */
+            display: block;
+            margin: 0 auto;
         }
         h1 {
             text-align: center;
             color: #0f0;
+            font-size: 1.5rem; /* Smaller font size */
+        }
+        .menu-bar-container {
+            width: 100%;
+            max-width: 1200px; /* Match the width of the container */
+            margin: 0 auto;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            background: #333;
+            border-radius: 0; /* Remove rounded corners */
+            box-shadow: none; /* Remove box shadow if any */
         }
         .menu-bar {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            padding: 10px;
-            background: #333;
-            color: #fff;
-        }
-        .menu-icon {
-            font-size: 24px;
-            cursor: pointer;
-            display: none;
+            gap: 15px;
         }
         .menu-links {
             display: flex;
             gap: 15px;
         }
-        .menu-bar a {
+        .menu-links a {
             color: #0f0;
             text-decoration: none;
             padding: 10px 20px;
-            background: #444;
+            background: #000;
             border-radius: 4px;
+            font-size: 0.875rem;
         }
-        .menu-bar a:hover {
-            background: #0c0;
-        }
-        .menu-buttons {
-            display: flex;
-            gap: 10px;
+        .menu-links a:hover {
+            background: #444;
         }
         .logoff-button {
             background: #0f0;
@@ -65,6 +73,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 0.875rem;
         }
         .logoff-button:hover {
             background: #0c0;
@@ -79,9 +88,6 @@
             margin-bottom: 20px;
         }
         @media (max-width: 600px) {
-            .menu-icon {
-                display: block;
-            }
             .menu-links {
                 display: none;
                 flex-direction: column;
@@ -99,7 +105,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            apiKey: "YOUR_FIREBASE_API_KEY",
             authDomain: "cockrumfinance.firebaseapp.com",
             projectId: "cockrumfinance",
             storageBucket: "cockrumfinance.appspot.com",
@@ -136,22 +142,22 @@
     </script>
 </head>
 <body>
-    <div id="finance-tracker" class="container">
-        <h1>Fitneez</h1>
-        <div class="menu-bar">
-            <div class="menu-icon" onclick="toggleMenu()">
-                &#9776;
-            </div>
-            <div class="menu-links" id="menu-links">
+    <div class="container">
+        <img src="logo.png" alt="Fitneez Logo" class="large-logo">
+    </div>
+    <div class="menu-bar-container" style="background: #000; padding: 0;">
+        <div class="menu-bar" style="max-width: 1200px; margin: 0 auto;">
+            <div class="menu-links">
                 <a href="index.html">Summary</a>
                 <a href="details.html">Balance Sheet</a>
                 <a href="calendar.html">Cash Flow</a>
                 <a href="real_estate.html">Real Estate</a>
-            </div>
-            <div class="menu-buttons">
-                <button class="logoff-button" onclick="logOff()">Log Off</button>
+                <a href="credit_cards.html">Credit Cards</a>
+                <a href="admin.html">Admin</a>
             </div>
         </div>
+    </div>
+    <div id="finance-tracker" class="container">
         <div id="content" style="flex: 1;">
             <div class="section house">
                 <h2 style="color: #0f0;">Glass House</h2>
