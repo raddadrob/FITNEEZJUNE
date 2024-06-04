@@ -23,6 +23,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
         .large-logo {
             width: 150px;
@@ -135,7 +136,7 @@
             background: #0c0;
         }
         .popover {
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -148,7 +149,7 @@
             display: none;
             flex-direction: column;
             font-size: 0.75rem; /* Smaller font size */
-            width: 50%;
+            width: 90%;
             max-width: 300px;
             box-sizing: border-box;
         }
@@ -257,14 +258,13 @@
             const mortgagePayment = parseFloat(document.getElementById('mortgage-payment').value);
             const mortgageInterestRate = parseFloat(document.getElementById('mortgage-interest-rate').value);
             const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
-            const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
+            const currentMarketValue = parseFloat(document.getElementById('current-market-value’).value);
+                                                                                  if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
+            const addressData = {
+                name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
+            };
 
-            if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN
-                (mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
-const addressData = {
-name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
-};
-                            if (currentEditId) {
+            if (currentEditId) {
                 await db.collection('real_estate').doc(currentEditId).update(addressData);
                 currentEditId = null;
             } else {
@@ -336,7 +336,6 @@ name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortga
         document.getElementById('mortgage-interest-rate').value = data.mortgageInterestRate;
         document.getElementById('mortgage-balance').value = data.mortgageBalance;
         document.getElementById('current-market-value').value = data.currentMarketValue;
-
         currentEditId = id;
         document.getElementById('add-address-popover').style.display = 'flex';
     }
@@ -356,7 +355,7 @@ name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortga
         });
     });
 </script>
-    </head>
+</head>
 <body>
     <div class="container">
         <img src="logo.png" alt="Fitneez Logo" class="large-logo">
@@ -392,5 +391,5 @@ name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortga
     <button onclick="addOrUpdateAddress()">Save</button>
     <button onclick="closeAddAddressPopover()">Cancel</button>
 </div>
-    </body>
+</body>
 </html>
