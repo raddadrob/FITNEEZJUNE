@@ -260,8 +260,7 @@
             const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
             const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
 
-            if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !is
-            !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
+            if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
                 const addressData = {
                     name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
                 };
@@ -299,13 +298,13 @@
                         <p>Address: ${data.address}</p>
                         <p>Equity: $${formatNumber(equity)}</p>
                         <div class="details-popup">
-                            Acquisition Date: ${data.acquisitionDate}\n
-                            Initial Purchase Price: $${formatNumber(data.purchasePrice)}\n
-                            Down Payment: $${formatNumber(data.downPayment)}\n
-                            Mortgage Bank: ${data.mortgageBank}\n
-                            Mortgage Payment: $${formatNumber(data.mortgagePayment)}\n
-                            Mortgage Interest Rate: ${data.mortgageInterestRate}%\n
-                            Mortgage Balance: $${formatNumber(data.mortgageBalance)}\n
+                            Acquisition Date: ${data.acquisitionDate}<br>
+                            Initial Purchase Price: $${formatNumber(data.purchasePrice)}<br>
+                            Down Payment: $${formatNumber(data.downPayment)}<br>
+                            Mortgage Bank: ${data.mortgageBank}<br>
+                            Mortgage Payment: $${formatNumber(data.mortgagePayment)}<br>
+                            Mortgage Interest Rate: ${data.mortgageInterestRate}%<br>
+                            Mortgage Balance: $${formatNumber(data.mortgageBalance)}<br>
                             Current Market Value: $${formatNumber(data.currentMarketValue)}
                         </div>
                         <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
@@ -397,4 +396,5 @@
     </div>
 </body>
 </html>
+
 
