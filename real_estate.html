@@ -212,10 +212,12 @@
             const snapshot = await db.collection('real_estate').get();
             snapshot.forEach(doc => {
                 const data = doc.data();
-                const section = document.createElement('div');
-                section.classList.add('section', 'house');
-                section.innerHTML = `<h2 style="color: #0f0;">${data.name}</h2><p>Address: ${data.address}</p>`;
-                container.appendChild(section);
+                if (data.name && data.address) { // Check if both name and address are present
+                    const section = document.createElement('div');
+                    section.classList.add('section', 'house');
+                    section.innerHTML = `<h2 style="color: #0f0;">${data.name}</h2><p>Address: ${data.address}</p>`;
+                    container.appendChild(section);
+                }
             });
         }
 
