@@ -255,11 +255,12 @@
             const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
             const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
 
-            if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
-                const addressData = {
-                    name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
+            if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !
+                isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
+const addressData = {
+name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
 };
-            if (currentEditId) {
+                            if (currentEditId) {
                 await db.collection('real_estate').doc(currentEditId).update(addressData);
                 currentEditId = null;
             } else {
@@ -275,6 +276,10 @@
 
     async function loadAddresses() {
         const container = document.getElementById('address-container');
+        if (!container) {
+            console.error('Address container not found');
+            return;
+        }
         container.innerHTML = ''; // Clear the container
         const snapshot = await db.collection('real_estate').get();
         snapshot.forEach(doc => {
@@ -343,6 +348,43 @@
         });
     });
 </script>
-</body>
+    </head>
+<body>
+    <div class="container">
+        <img src="logo.png" alt="Fitneez Logo" class="large-logo">
+    </div>
+    <div class="menu-bar-container" style="background: #000; padding: 0;">
+        <div class="menu-bar" style="max-width: 1200px; margin: 0 auto;">
+            <div class="menu-links">
+                <a href="index.html">Summary</a>
+                <a href="details.html">Balance Sheet</a>
+                <a href="calendar.html">Cash Flow</a>
+                <a href="real_estate.html">Real Estate</a>
+                <a href="credit_cards.html">Credit Cards</a>
+                <a href="admin.html">Admin</a>
+            </div>
+        </div>
+    </div>
+    <div id="finance-tracker" class="container">
+        <button class="add-address-button" onclick="showAddAddressPopover()">Add Address</button>
+        <div id="address-container"></div>
+    </div>
+<!-- Popover for Adding/Editing Address -->
+<div id="add-address-popover" class="popover">
+    <input type="text" id="address-name" placeholder="Name">
+    <input type="text" id="address-value" placeholder="Address">
+    <input type="date" id="acquisition-date" placeholder="Acquisition Date">
+    <input type="number" id="purchase-price" placeholder="Initial Purchase Price">
+    <input type="number" id="down-payment" placeholder="Down Payment">
+    <input type="text" id="mortgage-bank" placeholder="Mortgage Bank">
+    <input type="number" id="mortgage-payment" placeholder="Mortgage Payment">
+    <input type="number" id="mortgage-interest-rate" placeholder="Mortgage Interest Rate">
+    <input type="number" id="mortgage-balance" placeholder="Mortgage Balance">
+    <input type="number" id="current-market-value" placeholder="Current Market Value">
+    <button onclick="addOrUpdateAddress()">Save</button>
+    <button onclick="closeAddAddressPopover()">Cancel</button>
+</div>
+    </body>
 </html>
+
 
