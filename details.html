@@ -207,7 +207,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            apiKey: "YOUR_FIREBASE_API_KEY",
             authDomain: "cockrumfinance.firebaseapp.com",
             projectId: "cockrumfinance",
             storageBucket: "cockrumfinance.appspot.com",
@@ -297,8 +297,8 @@
                 deltaCell.style.fontSize = '0.8em';
                 deltaCell.style.fontStyle = 'italic';
                 valueCell.appendChild(deltaCell);
-                valueCell.onclick = () => showPopover(event, collection, item.id, item.value, item.description);
-                previousValueCell.onclick = () => showPopover(event, collection, item.id, item.previousValue, item.description);
+                valueCell.onclick = (event) => showPopover(event, collection, item.id, item.value, item.description);
+                previousValueCell.onclick = (event) => showPopover(event, collection, item.id, item.previousValue, item.description);
                 row.appendChild(previousValueCell);
                 row.appendChild(valueCell);
             });
@@ -313,10 +313,12 @@
             const popoverDescription = document.getElementById('popover-description');
             const popoverValue = document.getElementById('popover-value');
             const saveButton = document.getElementById('saveEditButton');
+            const deleteButton = document.getElementById('deleteRowButton');
 
             popoverDescription.innerText = description;
             popoverValue.value = formatNumber(value);
             saveButton.onclick = () => saveEditItem(collection, id);
+            deleteButton.onclick = () => deleteRow(collection, id);
 
             popover.style.display = 'flex';
         }
@@ -335,6 +337,12 @@
                 loadData();
                 closePopover();
             }
+        }
+
+        async function deleteRow(collection, id) {
+            await db.collection(collection).doc(id).delete();
+            loadData();
+            closePopover();
         }
 
         async function addAsset(collection) {
@@ -540,6 +548,7 @@
         <div id="popover-description"></div>
         <input type="text" id="popover-value" placeholder="Enter value">
         <button id="saveEditButton">Save</button>
+        <button id="deleteRowButton">Delete Row</button>
         <button onclick="closePopover()">Cancel</button>
     </div>
     <script>
@@ -550,28 +559,6 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
