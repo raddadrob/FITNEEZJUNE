@@ -101,6 +101,8 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             z-index: 10;
             white-space: pre-wrap;
+            width: 300px;
+            max-width: 90%;
         }
         .house:hover .details-popup {
             display: block;
@@ -137,7 +139,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 10;
-            background: #444;
+            background: #222;
             color: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -147,11 +149,12 @@
             font-size: 0.875rem;
             width: 50%;
             max-width: 300px;
+            box-sizing: border-box;
         }
         .popover input {
             margin-bottom: 10px;
             padding: 8px;
-            background: #222;
+            background: #333;
             color: #fff;
             border: 1px solid #555;
             border-radius: 4px;
@@ -255,8 +258,8 @@
             const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
             const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
 
-            if (name && address && acquisitionDate && !isNaN
-                (purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
+            if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !
+                isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
 const addressData = {
 name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
 };
@@ -390,5 +393,4 @@ name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortga
 </div>
     </body>
 </html>
-
 
