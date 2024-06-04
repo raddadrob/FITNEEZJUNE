@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Cards</title>
+    <title>Credit Cards - Fitneez</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -11,7 +11,7 @@
             background-color: #000;
             color: #fff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
         .container {
             max-width: 1200px;
@@ -24,6 +24,11 @@
             flex-direction: column;
             align-items: center;
         }
+        .large-logo {
+            width: 150px; /* Adjust the size to match login.html */
+            display: block;
+            margin: 0 auto;
+        }
         h1, h2 {
             text-align: center;
             color: #0f0;
@@ -34,14 +39,22 @@
         h2 {
             font-size: 1.25rem;
         }
+        .menu-bar-container {
+            width: 100%;
+            max-width: 1200px; /* Match the width of the container */
+            margin: 0 auto;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            background: #333;
+            border-radius: 0; /* Remove rounded corners */
+            box-shadow: none; /* Remove box shadow if any */
+        }
         .menu-bar {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            padding: 10px;
-            background: #333;
-            color: #fff;
-            width: 100%;
+            gap: 15px;
         }
         .menu-links {
             display: flex;
@@ -51,37 +64,12 @@
             color: #0f0;
             text-decoration: none;
             padding: 10px 20px;
-            background: #444;
+            background: #000;
             border-radius: 4px;
             font-size: 0.875rem;
         }
         .menu-links a:hover {
-            background: #0c0;
-        }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #444;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-            left: 0; /* Align dropdown to the left */
-        }
-        .dropdown-content a {
-            color: #0f0;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {
-            background-color: #0c0;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
+            background: #444;
         }
         .logoff-button {
             background: #0f0;
@@ -91,10 +79,6 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.875rem;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 200px;
-            text-align: center;
         }
         .logoff-button:hover {
             background: #0c0;
@@ -228,6 +212,11 @@
             });
         }
 
+        function toggleMenu() {
+            const menuLinks = document.getElementById('menu-links');
+            menuLinks.classList.toggle('active');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (!user) {
@@ -294,27 +283,22 @@
     </script>
 </head>
 <body>
-    <div id="credit-cards" class="container">
-        <h1>Fitneez</h1>
-        <div class="menu-bar">
+    <div class="container">
+        <img src="logo.png" alt="Fitneez Logo" class="large-logo">
+    </div>
+    <div class="menu-bar-container" style="background: #000; padding: 0;">
+        <div class="menu-bar" style="max-width: 1200px; margin: 0 auto;">
             <div class="menu-links">
                 <a href="index.html">Summary</a>
                 <a href="details.html">Balance Sheet</a>
                 <a href="calendar.html">Cash Flow</a>
                 <a href="real_estate.html">Real Estate</a>
                 <a href="credit_cards.html">Credit Cards</a>
-            </div>
-            <div class="dropdown">
-                <button class="menu-icon">&#9776;</button>
-                <div class="dropdown-content">
-                    <a href="index.html">Summary</a>
-                    <a href="details.html">Balance Sheet</a>
-                    <a href="calendar.html">Cash Flow</a>
-                    <a href="real_estate.html">Real Estate</a>
-                    <a href="credit_cards.html">Credit Cards</a>
-                </div>
+                <a href="admin.html">Admin</a>
             </div>
         </div>
+    </div>
+    <div id="credit-cards" class="container">
         <div class="section">
             <h2>Add Card</h2>
             <div class="form-tile">
