@@ -258,103 +258,106 @@
             const mortgagePayment = parseFloat(document.getElementById('mortgage-payment').value);
             const mortgageInterestRate = parseFloat(document.getElementById('mortgage-interest-rate').value);
             const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
-            const currentMarketValue = parseFloat(document.getElementById('current-market-value’).value);
-                                                                                  if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
-            const addressData = {
-                name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
-            };
+            const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
 
-            if (currentEditId) {
-                await db.collection('real_estate').doc(currentEditId).update(addressData);
-                currentEditId = null;
-            } else {
-                await db.collection('real_estate').add(addressData);
-            }
+            if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !is
+                            !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
+                const addressData = {
+                    name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
+                };
 
-            closeAddAddressPopover();
-            loadAddresses();
-        } else {
-            alert('Please fill out all fields correctly.');
-        }
-    }
+                if (currentEditId) {
+                    await db.collection('real_estate').doc(currentEditId).update(addressData);
+                    currentEditId = null;
+                } else {
+                    await db.collection('real_estate').add(addressData);
+                }
 
-    async function loadAddresses() {
-        const container = document.getElementById('address-container');
-        if (!container) {
-            console.error('Address container not found');
-            return;
-        }
-        container.innerHTML = ''; // Clear the container
-        const snapshot = await db.collection('real_estate').get();
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.name && data.address) {
-                const equity = data.currentMarketValue - data.mortgageBalance;
-                const section = document.createElement('div');
-                section.classList.add('section', 'house');
-                section.innerHTML = `
-                    <h2 style="color: #0f0;">${data.name}</h2>
-                    <p>Address: ${data.address}</p>
-                    <p>Equity: $${formatNumber(equity)}</p>
-                    <div class="details-popup">
-                        Acquisition Date: ${data.acquisitionDate}\n
-                        Initial Purchase Price: $${formatNumber(data.purchasePrice)}\n
-                        Down Payment: $${formatNumber(data.downPayment)}\n
-                        Mortgage Bank: ${data.mortgageBank}\n
-                        Mortgage Payment: $${formatNumber(data.mortgagePayment)}\n
-                        Mortgage Interest Rate: ${data.mortgageInterestRate}%\n
-                        Mortgage Balance: $${formatNumber(data.mortgageBalance)}\n
-                        Current Market Value: $${formatNumber(data.currentMarketValue)}
-                    </div>
-                    <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
-                    <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
-                `;
-                container.appendChild(section);
-            }
-        });
-    }
-
-    function formatNumber(value) {
-        if (typeof value !== 'number' || isNaN(value)) {
-            console.error('Invalid number:', value);
-            return '0.00';
-        }
-        return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    async function editAddress(id) {
-        const doc = await db.collection('real_estate').doc(id).get();
-        const data = doc.data();
-
-        document.getElementById('address-name').value = data.name;
-        document.getElementById('address-value').value = data.address;
-        document.getElementById('acquisition-date').value = data.acquisitionDate;
-        document.getElementById('purchase-price').value = data.purchasePrice;
-        document.getElementById('down-payment').value = data.downPayment;
-        document.getElementById('mortgage-bank').value = data.mortgageBank;
-        document.getElementById('mortgage-payment').value = data.mortgagePayment;
-        document.getElementById('mortgage-interest-rate').value = data.mortgageInterestRate;
-        document.getElementById('mortgage-balance').value = data.mortgageBalance;
-        document.getElementById('current-market-value').value = data.currentMarketValue;
-        currentEditId = id;
-        document.getElementById('add-address-popover').style.display = 'flex';
-    }
-
-    async function deleteAddress(id) {
-        await db.collection('real_estate').doc(id).delete();
-        loadAddresses();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-            } else {
+                closeAddAddressPopover();
                 loadAddresses();
+            } else {
+                alert('Please fill out all fields correctly.');
             }
+        }
+
+        async function loadAddresses() {
+            const container = document.getElementById('address-container');
+            if (!container) {
+                console.error('Address container not found');
+                return;
+            }
+            container.innerHTML = ''; // Clear the container
+            const snapshot = await db.collection('real_estate').get();
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.name && data.address) {
+                    const equity = data.currentMarketValue - data.mortgageBalance;
+                    const section = document.createElement('div');
+                    section.classList.add('section', 'house');
+                    section.innerHTML = `
+                        <h2 style="color: #0f0;">${data.name}</h2>
+                        <p>Address: ${data.address}</p>
+                        <p>Equity: $${formatNumber(equity)}</p>
+                        <div class="details-popup">
+                            Acquisition Date: ${data.acquisitionDate}\n
+                            Initial Purchase Price: $${formatNumber(data.purchasePrice)}\n
+                            Down Payment: $${formatNumber(data.downPayment)}\n
+                            Mortgage Bank: ${data.mortgageBank}\n
+                            Mortgage Payment: $${formatNumber(data.mortgagePayment)}\n
+                            Mortgage Interest Rate: ${data.mortgageInterestRate}%\n
+                            Mortgage Balance: $${formatNumber(data.mortgageBalance)}\n
+                            Current Market Value: $${formatNumber(data.currentMarketValue)}
+                        </div>
+                        <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
+                        <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
+                    `;
+                    container.appendChild(section);
+                }
+            });
+        }
+
+        function formatNumber(value) {
+            if (typeof value !== 'number' || isNaN(value)) {
+                console.error('Invalid number:', value);
+                return '0.00';
+            }
+            return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        async function editAddress(id) {
+            const doc = await db.collection('real_estate').doc(id).get();
+            const data = doc.data();
+
+            document.getElementById('address-name').value = data.name;
+            document.getElementById('address-value').value = data.address;
+            document.getElementById('acquisition-date').value = data.acquisitionDate;
+            document.getElementById('purchase-price').value = data.purchasePrice;
+            document.getElementById('down-payment').value = data.downPayment;
+            document.getElementById('mortgage-bank').value = data.mortgageBank;
+            document.getElementById('mortgage-payment').value = data.mortgagePayment;
+            document.getElementById('mortgage-interest-rate').value = data.mortgageInterestRate;
+            document.getElementById('mortgage-balance').value = data.mortgageBalance;
+            document.getElementById('current-market-value').value = data.currentMarketValue;
+
+            currentEditId = id;
+            document.getElementById('add-address-popover').style.display = 'flex';
+        }
+
+        async function deleteAddress(id) {
+            await db.collection('real_estate').doc(id).delete();
+            loadAddresses();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'login.html';
+                } else {
+                    loadAddresses();
+                }
+            });
         });
-    });
-</script>
+    </script>
 </head>
 <body>
     <div class="container">
@@ -376,20 +379,21 @@
         <button class="add-address-button" onclick="showAddAddressPopover()">Add Address</button>
         <div id="address-container"></div>
     </div>
-<!-- Popover for Adding/Editing Address -->
-<div id="add-address-popover" class="popover">
-    <input type="text" id="address-name" placeholder="Name">
-    <input type="text" id="address-value" placeholder="Address">
-    <input type="date" id="acquisition-date" placeholder="Acquisition Date">
-    <input type="number" id="purchase-price" placeholder="Initial Purchase Price">
-    <input type="number" id="down-payment" placeholder="Down Payment">
-    <input type="text" id="mortgage-bank" placeholder="Mortgage Bank">
-    <input type="number" id="mortgage-payment" placeholder="Mortgage Payment">
-    <input type="number" id="mortgage-interest-rate" placeholder="Mortgage Interest Rate">
-    <input type="number" id="mortgage-balance" placeholder="Mortgage Balance">
-    <input type="number" id="current-market-value" placeholder="Current Market Value">
-    <button onclick="addOrUpdateAddress()">Save</button>
-    <button onclick="closeAddAddressPopover()">Cancel</button>
-</div>
-</body>
+
+    <!-- Popover for Adding/Editing Address -->
+    <div id="add-address-popover" class="popover">
+        <input type="text" id="address-name" placeholder="Name">
+        <input type="text" id="address-value" placeholder="Address">
+        <input type="date" id="acquisition-date" placeholder="Acquisition Date">
+        <input type="number" id="purchase-price" placeholder="Initial Purchase Price">
+        <input type="number" id="down-payment" placeholder="Down Payment">
+        <input type="text" id="mortgage-bank" placeholder="Mortgage Bank">
+        <input type="number" id="mortgage-payment" placeholder="Mortgage Payment">
+        <input type="number" id="mortgage-interest-rate" placeholder="Mortgage Interest Rate">
+        <input type="number" id="mortgage-balance" placeholder="Mortgage Balance">
+        <input type="number" id="current-market-value" placeholder="Current Market Value">
+        <button onclick="addOrUpdateAddress()">Save</button>
+        <button onclick="closeAddAddressPopover()">Cancel</button>
+    </div>
+</body
 </html>
