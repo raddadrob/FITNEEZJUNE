@@ -261,7 +261,7 @@
             const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
 
             if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !is
-                            !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
+            !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
                 const addressData = {
                     name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
                 };
@@ -395,5 +395,6 @@
         <button onclick="addOrUpdateAddress()">Save</button>
         <button onclick="closeAddAddressPopover()">Cancel</button>
     </div>
-</body
+</body>
 </html>
+
