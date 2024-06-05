@@ -222,7 +222,7 @@
                 if (!user) {
                     window.location.href = 'login.html';
                 } else {
-                    loadCards();
+                    loadCards(user.uid);
                 }
             });
         });
@@ -234,22 +234,23 @@
 
             if (cardName && !isNaN(cardBalance) && cardType) {
                 await db.collection('credit_cards').add({
+                    userId: auth.currentUser.uid,
                     name: cardName,
                     balance: cardBalance,
                     type: cardType
                 });
                 alert('Card added successfully!');
                 document.getElementById('add-card-form').reset();
-                loadCards(); // Reload cards to show the newly added card
+                loadCards(auth.currentUser.uid); // Reload cards to show the newly added card
             } else {
                 alert('Please fill out all fields correctly.');
             }
         }
 
-        async function loadCards() {
+        async function loadCards(uid) {
             const cardsContainer = document.getElementById('cards-container');
             cardsContainer.innerHTML = '';
-            const snapshot = await db.collection('credit_cards').get();
+            const snapshot = await db.collection('credit_cards').where('userId', '==', uid).get();
             snapshot.forEach(doc => {
                 const card = doc.data();
                 const cardTile = document.createElement('div');
@@ -275,7 +276,7 @@
                     balance: newBalance
                 });
                 alert('Balance updated successfully!');
-                loadCards(); // Reload cards to show the updated balance
+                loadCards(auth.currentUser.uid); // Reload cards to show the updated balance
             } else {
                 alert('Please enter a valid number.');
             }
@@ -330,5 +331,6 @@
     </div>
 </body>
 </html>
+
 
 
