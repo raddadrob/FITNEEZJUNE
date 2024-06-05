@@ -280,109 +280,121 @@
         }
 
         async function addOrUpdateAddress() {
-            const name = document.getElementById('address-name').value;
-            const address = document.getElementById('address-value').value;
-            const acquisitionDate = document.getElementById('acquisition-date').value;
-            const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
-            const downPayment = parseFloat(document.getElementById('down-payment').value);
-            const mortgageBank = document.getElementById('mortgage-bank').value;
-            const mortgagePayment = parseFloat(document.getElementById('mortgage-payment').value);
-            const mortgageInterestRate = parseFloat(document.getElementById('mortgage-interest-rate').value);
-            const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
-            const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
-            const photoFiles = document.getElementById('photo-upload').files;
+            try {
+                const name = document.getElementById('address-name').value;
+                const address = document.getElementById('address-value').value;
+                const acquisitionDate = document.getElementById('acquisition-date').value;
+                const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
+                const downPayment = parseFloat(document.getElementById('down-payment').value);
+                const mortgageBank = document.getElementById('mortgage-bank').value;
+                const mortgagePayment = parseFloat(document.getElementById('mortgage-payment').value);
+                const mortgageInterestRate = parseFloat(document.getElementById('mortgage-interest-rate').value);
+                const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
+                const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
+                const photoFiles = document.getElementById('photo-upload').files;
 
-            if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
-                const addressData = {
-                    name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
-                };
+                if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
+                    const addressData = {
+                        name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
+                    };
 
-                let docRef;
-                if (currentEditId) {
-                    docRef = db.collection('real_estate').doc(currentEditId);
-                    const currentData = (await docRef.get()).data();
-                    const photoUrls = currentData.photos || [];
-                    await docRef.update(addressData);
-                    if (photoFiles.length > 0) {
-                        const newPhotoUrls = await uploadPhotos(currentEditId, photoFiles);
-                        await docRef.update({ photos: photoUrls.concat(newPhotoUrls) });
+                    let docRef;
+                    if (currentEditId) {
+                        docRef = db.collection('real_estate').doc(currentEditId);
+                        const currentData = (await docRef.get()).data();
+                        const photoUrls = currentData.photos || [];
+                        await docRef.update(addressData);
+                        if (photoFiles.length > 0) {
+                            const newPhotoUrls = await uploadPhotos(currentEditId, photoFiles);
+                            await docRef.update({ photos: photoUrls.concat(newPhotoUrls) });
+                        }
+                    } else {
+                        docRef = await db.collection('real_estate').add(addressData);
+                        currentEditId = docRef.id;
+                        const photoUrls = await uploadPhotos(currentEditId, photoFiles);
+                        await db.collection('real_estate').doc(currentEditId).update({ photos: photoUrls });
                     }
-                } else {
-                    docRef = await db.collection('real_estate').add(addressData);
-                    currentEditId = docRef.id;
-                    const photoUrls = await uploadPhotos(currentEditId, photoFiles);
-                    await db.collection('real_estate').doc(currentEditId).update({ photos: photoUrls });
-                }
 
-                console.log('Address data saved:', addressData);
-                closeAddAddressPopover();
-                loadAddresses();
-            } else {
-                alert('Please fill out all fields correctly.');
+                    console.log('Address data saved:', addressData);
+                    closeAddAddressPopover();
+                    loadAddresses();
+                } else {
+                    alert('Please fill out all fields correctly.');
+                }
+            } catch (error) {
+                console.error('Error saving address:', error);
             }
         }
 
         async function uploadPhotos(id, files) {
-            const promises = [];
-            for (const file of files) {
-                const storageRef = storage.ref().child(`photos/${id}/${file.name}`);
-                const snapshot = await storageRef.put(file);
-                const url = await snapshot.ref.getDownloadURL();
-                promises.push(url);
+            try {
+                const promises = [];
+                for (const file of files) {
+                    const storageRef = storage.ref().child(`photos/${id}/${file.name}`);
+                    const snapshot = await storageRef.put(file);
+                    const url = await snapshot.ref.getDownloadURL();
+                    promises.push(url);
+                }
+                return await Promise.all(promises);
+            } catch (error) {
+                console.error('Error uploading photos:', error);
             }
-            return await Promise.all(promises);
         }
 
         async function loadAddresses() {
-            const container = document.getElementById('address-container');
-            if (!container) {
-                console.error('Address container not found');
-                return;
-            }
-            container.innerHTML = ''; // Clear the container
-            const snapshot = await db.collection('real_estate').get();
-            if (snapshot.empty) {
-                console.log('No matching documents.');
-                return;
-            }
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                console.log('Loaded address data:', data);
-                if (data.name && data.address) {
-                    const equity = data.currentMarketValue - data.mortgageBalance;
-                    const ror = (equity !== 0) ? ((data.downPayment / (equity - data.downPayment)) * 100).toFixed(2) : 0;
-                    const section = document.createElement('div');
-                    section.classList.add('section', 'house');
-                    section.innerHTML = `
-                        <div style="flex: 1;">
-                            <h2 style="color: #0f0;">${data.name}</h2>
-                            <p>Address: ${data.address}</p>
-                            <p style="color: #0f0;">Equity: $${formatNumber(equity)}</p>
-                            <p style="color: #0f0;">ROR: ${ror}%</p>
-                            <button class="details-button" onclick="showDetails('${doc.id}')">Details</button>
-                            <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
-                            <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
-                        </div>
-                    `;
-                    if (data.photos && data.photos.length > 0) {
-                        const gallery = document.createElement('div');
-                        gallery.classList.add('image-gallery');
-                        gallery.setAttribute('data-id', doc.id);
-                        data.photos.forEach((photo, index) => {
-                            const img = document.createElement('img');
-                            img.src = photo;
-                            if (index === 0) img.classList.add('active');
-                            gallery.appendChild(img);
-                        });
-                        gallery.innerHTML += `
-                            <button class="gallery-arrow left" onclick="prevPhoto('${doc.id}')">&lt;</button>
-                            <button class="gallery-arrow right" onclick="nextPhoto('${doc.id}')">&gt;</button>
-                        `;
-                        section.appendChild(gallery);
-                    }
-                    container.appendChild(section);
+            try {
+                const container = document.getElementById('address-container');
+                if (!container) {
+                    console.error('Address container not found');
+                    return;
                 }
-            });
+                container.innerHTML = ''; // Clear the container
+                const snapshot = await db.collection('real_estate').get();
+                if (snapshot.empty) {
+                    console.log('No matching documents.');
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    console.log('Loaded address data:', data);
+                    if (data.name && data.address) {
+                        const equity = data.currentMarketValue - data.mortgageBalance;
+                        const ror = (equity !== 0) ? ((data.downPayment / (equity - data.downPayment)) * 100).toFixed(2) : 0;
+                        const section = document.createElement('div');
+                        section.classList.add('section', 'house');
+                        section.innerHTML = `
+                            <div style="flex: 1;">
+                                <h2 style="color: #0f0;">${data.name}</h2>
+                                <p>Address: ${data.address}</p>
+                                <p style="color: #0f0;">Equity: $${formatNumber(equity)}</p>
+                                <p style="color: #0f0;">ROR: ${ror}%</p>
+                                <button class="details-button" onclick="showDetails('${doc.id}')">Details</button>
+                                <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
+                                <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
+                            </div>
+                        `;
+                        if (data.photos && data.photos.length > 0) {
+                            const gallery = document.createElement('div');
+                            gallery.classList.add('image-gallery');
+                            gallery.setAttribute('data-id', doc.id);
+                            data.photos.forEach((photo, index) => {
+                                const img = document.createElement('img');
+                                img.src = photo;
+                                if (index === 0) img.classList.add('active');
+                                gallery.appendChild(img);
+                            });
+                            gallery.innerHTML += `
+                                <button class="gallery-arrow left" onclick="prevPhoto('${doc.id}')">&lt;</button>
+                                <button class="gallery-arrow right" onclick="nextPhoto('${doc.id}')">&gt;</button>
+                            `;
+                            section.appendChild(gallery);
+                        }
+                        container.appendChild(section);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading addresses:', error);
+            }
         }
 
         function showDetails(id) {
@@ -407,6 +419,8 @@
                     <p style="color: #0f0;">ROR: ${ror}%</p>
                 `;
                 detailsPopover.style.display = 'flex';
+            }).catch(error => {
+                console.error('Error showing details:', error);
             });
         }
 
@@ -461,28 +475,36 @@
         }
 
         async function editAddress(id) {
-            const doc = await db.collection('real_estate').doc(id).get();
-            const data = doc.data();
+            try {
+                const doc = await db.collection('real_estate').doc(id).get();
+                const data = doc.data();
 
-            document.getElementById('address-name').value = data.name;
-            document.getElementById('address-value').value = data.address;
-            document.getElementById('acquisition-date').value = data.acquisitionDate;
-            document.getElementById('purchase-price').value = data.purchasePrice;
-            document.getElementById('down-payment').value = data.downPayment;
-            document.getElementById('mortgage-bank').value = data.mortgageBank;
-            document.getElementById('mortgage-payment').value = data.mortgagePayment;
-            document.getElementById('mortgage-interest-rate').value = data.mortgageInterestRate;
-            document.getElementById('mortgage-balance').value = data.mortgageBalance;
-            document.getElementById('current-market-value').value = data.currentMarketValue;
-            document.getElementById('photo-upload').value = '';
+                document.getElementById('address-name').value = data.name;
+                document.getElementById('address-value').value = data.address;
+                document.getElementById('acquisition-date').value = data.acquisitionDate;
+                document.getElementById('purchase-price').value = data.purchasePrice;
+                document.getElementById('down-payment').value = data.downPayment;
+                document.getElementById('mortgage-bank').value = data.mortgageBank;
+                document.getElementById('mortgage-payment').value = data.mortgagePayment;
+                document.getElementById('mortgage-interest-rate').value = data.mortgageInterestRate;
+                document.getElementById('mortgage-balance').value = data.mortgageBalance;
+                document.getElementById('current-market-value').value = data.currentMarketValue;
+                document.getElementById('photo-upload').value = '';
 
-            currentEditId = id;
-            document.getElementById('add-address-popover').style.display = 'flex';
+                currentEditId = id;
+                document.getElementById('add-address-popover').style.display = 'flex';
+            } catch (error) {
+                console.error('Error editing address:', error);
+            }
         }
 
         async function deleteAddress(id) {
-            await db.collection('real_estate').doc(id).delete();
-            loadAddresses();
+            try {
+                await db.collection('real_estate').doc(id).delete();
+                loadAddresses();
+            } catch (error) {
+                console.error('Error deleting address:', error);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
