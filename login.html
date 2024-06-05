@@ -138,11 +138,12 @@
         }
         .star {
             position: absolute;
-            width: 2px;
-            height: 2px;
+            width: 3px; /* Make stars slightly larger */
+            height: 3px;
             background: white;
             border-radius: 50%;
-            animation: fly 1.5s linear infinite;
+            animation: fly 2.5s linear infinite; /* Extend the duration */
+            filter: brightness(1.5); /* Increase brightness */
         }
         @keyframes fly {
             0% {
@@ -183,7 +184,7 @@
                     showHyperspace();
                     setTimeout(() => {
                         window.location.href = 'index.html';
-                    }, 1500); // Match the duration of the animation
+                    }, 2500); // Match the duration of the animation
                 })
                 .catch((error) => {
                     alert(`Error logging in: ${error.message}`);
@@ -293,7 +294,7 @@
                 hyperspace.style.display = 'none';
                 hyperspace.innerHTML = '';
                 hyperspace.classList.remove('hidden');
-            }, 1500); // Match the duration of the animation
+            }, 2500); // Match the duration of the animation
         }
 
         document.addEventListener('DOMContentLoaded', () => {
