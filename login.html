@@ -19,7 +19,7 @@
         }
         .container {
             max-width: 400px;
-            width: 100%; /* Ensures the container takes the full width */
+            width: 100%;
             background: #333;
             padding: 20px;
             border-radius: 8px;
@@ -47,7 +47,7 @@
             width: 100%;
         }
         .form-group input {
-            width: 100%; /* Match the width of the input boxes */
+            width: 100%;
             padding: 10px;
             border: 1px solid #555;
             border-radius: 4px;
@@ -55,7 +55,7 @@
             color: #fff;
         }
         .form-group button {
-            width: 100%; /* Match the width of the input boxes */
+            width: 100%;
             padding: 10px;
             background-color: #0f0;
             color: #000;
@@ -71,37 +71,8 @@
             margin: 15px 0;
             color: #0f0;
         }
-        .register-fields {
+        .register-fields, .modal {
             display: none;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #444;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            width: 300px;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .modal-header h2 {
-            margin: 0;
-        }
-        .close-button {
-            background: #f00;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 4px;
         }
         @media (max-width: 600px) {
             .container {
@@ -113,18 +84,48 @@
                 margin-bottom: 10px;
             }
         }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .close-button {
+            background: transparent;
+            border: none;
+            color: #f00;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
-            authDomain: "cockrumfinance.firebaseapp.com",
-            projectId: "cockrumfinance",
-            storageBucket: "cockrumfinance.appspot.com",
-            messagingSenderId: "446623626941",
-            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
-            measurementId: "G-JFRC4K0BBF"
+            apiKey: "API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -133,15 +134,12 @@
         function logIn() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            console.log('Attempting to log in with email:', email);
 
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
-                    console.log('Login successful. Redirecting to index.html');
                     window.location.href = 'index.html';
                 })
                 .catch((error) => {
-                    console.error('Error logging in:', error);
                     alert(`Error logging in: ${error.message}`);
                 });
         }
@@ -152,44 +150,60 @@
             const confirmPassword = document.getElementById('confirm-password').value;
 
             if (password !== confirmPassword) {
-                alert('Passwords do not match.');
+                alert("Passwords do not match!");
                 return;
             }
 
-            console.log('Attempting to register with email:', email);
-
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    const user = userCredential.user;
-                    user.sendEmailVerification()
+                    userCredential.user.sendEmailVerification()
                         .then(() => {
                             alert('Verification email sent. Please check your inbox.');
                             document.querySelector('.register-fields').style.display = 'none';
                             document.querySelector('.login-fields').style.display = 'block';
                         })
                         .catch((error) => {
-                            console.error('Error sending verification email:', error);
                             alert(`Error sending verification email: ${error.message}`);
                         });
                 })
                 .catch((error) => {
-                    console.error('Error registering:', error);
                     alert(`Error registering: ${error.message}`);
                 });
         }
 
         function forgotPassword() {
             const email = document.getElementById('login-email').value;
-            console.log('Attempting to send password reset email to:', email);
 
             auth.sendPasswordResetEmail(email)
                 .then(() => {
-                    console.log('Password reset email sent.');
                     alert('Password reset email sent.');
+                    window.location.reload();
                 })
                 .catch((error) => {
-                    console.error('Error sending password reset email:', error);
                     alert(`Error sending password reset email: ${error.message}`);
+                });
+        }
+
+        function deleteUser() {
+            const email = document.getElementById('delete-email').value;
+            const password = document.getElementById('delete-password').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    if (confirm("Do you really want to delete your account? This action cannot be undone.")) {
+                        user.delete()
+                            .then(() => {
+                                alert("Account deleted successfully.");
+                                window.location.href = 'login.html';
+                            })
+                            .catch((error) => {
+                                alert(`Error deleting account: ${error.message}`);
+                            });
+                    }
+                })
+                .catch((error) => {
+                    alert(`Error logging in for account deletion: ${error.message}`);
                 });
         }
 
@@ -211,35 +225,9 @@
             document.getElementById('delete-account-modal').style.display = 'none';
         }
 
-        function deleteUser() {
-            const email = document.getElementById('delete-email').value;
-            const password = document.getElementById('delete-password').value;
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                        user.delete()
-                            .then(() => {
-                                alert('Account deleted successfully.');
-                                window.location.href = 'login.html';
-                            })
-                            .catch((error) => {
-                                console.error('Error deleting account:', error);
-                                alert(`Error deleting account: ${error.message}`);
-                            });
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error logging in for account deletion:', error);
-                    alert(`Error logging in for account deletion: ${error.message}`);
-                });
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    console.log('User is already logged in. Redirecting to index.html');
                     window.location.href = 'index.html';
                 }
             });
@@ -296,7 +284,7 @@
     <div id="delete-account-modal" class="modal">
         <div class="modal-header">
             <h2>Delete Account</h2>
-            <button class="close-button" onclick="closeDeleteAccountModal()">X</button>
+            <button class="close-button" onclick="closeDeleteAccountModal()">×</button>
         </div>
         <div class="form-group">
             <label for="delete-email">Email</label>
@@ -312,6 +300,7 @@
     </div>
 </body>
 </html>
+
 
 
 
