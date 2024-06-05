@@ -82,6 +82,8 @@
         .section {
             margin-bottom: 20px;
             width: 100%;
+            display: flex;
+            align-items: center; /* Align items horizontally */
         }
         .house {
             background: #444;
@@ -89,6 +91,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
             position: relative;
+            flex: 1;
         }
         .house .details-popup {
             display: none;
@@ -173,6 +176,36 @@
         .popover button:hover {
             background: #0c0;
         }
+        .image-carousel {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-left: 20px;
+        }
+        .image-carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .carousel-arrow.left {
+            left: 5px;
+        }
+        .carousel-arrow.right {
+            right: 5px;
+        }
         @media (max-width: 600px) {
             .menu-links {
                 display: none;
@@ -195,6 +228,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
@@ -209,6 +243,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
         let currentEditId = null;
 
@@ -246,6 +281,7 @@
             document.getElementById('mortgage-interest-rate').value = '';
             document.getElementById('mortgage-balance').value = '';
             document.getElementById('current-market-value').value = '';
+            document.getElementById('photo-upload').value = '';
         }
 
         async function addOrUpdateAddress() {
@@ -259,6 +295,7 @@
             const mortgageInterestRate = parseFloat(document.getElementById('mortgage-interest-rate').value);
             const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
             const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
+            const photoFiles = document.getElementById('photo-upload').files;
 
             if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
                 const addressData = {
@@ -269,14 +306,29 @@
                     await db.collection('real_estate').doc(currentEditId).update(addressData);
                     currentEditId = null;
                 } else {
-                    await db.collection('real_estate').add(addressData);
+                    const docRef = await db.collection('real_estate').add(addressData);
+                    currentEditId = docRef.id;
                 }
+
+                const photoUrls = await uploadPhotos(currentEditId, photoFiles);
+                await db.collection('real_estate').doc(currentEditId).update({ photos: photoUrls });
 
                 closeAddAddressPopover();
                 loadAddresses();
             } else {
                 alert('Please fill out all fields correctly.');
             }
+        }
+
+        async function uploadPhotos(id, files) {
+            const promises = [];
+            for (const file of files) {
+                const storageRef = storage.ref().child(`photos/${id}/${file.name}`);
+                const snapshot = await storageRef.put(file);
+                const url = await snapshot.ref.getDownloadURL();
+                promises.push(url);
+            }
+            return await Promise.all(promises);
         }
 
         async function loadAddresses() {
@@ -294,25 +346,57 @@
                     const section = document.createElement('div');
                     section.classList.add('section', 'house');
                     section.innerHTML = `
-                        <h2 style="color: #0f0;">${data.name}</h2>
-                        <p>Address: ${data.address}</p>
-                        <p>Equity: $${formatNumber(equity)}</p>
-                        <div class="details-popup">
-                            Acquisition Date: ${data.acquisitionDate}<br>
-                            Initial Purchase Price: $${formatNumber(data.purchasePrice)}<br>
-                            Down Payment: $${formatNumber(data.downPayment)}<br>
-                            Mortgage Bank: ${data.mortgageBank}<br>
-                            Mortgage Payment: $${formatNumber(data.mortgagePayment)}<br>
-                            Mortgage Interest Rate: ${data.mortgageInterestRate}%<br>
-                            Mortgage Balance: $${formatNumber(data.mortgageBalance)}<br>
-                            Current Market Value: $${formatNumber(data.currentMarketValue)}
+                        <div style="flex: 1;">
+                            <h2 style="color: #0f0;">${data.name}</h2>
+                            <p>Address: ${data.address}</p>
+                            <p>Equity: $${formatNumber(equity)}</p>
+                            <div class="details-popup">
+                                Acquisition Date: ${data.acquisitionDate}<br>
+                                Initial Purchase Price: $${formatNumber(data.purchasePrice)}<br>
+                                Down Payment: $${formatNumber(data.downPayment)}<br>
+                                Mortgage Bank: ${data.mortgageBank}<br>
+                                Mortgage Payment: $${formatNumber(data.mortgagePayment)}<br>
+                                Mortgage Interest Rate: ${data.mortgageInterestRate}%<br>
+                                Mortgage Balance: $${formatNumber(data.mortgageBalance)}<br>
+                                Current Market Value: $${formatNumber(data.currentMarketValue)}
+                            </div>
+                            <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
+                            <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
                         </div>
-                        <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
-                        <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
                     `;
+                    if (data.photos && data.photos.length > 0) {
+                        const carousel = document.createElement('div');
+                        carousel.classList.add('image-carousel');
+                        carousel.innerHTML = `
+                            <img src="${data.photos[0]}" alt="Photo">
+                            <button class="carousel-arrow left" onclick="prevPhoto('${doc.id}')">&lt;</button>
+                            <button class="carousel-arrow right" onclick="nextPhoto('${doc.id}')">&gt;</button>
+                        `;
+                        carousel.setAttribute('data-photo-index', '0');
+                        carousel.setAttribute('data-photo-urls', JSON.stringify(data.photos));
+                        section.appendChild(carousel);
+                    }
                     container.appendChild(section);
                 }
             });
+        }
+
+        function prevPhoto(id) {
+            const carousel = document.querySelector(`.image-carousel[data-id="${id}"]`);
+            const photoUrls = JSON.parse(carousel.getAttribute('data-photo-urls'));
+            let index = parseInt(carousel.getAttribute('data-photo-index'));
+            index = (index > 0) ? index - 1 : photoUrls.length - 1;
+            carousel.setAttribute('data-photo-index', index);
+            carousel.querySelector('img').src = photoUrls[index];
+        }
+
+        function nextPhoto(id) {
+            const carousel = document.querySelector(`.image-carousel[data-id="${id}"]`);
+            const photoUrls = JSON.parse(carousel.getAttribute('data-photo-urls'));
+            let index = parseInt(carousel.getAttribute('data-photo-index'));
+            index = (index < photoUrls.length - 1) ? index + 1 : 0;
+            carousel.setAttribute('data-photo-index', index);
+            carousel.querySelector('img').src = photoUrls[index];
         }
 
         function formatNumber(value) {
@@ -337,6 +421,7 @@
             document.getElementById('mortgage-interest-rate').value = data.mortgageInterestRate;
             document.getElementById('mortgage-balance').value = data.mortgageBalance;
             document.getElementById('current-market-value').value = data.currentMarketValue;
+            document.getElementById('photo-upload').value = '';
 
             currentEditId = id;
             document.getElementById('add-address-popover').style.display = 'flex';
@@ -391,6 +476,7 @@
         <input type="number" id="mortgage-interest-rate" placeholder="Mortgage Interest Rate">
         <input type="number" id="mortgage-balance" placeholder="Mortgage Balance">
         <input type="number" id="current-market-value" placeholder="Current Market Value">
+        <input type="file" id="photo-upload" multiple>
         <button onclick="addOrUpdateAddress()">Save</button>
         <button onclick="closeAddAddressPopover()">Cancel</button>
     </div>
