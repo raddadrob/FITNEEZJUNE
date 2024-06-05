@@ -255,24 +255,24 @@
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    document.getElementById('initial-cash-balance').addEventListener('change', setInitialCashBalance);
+                    document.getElementById('initial-cash-balance').addEventListener('change', (event) => setInitialCashBalance(event, user.uid));
                     renderMonthSelector();
-                    renderCalendar();
+                    renderCalendar(user.uid);
                 } else {
                     window.location.href = 'login.html';
                 }
             });
         });
 
-        function setInitialCashBalance(event) {
+        function setInitialCashBalance(event, uid) {
             const value = parseFloat(event.target.value.replace(/[^\d.-]/g, '')) || 0;
             initialCashBalance = value;
             event.target.value = `$${formatNumber(value)}`;
-            db.collection('calendar').doc(`${currentYear}-${currentMonth}-initial_balance`).set({ balance: initialCashBalance });
-            calculateBalances();
+            db.collection('calendar').doc(`${uid}-${currentYear}-${currentMonth}-initial_balance`).set({ balance: initialCashBalance });
+            calculateBalances(uid);
         }
 
-        function calculateBalances() {
+        function calculateBalances(uid) {
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             let previousDayBalance = initialCashBalance;
             for (let day = 1; day <= daysInMonth; day++) {
@@ -298,7 +298,7 @@
                 debitInput.value = debit !== 0 ? `-$${formatNumber(Math.abs(debit))}` : '';
                 previousDayBalance = cashBalance;
 
-                db.collection('calendar').doc(`${currentYear}-${currentMonth}-day-${day}`).set({
+                db.collection('calendar').doc(`${uid}-${currentYear}-${currentMonth}-day-${day}`).set({
                     credit: credit,
                     debit: debit,
                     cash: cashBalance,
@@ -311,14 +311,14 @@
             document.getElementById('ending-balance').innerText = `Ending Balance: $${formatNumber(previousDayBalance)}`;
         }
 
-        async function renderCalendar() {
+        async function renderCalendar(uid) {
             const calendar = document.querySelector('.calendar');
             const month = monthNames[currentMonth] + ' ' + currentYear;
             document.getElementById('month').innerText = month;
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             const startDay = new Date(currentYear, currentMonth, 1).getDay();
 
-            const initialBalanceDoc = await db.collection('calendar').doc(`${currentYear}-${currentMonth}-initial_balance`).get();
+            const initialBalanceDoc = await db.collection('calendar').doc(`${uid}-${currentYear}-${currentMonth}-initial_balance`).get();
             if (initialBalanceDoc.exists) {
                 initialCashBalance = initialBalanceDoc.data().balance;
                 document.getElementById('initial-cash-balance').value = `$${formatNumber(initialCashBalance)}`;
@@ -340,15 +340,15 @@
                 dayElement.classList.add('day');
                 dayElement.innerHTML = `
                     <header>${day}</header>
-                    <input type="text" id="credit-${day}" class="credit" placeholder="Credit" onchange="calculateBalances()">
-                    <input type="text" id="credit-description-${day}" class="description" placeholder="Description" onchange="calculateBalances()">
-                    <input type="text" id="debit-${day}" class="debit" placeholder="Debit" onchange="calculateBalances()">
-                    <input type="text" id="debit-description-${day}" class="description" placeholder="Description" onchange="calculateBalances()">
+                    <input type="text" id="credit-${day}" class="credit" placeholder="Credit" onchange="calculateBalances('${uid}')">
+                    <input type="text" id="credit-description-${day}" class="description" placeholder="Description" onchange="calculateBalances('${uid}')">
+                    <input type="text" id="debit-${day}" class="debit" placeholder="Debit" onchange="calculateBalances('${uid}')">
+                    <input type="text" id="debit-description-${day}" class="description" placeholder="Description" onchange="calculateBalances('${uid}')">
                     <div id="cash-${day}" class="cash-value">$0</div>
                 `;
                 calendar.appendChild(dayElement);
 
-                const dayDoc = await db.collection('calendar').doc(`${currentYear}-${currentMonth}-day-${day}`).get();
+                const dayDoc = await db.collection('calendar').doc(`${uid}-${currentYear}-${currentMonth}-day-${day}`).get();
                 if (dayDoc.exists) {
                     const data = dayDoc.data();
                     document.getElementById(`credit-${day}`).value = data.credit ? `$${formatNumber(data.credit)}` : '';
@@ -368,7 +368,7 @@
                 }
             }
 
-            calculateBalances();
+            calculateBalances(uid);
         }
 
         function renderMonthSelector() {
@@ -396,12 +396,12 @@
 
             monthSelect.addEventListener('change', () => {
                 currentMonth = monthNames.indexOf(monthSelect.value);
-                renderCalendar();
+                renderCalendar(auth.currentUser.uid);
             });
 
             yearSelect.addEventListener('change', () => {
                 currentYear = parseInt(yearSelect.value, 10);
-                renderCalendar();
+                renderCalendar(auth.currentUser.uid);
             });
         }
 
@@ -458,6 +458,7 @@
     </div>
 </body>
 </html>
+
 
 
 
