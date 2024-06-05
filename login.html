@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Fitneez</title>
+    <title>Fitneez Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -11,7 +11,7 @@
             background-color: #000;
             color: #fff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -34,290 +34,203 @@
             margin-bottom: 20px;
         }
         .form-group {
+            width: 100%;
             margin-bottom: 15px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            text-align: left;
-            width: 100%;
         }
         .form-group input {
             width: 100%;
             padding: 10px;
-            border: 1px solid #555;
+            border: none;
             border-radius: 4px;
-            background: #222;
+            background: #444;
             color: #fff;
+            margin-bottom: 10px;
         }
-        .form-group button {
-            width: 100%;
-            padding: 10px;
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .button-group .button {
+            flex: 1 1 45%;
+            padding: 10px 20px;
             background-color: #0f0;
             color: #000;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            font-size: 0.875rem;
         }
-        .form-group button:hover {
+        .button-group .button:hover {
             background-color: #0c0;
         }
-        .message {
-            text-align: center;
-            margin: 15px 0;
-            color: #0f0;
-        }
-        .register-fields, .modal {
-            display: none;
-        }
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-                width: 90%;
-            }
-            .form-group input, .form-group button {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
-        .modal {
+        .popover, .delete-popover {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 1000;
+            z-index: 10;
             background: #333;
+            color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             display: none;
             flex-direction: column;
-            align-items: center;
+            font-size: 0.875rem;
             width: 90%;
             max-width: 400px;
+            box-sizing: border-box;
+            text-align: center;
         }
-        .modal-header {
+        .delete-popover input {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #444;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            width: calc(100% - 22px);
+        }
+        .delete-popover button {
+            padding: 10px;
+            background: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
             width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        }
+        .delete-popover button:hover {
+            background: #0c0;
         }
         .close-button {
-            background: transparent;
+            align-self: flex-end;
+            background: #f00;
+            color: #fff;
             border: none;
-            color: #f00;
-            font-size: 1.5rem;
+            padding: 5px 10px;
             cursor: pointer;
+            border-radius: 4px;
         }
-        #registration-success-modal .message {
-            color: #0f0;
-            margin-bottom: 20px;
+        @media (max-width: 600px) {
+            .button-group {
+                flex-direction: column;
+            }
+            .button-group .button {
+                flex: 1 1 100%;
+            }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
-            authDomain: "cockrumfinance.firebaseapp.com",
-            projectId: "cockrumfinance",
-            storageBucket: "cockrumfinance.appspot.com",
-            messagingSenderId: "446623626941",
-            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
-            measurementId: "G-JFRC4K0BBF"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        function logIn() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    window.location.href = 'index.html';
-                })
-                .catch((error) => {
-                    alert(`Error logging in: ${error.message}`);
-                });
+        function logOff() {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
         }
 
-        function register() {
+        document.addEventListener('DOMContentLoaded', function () {
+            const registrationPopup = document.getElementById('registration-popup');
+            if (registrationPopup) {
+                registrationPopup.style.display = 'none';
+            }
+
+            const deletePopup = document.getElementById('delete-popup');
+            if (deletePopup) {
+                deletePopup.style.display = 'none';
+            }
+        });
+
+        function showDeleteAccountPopup() {
+            const deletePopup = document.getElementById('delete-popup');
+            deletePopup.style.display = 'flex';
+        }
+
+        function closeDeleteAccountPopup() {
+            const deletePopup = document.getElementById('delete-popup');
+            deletePopup.style.display = 'none';
+        }
+
+        async function deleteAccount() {
+            const email = document.getElementById('delete-email').value.trim();
+            const password = document.getElementById('delete-password').value.trim();
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                await userCredential.user.delete();
+                alert('Account deleted successfully.');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                alert('Error deleting account: ' + error.message);
+            }
+        }
+
+        async function registerUser() {
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
 
             if (password !== confirmPassword) {
-                alert("Passwords do not match!");
+                alert('Passwords do not match.');
                 return;
             }
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    userCredential.user.sendEmailVerification()
-                        .then(() => {
-                            document.getElementById('registration-success-modal').style.display = 'flex';
-                        })
-                        .catch((error) => {
-                            alert(`Error sending verification email: ${error.message}`);
-                        });
-                })
-                .catch((error) => {
-                    alert(`Error registering: ${error.message}`);
-                });
+            try {
+                await auth.createUserWithEmailAndPassword(email, password);
+                await auth.currentUser.sendEmailVerification();
+                alert('Thanks for registering! Please check your email for a link to complete the login process.');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error registering:', error);
+                alert('Error registering: ' + error.message);
+            }
         }
-
-        function forgotPassword() {
-            const email = document.getElementById('login-email').value;
-
-            auth.sendPasswordResetEmail(email)
-                .then(() => {
-                    alert('Password reset email sent.');
-                    window.location.reload();
-                })
-                .catch((error) => {
-                    alert(`Error sending password reset email: ${error.message}`);
-                });
-        }
-
-        function deleteUser() {
-            const email = document.getElementById('delete-email').value;
-            const password = document.getElementById('delete-password').value;
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    if (confirm("Do you really want to delete your account? This action cannot be undone.")) {
-                        user.delete()
-                            .then(() => {
-                                alert("Account deleted successfully.");
-                                window.location.href = 'login.html';
-                            })
-                            .catch((error) => {
-                                alert(`Error deleting account: ${error.message}`);
-                            });
-                    }
-                })
-                .catch((error) => {
-                    alert(`Error logging in for account deletion: ${error.message}`);
-                });
-        }
-
-        function showRegisterFields() {
-            document.querySelector('.register-fields').style.display = 'block';
-            document.querySelector('.login-fields').style.display = 'none';
-        }
-
-        function showLoginFields() {
-            document.querySelector('.register-fields').style.display = 'none';
-            document.querySelector('.login-fields').style.display = 'block';
-        }
-
-        function showDeleteAccountModal() {
-            document.getElementById('delete-account-modal').style.display = 'flex';
-        }
-
-        function closeDeleteAccountModal() {
-            document.getElementById('delete-account-modal').style.display = 'none';
-        }
-
-        function closeRegistrationSuccessModal() {
-            document.getElementById('registration-success-modal').style.display = 'none';
-            showLoginFields();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged((user) => {
-                if (user && !user.emailVerified) {
-                    auth.signOut();
-                    closeRegistrationSuccessModal();
-                }
-            });
-        });
     </script>
 </head>
 <body>
     <div class="container">
         <img src="logo.png" alt="Fitneez Logo" class="large-logo">
-        <div class="login-fields">
-            <div class="form-group">
-                <label for="login-email">Email</label>
-                <input type="email" id="login-email" placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-                <label for="login-password">Password</label>
-                <input type="password" id="login-password" placeholder="Enter your password">
-            </div>
-            <div class="form-group">
-                <button onclick="logIn()">Log In</button>
-            </div>
-            <div class="form-group">
-                <button onclick="showRegisterFields()">Register</button>
-            </div>
-            <div class="form-group">
-                <button onclick="forgotPassword()">Forgot Password</button>
-            </div>
-            <div class="form-group">
-                <button onclick="showDeleteAccountModal()">Delete Account</button>
-            </div>
+        <div class="form-group">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
         </div>
-        <div class="register-fields">
-            <div class="form-group">
-                <label for="register-email">Email</label>
-                <input type="email" id="register-email" placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-                <label for="register-password">Password</label>
-                <input type="password" id="register-password" placeholder="Enter your password">
-            </div>
-            <div class="form-group">
-                <label for="confirm-password">Confirm Password</label>
-                <input type="password" id="confirm-password" placeholder="Confirm your password">
-            </div>
-            <div class="form-group">
-                <button onclick="register()">Register</button>
-            </div>
-            <div class="form-group">
-                <button onclick="showLoginFields()">Back to Login</button>
-            </div>
+        <div class="button-group">
+            <button class="button" onclick="registerUser()">Register</button>
+            <button class="button" onclick="logOff()">Log In</button>
+            <button class="button">Forgot Password</button>
+            <button class="button" onclick="showDeleteAccountPopup()">Delete Account</button>
         </div>
     </div>
 
-    <div id="delete-account-modal" class="modal">
-        <div class="modal-header">
-            <h2>Delete Account</h2>
-            <button class="close-button" onclick="closeDeleteAccountModal()">×</button>
-        </div>
-        <div class="form-group">
-            <label for="delete-email">Email</label>
-            <input type="email" id="delete-email" placeholder="Enter your email">
-        </div>
-        <div class="form-group">
-            <label for="delete-password">Password</label>
-            <input type="password" id="delete-password" placeholder="Enter your password">
-        </div>
-        <div class="form-group">
-            <button onclick="deleteUser()">Delete Account</button>
-        </div>
-    </div>
-
-    <div id="registration-success-modal" class="modal">
-        <div class="modal-header">
-            <h2>Registration Successful</h2>
-            <button class="close-button" onclick="closeRegistrationSuccessModal()">×</button>
-        </div>
-        <div class="message">
-            Thanks for registering! You will receive an email with a link to complete the login process.
-        </div>
-        <div class="form-group">
-            <button onclick="closeRegistrationSuccessModal()">OK</button>
-        </div>
+    <!-- Delete Account Popup -->
+    <div id="delete-popup" class="delete-popover">
+        <button class="close-button" onclick="closeDeleteAccountPopup()">X</button>
+        <h2>Delete Account</h2>
+        <input type="email" id="delete-email" placeholder="Enter your email" required>
+        <input type="password" id="delete-password" placeholder="Enter your password" required>
+        <button onclick="deleteAccount()">Delete Account</button>
     </div>
 </body>
 </html>
