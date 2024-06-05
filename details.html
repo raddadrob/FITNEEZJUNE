@@ -241,20 +241,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    loadData();
+                    loadData(user.uid);
                 } else {
                     window.location.href = 'login.html';
                 }
             });
         });
 
-        async function loadData() {
+        async function loadData(uid) {
             if (auth.currentUser) {
                 await Promise.all([
-                    loadCollection('stocks_and_bonds', stocksAndBonds),
-                    loadCollection('real_estate', realEstate),
-                    loadCollection('misc_assets', miscAssets),
-                    loadCollection('liabilities', liabilities)
+                    loadCollection('stocks_and_bonds', stocksAndBonds, uid),
+                    loadCollection('real_estate', realEstate, uid),
+                    loadCollection('misc_assets', miscAssets, uid),
+                    loadCollection('liabilities', liabilities, uid)
                 ]);
                 updateTables();
                 updateSummary();
@@ -263,8 +263,8 @@
             }
         }
 
-        async function loadCollection(collection, dataArray) {
-            const snapshot = await db.collection(collection).get();
+        async function loadCollection(collection, dataArray, uid) {
+            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
             dataArray.length = 0;
             snapshot.docs.forEach(doc => {
                 const data = doc.data();
@@ -347,14 +347,14 @@
                     value: collection === 'liabilities' ? Math.abs(value) : value,
                     previousValue: getItemById(collection, id).value
                 });
-                loadData();
+                loadData(auth.currentUser.uid);
                 closePopover();
             }
         }
 
         async function deleteRow(collection, id) {
             await db.collection(collection).doc(id).delete();
-            loadData();
+            loadData(auth.currentUser.uid);
             closePopover();
         }
 
@@ -374,12 +374,13 @@
                 const newItem = {
                     description,
                     value: collection === 'liabilities' ? Math.abs(value) : value,
-                    previousValue: 0
+                    previousValue: 0,
+                    uid: auth.currentUser.uid // Add UID to the document
                 };
                 const docRef = await db.collection(collection).add(newItem);
                 newItem.id = docRef.id;
                 console.log(`Added ${collection} item with ID ${newItem.id}`);
-                loadData();
+                loadData(auth.currentUser.uid);
                 descriptionInput.value = '';
                 valueInput.value = '';
             } else {
