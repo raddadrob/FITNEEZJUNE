@@ -368,6 +368,7 @@
                     if (data.photos && data.photos.length > 0) {
                         const carousel = document.createElement('div');
                         carousel.classList.add('image-carousel');
+                        carousel.setAttribute('data-id', doc.id); // Add this line
                         carousel.innerHTML = `
                             <img src="${data.photos[0]}" alt="Photo">
                             <button class="carousel-arrow left" onclick="prevPhoto('${doc.id}')">&lt;</button>
