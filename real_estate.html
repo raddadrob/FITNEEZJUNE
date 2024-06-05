@@ -398,20 +398,24 @@
 
         function prevPhoto(id) {
             const carousel = document.querySelector(`.image-carousel[data-id="${id}"]`);
-            const photoUrls = JSON.parse(carousel.getAttribute('data-photo-urls'));
-            let index = parseInt(carousel.getAttribute('data-photo-index'));
-            index = (index > 0) ? index - 1 : photoUrls.length - 1;
-            carousel.setAttribute('data-photo-index', index);
-            carousel.querySelector('img').src = photoUrls[index];
+            if (carousel) {
+                const photoUrls = JSON.parse(carousel.getAttribute('data-photo-urls'));
+                let index = parseInt(carousel.getAttribute('data-photo-index'));
+                index = (index > 0) ? index - 1 : photoUrls.length - 1;
+                carousel.setAttribute('data-photo-index', index);
+                carousel.querySelector('img').src = photoUrls[index];
+            }
         }
 
         function nextPhoto(id) {
             const carousel = document.querySelector(`.image-carousel[data-id="${id}"]`);
-            const photoUrls = JSON.parse(carousel.getAttribute('data-photo-urls'));
-            let index = parseInt(carousel.getAttribute('data-photo-index'));
-            index = (index < photoUrls.length - 1) ? index + 1 : 0;
-            carousel.setAttribute('data-photo-index', index);
-            carousel.querySelector('img').src = photoUrls[index];
+            if (carousel) {
+                const photoUrls = JSON.parse(carousel.getAttribute('data-photo-urls'));
+                let index = parseInt(carousel.getAttribute('data-photo-index'));
+                index = (index < photoUrls.length - 1) ? index + 1 : 0;
+                carousel.setAttribute('data-photo-index', index);
+                carousel.querySelector('img').src = photoUrls[index];
+            }
         }
 
         function formatNumber(value) {
