@@ -327,7 +327,10 @@
                         docRef = db.collection('real_estate').doc(currentEditId);
                         const currentData = (await docRef.get()).data();
                         const photoUrls = currentData.photos || [];
-                        await docRef.update(addressData);
+                        await docRef.update({
+                            ...addressData,
+                            previousValue: currentData.currentMarketValue || 0 // Save current market value as previous value
+                        });
                         if (photoFiles.length > 0) {
                             const newPhotoUrls = await uploadPhotos(currentEditId, photoFiles);
                             await docRef.update({ photos: photoUrls.concat(newPhotoUrls) });
