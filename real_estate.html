@@ -343,6 +343,7 @@
                             <h2 style="color: #0f0;">${data.name}</h2>
                             <p>Address: ${data.address}</p>
                             <p style="color: #0f0;">Equity: $${formatNumber(equity)}</p>
+                            <p style="color: #0f0;">ROR: ${ror}%</p>
                             <button class="details-button" onclick="showDetails('${doc.id}')">Details</button>
                             <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
                             <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
