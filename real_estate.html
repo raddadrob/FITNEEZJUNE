@@ -83,7 +83,7 @@
             margin-bottom: 20px;
             width: 100%;
             display: flex;
-            align-items: center; /* Align items horizontally */
+            align-items: center;
         }
         .house {
             background: #444;
@@ -92,25 +92,6 @@
             margin-bottom: 20px;
             position: relative;
             flex: 1;
-        }
-        .house .details-popup {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #222;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 10;
-            white-space: pre-wrap;
-            width: 300px;
-            max-width: 90%;
-            font-size: 0.75rem; /* Smaller font size */
-        }
-        .house:hover .details-popup {
-            display: block;
         }
         .add-address-button {
             background: #0f0;
@@ -125,7 +106,7 @@
         .add-address-button:hover {
             background: #0c0;
         }
-        .edit-button, .delete-button {
+        .edit-button, .delete-button, .details-button {
             background: #0f0;
             color: #000;
             padding: 5px 10px;
@@ -135,7 +116,7 @@
             font-size: 0.75rem;
             margin-top: 10px;
         }
-        .edit-button:hover, .delete-button:hover {
+        .edit-button:hover, .delete-button:hover, .details-button:hover {
             background: #0c0;
         }
         .popover {
@@ -151,35 +132,45 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             display: none;
             flex-direction: column;
-            font-size: 0.75rem; /* Smaller font size */
+            font-size: 0.75rem;
             width: 90%;
             max-width: 300px;
             box-sizing: border-box;
         }
-        .popover input {
-            margin-bottom: 10px;
-            padding: 8px;
-            background: #222;
+        .details-popover {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            background: #333;
             color: #fff;
-            border: 1px solid #555;
-            border-radius: 4px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            font-size: 0.75rem;
+            width: 90%;
+            max-width: 400px;
+            box-sizing: border-box;
         }
-        .popover button {
-            padding: 8px;
-            background: #0f0;
-            color: #000;
+        .details-popover p {
+            margin: 5px 0;
+        }
+        .details-popover .close-button {
+            align-self: flex-end;
+            background: #f00;
+            color: #fff;
             border: none;
-            border-radius: 4px;
+            padding: 5px 10px;
             cursor: pointer;
-            margin-bottom: 10px;
-        }
-        .popover button:hover {
-            background: #0c0;
+            border-radius: 4px;
         }
         .image-carousel {
             position: relative;
-            width: 300px; /* Doubled the size */
-            height: 300px; /* Doubled the size */
+            width: 300px;
+            height: 300px;
             overflow: hidden;
             border-radius: 8px;
             margin-left: 20px;
@@ -344,6 +335,7 @@
                 const data = doc.data();
                 if (data.name && data.address) {
                     const equity = data.currentMarketValue - data.mortgageBalance;
+                    const ror = (equity !== 0) ? (data.downPayment / equity).toFixed(2) : 0;
                     const section = document.createElement('div');
                     section.classList.add('section', 'house');
                     section.innerHTML = `
@@ -351,16 +343,7 @@
                             <h2 style="color: #0f0;">${data.name}</h2>
                             <p>Address: ${data.address}</p>
                             <p>Equity: $${formatNumber(equity)}</p>
-                            <div class="details-popup">
-                                Acquisition Date: ${data.acquisitionDate}<br>
-                                Initial Purchase Price: $${formatNumber(data.purchasePrice)}<br>
-                                Down Payment: $${formatNumber(data.downPayment)}<br>
-                                Mortgage Bank: ${data.mortgageBank}<br>
-                                Mortgage Payment: $${formatNumber(data.mortgagePayment)}<br>
-                                Mortgage Interest Rate: ${data.mortgageInterestRate}%<br>
-                                Mortgage Balance: $${formatNumber(data.mortgageBalance)}<br>
-                                Current Market Value: $${formatNumber(data.currentMarketValue)}
-                            </div>
+                            <button class="details-button" onclick="showDetails('${doc.id}')">Details</button>
                             <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
                             <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
                         </div>
@@ -368,7 +351,7 @@
                     if (data.photos && data.photos.length > 0) {
                         const carousel = document.createElement('div');
                         carousel.classList.add('image-carousel');
-                        carousel.setAttribute('data-id', doc.id); // Add this line
+                        carousel.setAttribute('data-id', doc.id);
                         carousel.innerHTML = `
                             <img src="${data.photos[0]}" alt="Photo">
                             <button class="carousel-arrow left" onclick="prevPhoto('${doc.id}')">&lt;</button>
@@ -381,6 +364,35 @@
                     container.appendChild(section);
                 }
             });
+        }
+
+        function showDetails(id) {
+            const detailsPopover = document.getElementById('details-popover');
+            db.collection('real_estate').doc(id).get().then(doc => {
+                const data = doc.data();
+                const equity = data.currentMarketValue - data.mortgageBalance;
+                const ror = (equity !== 0) ? (data.downPayment / equity).toFixed(2) : 0;
+
+                detailsPopover.innerHTML = `
+                    <button class="close-button" onclick="closeDetails()">Close</button>
+                    <p>Purchase Date: ${data.acquisitionDate}</p>
+                    <p>Lender: ${data.mortgageBank}</p>
+                    <p>Interest Rate: ${data.mortgageInterestRate}%</p>
+                    <hr>
+                    <p>Original Mortgage Amount: $${formatNumber(data.purchasePrice)}</p>
+                    <p>Down Payment: $${formatNumber(data.downPayment)}</p>
+                    <p>Mortgage Balance: $${formatNumber(data.mortgageBalance)}</p>
+                    <p>Current Market Value: $${formatNumber(data.currentMarketValue)}</p>
+                    <hr>
+                    <p>Equity: $${formatNumber(equity)}</p>
+                    <p>ROR%: ${ror}</p>
+                `;
+                detailsPopover.style.display = 'flex';
+            });
+        }
+
+        function closeDetails() {
+            document.getElementById('details-popover').style.display = 'none';
         }
 
         function prevPhoto(id) {
@@ -482,6 +494,10 @@
         <button onclick="addOrUpdateAddress()">Save</button>
         <button onclick="closeAddAddressPopover()">Cancel</button>
     </div>
+
+    <!-- Popover for Details -->
+    <div id="details-popover" class="details-popover"></div>
 </body>
 </html>
+
 
