@@ -385,7 +385,7 @@
                     console.log('Loaded address data:', data);
                     if (data.name && data.address) {
                         const equity = data.currentMarketValue - data.mortgageBalance;
-                        const ror = (equity !== 0) ? ((data.downPayment / (equity - data.downPayment)) * 100).toFixed(2) : 0;
+                        const ror = (equity !== 0) ? ((equity - data.downPayment) / data.downPayment * 100).toFixed(2) : 0;
                         const section = document.createElement('div');
                         section.classList.add('section', 'house');
                         section.innerHTML = `
@@ -428,7 +428,7 @@
             db.collection('real_estate').doc(id).get().then(doc => {
                 const data = doc.data();
                 const equity = data.currentMarketValue - data.mortgageBalance;
-                const ror = (equity !== 0) ? ((data.downPayment / (equity - data.downPayment)) * 100).toFixed(2) : 0;
+                const ror = (equity !== 0) ? ((equity - data.downPayment) / data.downPayment * 100).toFixed(2) : 0;
 
                 detailsPopover.innerHTML = `
                     <button class="close-button" onclick="closeDetails()">Close</button>
@@ -597,7 +597,6 @@
     <div id="spinner" class="spinner"></div>
 </body>
 </html>
-
 
 
 
