@@ -316,10 +316,11 @@
                 const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
                 const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
                 const photoFiles = document.getElementById('photo-upload').files;
+                const userId = auth.currentUser.uid;
 
                 if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
                     const addressData = {
-                        name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
+                        name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue, userId
                     };
 
                     let docRef;
@@ -378,7 +379,8 @@
                     return;
                 }
                 container.innerHTML = ''; // Clear the container
-                const snapshot = await db.collection('real_estate').get();
+                const userId = auth.currentUser.uid;
+                const snapshot = await db.collection('real_estate').where('userId', '==', userId).get();
                 if (snapshot.empty) {
                     console.log('No matching documents.');
                     return;
