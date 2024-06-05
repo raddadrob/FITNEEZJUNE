@@ -268,7 +268,10 @@
             const value = parseFloat(event.target.value.replace(/[^\d.-]/g, '')) || 0;
             initialCashBalance = value;
             event.target.value = `$${formatNumber(value)}`;
-            db.collection('calendar').doc(`${uid}-${currentYear}-${currentMonth}-initial_balance`).set({ balance: initialCashBalance });
+            db.collection('calendar').doc(`${uid}-${currentYear}-${currentMonth}-initial_balance`).set({ balance: initialCashBalance })
+                .catch(error => {
+                    console.error("Error storing document: ", error);
+                });
             calculateBalances(uid);
         }
 
@@ -302,8 +305,8 @@
                     credit: credit,
                     debit: debit,
                     cash: cashBalance,
-                    creditDescription: creditDescription.value,
-                    debitDescription: debitDescription.value
+                    creditDescription: creditDescription.value.trim(),
+                    debitDescription: debitDescription.value.trim()
                 }).catch(error => {
                     console.error("Error storing document: ", error);
                 });
