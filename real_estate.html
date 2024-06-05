@@ -302,11 +302,12 @@
                     name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue
                 };
 
+                let docRef;
                 if (currentEditId) {
-                    await db.collection('real_estate').doc(currentEditId).update(addressData);
-                    currentEditId = null;
+                    docRef = db.collection('real_estate').doc(currentEditId);
+                    await docRef.update(addressData);
                 } else {
-                    const docRef = await db.collection('real_estate').add(addressData);
+                    docRef = await db.collection('real_estate').add(addressData);
                     currentEditId = docRef.id;
                 }
 
@@ -482,5 +483,4 @@
     </div>
 </body>
 </html>
-
 
