@@ -282,24 +282,22 @@
                 if (!user) {
                     window.location.href = 'login.html';
                 } else {
-                    loadSummary();
-                    loadCreditCards();
-                    document.getElementById('month-select').addEventListener('change', updateChart);
-                    document.getElementById('year-select').addEventListener('change', updateChart);
+                    loadSummary(user.uid);
+                    loadCreditCards(user.uid);
+                    document.getElementById('month-select').addEventListener('change', () => updateChart(user.uid));
+                    document.getElementById('year-select').addEventListener('change', () => updateChart(user.uid));
 
-                    // Add event listeners for popups
-                    document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds'));
+                    document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds', user.uid));
                     document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-real_estate-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate'));
+                    document.getElementById('total-real_estate-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate', user.uid));
                     document.getElementById('total-real_estate-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-misc_assets-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets'));
+                    document.getElementById('total-misc_assets-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets', user.uid));
                     document.getElementById('total-misc_assets-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-assets').addEventListener('mouseenter', (event) => showDetails(event, 'Total Assets', 'assets'));
+                    document.getElementById('total-assets').addEventListener('mouseenter', (event) => showDetails(event, 'Total Assets', 'assets', user.uid));
                     document.getElementById('total-assets').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-liabilities-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities'));
+                    document.getElementById('total-liabilities-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities', user.uid));
                     document.getElementById('total-liabilities-amount').addEventListener('mouseleave', closePopover);
 
-                    // Add event listener for hamburger menu
                     document.querySelector('.menu-icon').addEventListener('click', toggleMenu);
                 }
             });
@@ -310,11 +308,11 @@
             menuLinks.classList.toggle('active');
         }
 
-        async function loadSummary() {
-            const stocksAndBonds = await getTotal('stocks_and_bonds');
-            const realEstate = await getRealEstateTotal();
-            const miscAssets = await getTotal('misc_assets');
-            const liabilities = await getTotal('liabilities');
+        async function loadSummary(uid) {
+            const stocksAndBonds = await getTotal('stocks_and_bonds', uid);
+            const realEstate = await getRealEstateTotal(uid);
+            const miscAssets = await getTotal('misc_assets', uid);
+            const liabilities = await getTotal('liabilities', uid);
             const totalAssets = stocksAndBonds + realEstate + miscAssets;
             const netWorth = totalAssets - liabilities;
 
@@ -330,23 +328,23 @@
             const currentYear = new Date().getFullYear();
             document.getElementById('month-select').value = monthName;
             document.getElementById('year-select').value = currentYear;
-            await loadChartData(currentYear, currentMonth);
+            await loadChartData(currentYear, currentMonth, uid);
         }
 
-        async function getTotal(collection) {
-            const snapshot = await db.collection(collection).get();
+        async function getTotal(collection, uid) {
+            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
             return snapshot.docs.reduce((total, doc) => total + doc.data().value, 0);
         }
 
-        async function getRealEstateTotal() {
-            const snapshot = await db.collection('real_estate').get();
+        async function getRealEstateTotal(uid) {
+            const snapshot = await db.collection('real_estate').where('uid', '==', uid).get();
             return snapshot.docs.reduce((total, doc) => {
                 const data = doc.data();
                 return total + (data.currentMarketValue || 0);
             }, 0);
         }
 
-        async function loadChartData(year, month) {
+        async function loadChartData(year, month, uid) {
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const credits = Array(daysInMonth).fill(0);
             const debits = Array(daysInMonth).fill(0);
@@ -355,7 +353,7 @@
             const cashBalances = Array(daysInMonth).fill(0);
 
             for (let day = 1; day <= daysInMonth; day++) {
-                const doc = await db.collection('calendar').doc(`${year}-${month}-day-${day}`).get();
+                const doc = await db.collection('calendar').doc(`${uid}-${year}-${month}-day-${day}`).get();
                 if (doc.exists) {
                     const data = doc.data();
                     credits[day - 1] = data.credit;
@@ -448,19 +446,19 @@
             });
         }
 
-        async function updateChart() {
+        async function updateChart(uid) {
             const selectedMonth = document.getElementById('month-select').value;
             const selectedYear = document.getElementById('year-select').value;
             const monthIndex = new Date(Date.parse(selectedMonth + " 1, 2021")).getMonth();
-            await loadChartData(selectedYear, monthIndex);
+            await loadChartData(selectedYear, monthIndex, uid);
         }
 
         function formatNumber(value) {
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        async function showDetails(event, title, collection) {
-            const dataArray = await getCollectionData(collection);
+        async function showDetails(event, title, collection, uid) {
+            const dataArray = await getCollectionData(collection, uid);
             dataArray.sort((a, b) => b.value - a.value);
             const popover = document.getElementById('details-popover');
             const popoverTitle = document.getElementById('details-title');
@@ -503,8 +501,8 @@
             positionPopover(popover, event);
         }
 
-        async function getCollectionData(collection) {
-            const snapshot = await db.collection(collection).get();
+        async function getCollectionData(collection, uid) {
+            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
             return snapshot.docs.map(doc => doc.data());
         }
 
@@ -512,11 +510,11 @@
             document.getElementById('details-popover').style.display = 'none';
         }
 
-        async function loadCreditCards() {
+        async function loadCreditCards(uid) {
             const creditCardsContainer = document.getElementById('credit-cards-container');
             creditCardsContainer.innerHTML = '';
             let totalBalance = 0;
-            const snapshot = await db.collection('credit_cards').get();
+            const snapshot = await db.collection('credit_cards').where('uid', '==', uid).get();
             snapshot.forEach(doc => {
                 const card = doc.data();
                 const row = document.createElement('tr');
@@ -679,6 +677,7 @@
     </div>
 </body>
 </html>
+
 
 
 
