@@ -316,11 +316,11 @@
                 const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
                 const currentMarketValue = parseFloat(document.getElementById('current-market-value').value);
                 const photoFiles = document.getElementById('photo-upload').files;
-                const userId = auth.currentUser.uid;
+                const uid = auth.currentUser.uid;
 
                 if (name && address && acquisitionDate && !isNaN(purchasePrice) && !isNaN(downPayment) && mortgageBank && !isNaN(mortgagePayment) && !isNaN(mortgageInterestRate) && !isNaN(mortgageBalance) && !isNaN(currentMarketValue)) {
                     const addressData = {
-                        name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue, userId
+                        name, address, acquisitionDate, purchasePrice, downPayment, mortgageBank, mortgagePayment, mortgageInterestRate, mortgageBalance, currentMarketValue, uid
                     };
 
                     let docRef;
@@ -379,8 +379,8 @@
                     return;
                 }
                 container.innerHTML = ''; // Clear the container
-                const userId = auth.currentUser.uid;
-                const snapshot = await db.collection('real_estate').where('userId', '==', userId).get();
+                const uid = auth.currentUser.uid;
+                const snapshot = await db.collection('real_estate').where('uid', '==', uid).get();
                 if (snapshot.empty) {
                     console.log('No matching documents.');
                     return;
@@ -604,7 +604,6 @@
     <div id="spinner" class="spinner"></div>
 </body>
 </html>
-
 
 
 
