@@ -45,15 +45,19 @@
             display: flex;
             gap: 15px;
         }
-        .menu-links a {
+        .menu-links a,
+        .menu-links button {
             color: #0f0;
             text-decoration: none;
             padding: 10px 20px;
             background: #000;
             border-radius: 4px;
             font-size: 0.875rem;
+            border: none;
+            cursor: pointer;
         }
-        .menu-links a:hover {
+        .menu-links a:hover,
+        .menu-links button:hover {
             background: #444;
         }
         .logoff-button {
@@ -64,10 +68,6 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.875rem;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 200px;
-            text-align: center;
         }
         .logoff-button:hover {
             background: #0c0;
@@ -334,8 +334,8 @@
                     credits[day - 1] = data.credit;
                     debits[day - 1] = data.debit;
                     cashBalances[day - 1] = data.cash;
-                    creditDescriptions[day - 1] = data.creditDescription.trim() || "";
-                    debitDescriptions[day - 1] = data.debitDescription.trim() || "";
+                    creditDescriptions[day - 1] = data.creditDescription || "";
+                    debitDescriptions[day - 1] = data.debitDescription || "";
                 }
             }
 
@@ -548,6 +548,7 @@
                 <a href="calendar.html">Cash Flow</a>
                 <a href="real_estate.html">Real Estate</a>
                 <a href="credit_cards.html">Credit Cards</a>
+                <button class="logoff-button" onclick="logOff()">Log Off</button>
             </div>
         </div>
     </div>
@@ -642,7 +643,6 @@
                 </table>
             </div>
         </div>
-        <button class="logoff-button" onclick="logOff()">Log Off</button>
     </div>
 
     <!-- Popover for Details -->
