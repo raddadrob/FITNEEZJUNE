@@ -114,6 +114,10 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
+        #registration-success-modal .message {
+            color: #0f0;
+            margin-bottom: 20px;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -158,9 +162,7 @@
                 .then((userCredential) => {
                     userCredential.user.sendEmailVerification()
                         .then(() => {
-                            alert('Verification email sent. Please check your inbox.');
-                            document.querySelector('.register-fields').style.display = 'none';
-                            document.querySelector('.login-fields').style.display = 'block';
+                            document.getElementById('registration-success-modal').style.display = 'flex';
                         })
                         .catch((error) => {
                             alert(`Error sending verification email: ${error.message}`);
@@ -223,6 +225,11 @@
 
         function closeDeleteAccountModal() {
             document.getElementById('delete-account-modal').style.display = 'none';
+        }
+
+        function closeRegistrationSuccessModal() {
+            document.getElementById('registration-success-modal').style.display = 'none';
+            showLoginFields();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -298,9 +305,21 @@
             <button onclick="deleteUser()">Delete Account</button>
         </div>
     </div>
+
+    <div id="registration-success-modal" class="modal">
+        <div class="modal-header">
+            <h2>Registration Successful</h2>
+            <button class="close-button" onclick="closeRegistrationSuccessModal()">×</button>
+        </div>
+        <div class="message">
+            Thanks for registering! You will receive an email with a link to complete the login process.
+        </div>
+        <div class="form-group">
+            <button onclick="closeRegistrationSuccessModal()">OK</button>
+        </div>
+    </div>
 </body>
 </html>
-
 
 
 
