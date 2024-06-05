@@ -228,8 +228,8 @@
         });
 
         async function addCard() {
-            const cardName = document.getElementById('card-name').value;
-            const cardBalance = parseFloat(document.getElementById('card-balance').value);
+            const cardName = document.getElementById('card-name').value.trim();
+            const cardBalance = parseFloat(document.getElementById('card-balance').value.trim());
             const cardType = document.getElementById('card-type').value;
 
             if (cardName && !isNaN(cardBalance) && cardType) {
@@ -270,7 +270,7 @@
         }
 
         async function updateBalance(cardId) {
-            const newBalance = parseFloat(prompt("Enter the new balance:"));
+            const newBalance = parseFloat(prompt("Enter the new balance:").trim());
             if (!isNaN(newBalance)) {
                 await db.collection('credit_cards').doc(cardId).update({
                     balance: newBalance
@@ -331,6 +331,7 @@
     </div>
 </body>
 </html>
+
 
 
 
