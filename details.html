@@ -250,17 +250,20 @@
 
         async function loadData() {
             if (auth.currentUser) {
-                await loadCollection('stocks_and_bonds', stocksAndBonds, updateTable);
-                await loadCollection('real_estate', realEstate, updateTable);
-                await loadCollection('misc_assets', miscAssets, updateTable);
-                await loadCollection('liabilities', liabilities, updateTable);
+                await Promise.all([
+                    loadCollection('stocks_and_bonds', stocksAndBonds),
+                    loadCollection('real_estate', realEstate),
+                    loadCollection('misc_assets', miscAssets),
+                    loadCollection('liabilities', liabilities)
+                ]);
+                updateTables();
                 updateSummary();
             } else {
                 window.location.href = 'login.html';
             }
         }
 
-        async function loadCollection(collection, dataArray, callback) {
+        async function loadCollection(collection, dataArray) {
             const snapshot = await db.collection(collection).get();
             dataArray.length = 0;
             snapshot.docs.forEach(doc => {
@@ -269,7 +272,13 @@
                 dataArray.push(data);
             });
             dataArray.sort((a, b) => b.value - a.value);
-            callback(collection, dataArray);
+        }
+
+        function updateTables() {
+            updateTable('stocks_and_bonds', stocksAndBonds);
+            updateTable('real_estate', realEstate);
+            updateTable('misc_assets', miscAssets);
+            updateTable('liabilities', liabilities);
         }
 
         function updateTable(collection, dataArray) {
