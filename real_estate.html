@@ -119,25 +119,7 @@
         .edit-button:hover, .delete-button:hover, .details-button:hover {
             background: #0c0;
         }
-        .popover {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            background: #333;
-            color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            display: none;
-            flex-direction: column;
-            font-size: 0.75rem;
-            width: 90%;
-            max-width: 300px;
-            box-sizing: border-box;
-        }
-        .details-popover {
+        .popover, .details-popover {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -152,7 +134,7 @@
             flex-direction: column;
             font-size: 0.75rem;
             width: 90%;
-            max-width: 400px;
+            max-width: 300px;
             box-sizing: border-box;
         }
         .details-popover p {
@@ -305,12 +287,12 @@
         async function addOrUpdateAddress() {
             try {
                 showSpinner();
-                const name = document.getElementById('address-name').value;
-                const address = document.getElementById('address-value').value;
+                const name = document.getElementById('address-name').value.trim();
+                const address = document.getElementById('address-value').value.trim();
                 const acquisitionDate = document.getElementById('acquisition-date').value;
                 const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
                 const downPayment = parseFloat(document.getElementById('down-payment').value);
-                const mortgageBank = document.getElementById('mortgage-bank').value;
+                const mortgageBank = document.getElementById('mortgage-bank').value.trim();
                 const mortgagePayment = parseFloat(document.getElementById('mortgage-payment').value);
                 const mortgageInterestRate = parseFloat(document.getElementById('mortgage-interest-rate').value);
                 const mortgageBalance = parseFloat(document.getElementById('mortgage-balance').value);
