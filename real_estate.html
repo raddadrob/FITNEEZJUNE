@@ -300,14 +300,19 @@
                 let docRef;
                 if (currentEditId) {
                     docRef = db.collection('real_estate').doc(currentEditId);
+                    const currentData = (await docRef.get()).data();
+                    const photoUrls = currentData.photos || [];
                     await docRef.update(addressData);
+                    if (photoFiles.length > 0) {
+                        const newPhotoUrls = await uploadPhotos(currentEditId, photoFiles);
+                        await docRef.update({ photos: photoUrls.concat(newPhotoUrls) });
+                    }
                 } else {
                     docRef = await db.collection('real_estate').add(addressData);
                     currentEditId = docRef.id;
+                    const photoUrls = await uploadPhotos(currentEditId, photoFiles);
+                    await db.collection('real_estate').doc(currentEditId).update({ photos: photoUrls });
                 }
-
-                const photoUrls = await uploadPhotos(currentEditId, photoFiles);
-                await db.collection('real_estate').doc(currentEditId).update({ photos: photoUrls });
 
                 closeAddAddressPopover();
                 loadAddresses();
@@ -339,7 +344,7 @@
                 const data = doc.data();
                 if (data.name && data.address) {
                     const equity = data.currentMarketValue - data.mortgageBalance;
-                    const ror = (equity !== 0) ? ((data.downPayment / equity) * 100).toFixed(2) : 0;
+                    const ror = (equity !== 0) ? ((data.downPayment / (equity - data.downPayment)) * 100).toFixed(2) : 0;
                     const section = document.createElement('div');
                     section.classList.add('section', 'house');
                     section.innerHTML = `
@@ -379,7 +384,7 @@
             db.collection('real_estate').doc(id).get().then(doc => {
                 const data = doc.data();
                 const equity = data.currentMarketValue - data.mortgageBalance;
-                const ror = (equity !== 0) ? ((data.downPayment / equity) * 100).toFixed(2) : 0;
+                const ror = (equity !== 0) ? ((data.downPayment / (equity - data.downPayment)) * 100).toFixed(2) : 0;
 
                 detailsPopover.innerHTML = `
                     <button class="close-button" onclick="closeDetails()">Close</button>
@@ -527,6 +532,7 @@
     <div id="details-popover" class="details-popover"></div>
 </body>
 </html>
+
 
 
 
