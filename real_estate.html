@@ -335,14 +335,14 @@
                 const data = doc.data();
                 if (data.name && data.address) {
                     const equity = data.currentMarketValue - data.mortgageBalance;
-                    const ror = (equity !== 0) ? (data.downPayment / equity).toFixed(2) : 0;
+                    const ror = (equity !== 0) ? ((data.downPayment / equity) * 100).toFixed(2) : 0;
                     const section = document.createElement('div');
                     section.classList.add('section', 'house');
                     section.innerHTML = `
                         <div style="flex: 1;">
                             <h2 style="color: #0f0;">${data.name}</h2>
                             <p>Address: ${data.address}</p>
-                            <p>Equity: $${formatNumber(equity)}</p>
+                            <p style="color: #0f0;">Equity: $${formatNumber(equity)}</p>
                             <button class="details-button" onclick="showDetails('${doc.id}')">Details</button>
                             <button class="edit-button" onclick="editAddress('${doc.id}')">Edit</button>
                             <button class="delete-button" onclick="deleteAddress('${doc.id}')">Delete</button>
@@ -371,7 +371,7 @@
             db.collection('real_estate').doc(id).get().then(doc => {
                 const data = doc.data();
                 const equity = data.currentMarketValue - data.mortgageBalance;
-                const ror = (equity !== 0) ? (data.downPayment / equity).toFixed(2) : 0;
+                const ror = (equity !== 0) ? ((data.downPayment / equity) * 100).toFixed(2) : 0;
 
                 detailsPopover.innerHTML = `
                     <button class="close-button" onclick="closeDetails()">Close</button>
@@ -384,8 +384,8 @@
                     <p>Mortgage Balance: $${formatNumber(data.mortgageBalance)}</p>
                     <p>Current Market Value: $${formatNumber(data.currentMarketValue)}</p>
                     <hr>
-                    <p>Equity: $${formatNumber(equity)}</p>
-                    <p>ROR%: ${ror}</p>
+                    <p style="color: #0f0;">Equity: $${formatNumber(equity)}</p>
+                    <p style="color: #0f0;">ROR: ${ror}%</p>
                 `;
                 detailsPopover.style.display = 'flex';
             });
@@ -416,9 +416,9 @@
         function formatNumber(value) {
             if (typeof value !== 'number' || isNaN(value)) {
                 console.error('Invalid number:', value);
-                return '0.00';
+                return '0';
             }
-            return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
         async function editAddress(id) {
@@ -499,5 +499,6 @@
     <div id="details-popover" class="details-popover"></div>
 </body>
 </html>
+
 
 
