@@ -169,8 +169,8 @@
         }
         .image-gallery {
             position: relative;
-            width: 400px; /* Increased width */
-            height: 400px; /* Increased height */
+            width: 600px;
+            height: 600px;
             overflow: hidden;
             border-radius: 8px;
             margin-left: 20px;
@@ -383,9 +383,9 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     console.log('Loaded address data:', data);
-                    if (data.name && data.address) {
+                    if (data.name && data.address && data.currentMarketValue !== undefined && data.mortgageBalance !== undefined && data.downPayment !== undefined) {
                         const equity = data.currentMarketValue - data.mortgageBalance;
-                        const ror = (equity !== 0 && data.downPayment !== 0) ? ((equity / data.downPayment - 1) * 100).toFixed(2) : 0;
+                        const ror = (equity !== 0 && data.downPayment !== 0) ? (((equity - data.downPayment) / data.downPayment) * 100).toFixed(2) : 0;
                         const section = document.createElement('div');
                         section.classList.add('section', 'house');
                         section.innerHTML = `
@@ -430,7 +430,7 @@
             db.collection('real_estate').doc(id).get().then(doc => {
                 const data = doc.data();
                 const equity = data.currentMarketValue - data.mortgageBalance;
-                const ror = (equity !== 0 && data.downPayment !== 0) ? ((equity / data.downPayment - 1) * 100).toFixed(2) : 0;
+                const ror = (equity !== 0 && data.downPayment !== 0) ? (((equity - data.downPayment) / data.downPayment) * 100).toFixed(2) : 0;
 
                 detailsPopover.innerHTML = `
                     <button class="close-button" onclick="closeDetails()">Close</button>
@@ -599,6 +599,7 @@
     <div id="spinner" class="spinner"></div>
 </body>
 </html>
+
 
 
 
