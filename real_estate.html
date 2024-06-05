@@ -201,6 +201,29 @@
         .gallery-arrow.right {
             right: 5px;
         }
+        .spinner {
+            display: none;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #0f0;
+            width: 40px;
+            height: 40px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         @media (max-width: 600px) {
             .menu-links {
                 display: none;
@@ -281,6 +304,7 @@
 
         async function addOrUpdateAddress() {
             try {
+                showSpinner();
                 const name = document.getElementById('address-name').value;
                 const address = document.getElementById('address-value').value;
                 const acquisitionDate = document.getElementById('acquisition-date').value;
@@ -323,6 +347,8 @@
                 }
             } catch (error) {
                 console.error('Error saving address:', error);
+            } finally {
+                hideSpinner();
             }
         }
 
@@ -507,6 +533,14 @@
             }
         }
 
+        function showSpinner() {
+            document.getElementById('spinner').style.display = 'block';
+        }
+
+        function hideSpinner() {
+            document.getElementById('spinner').style.display = 'none';
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (!user) {
@@ -558,6 +592,9 @@
 
     <!-- Popover for Details -->
     <div id="details-popover" class="details-popover"></div>
+
+    <!-- Spinner -->
+    <div id="spinner" class="spinner"></div>
 </body>
 </html>
 
