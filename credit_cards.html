@@ -25,7 +25,7 @@
             align-items: center;
         }
         .large-logo {
-            width: 150px; /* Adjust the size to match login.html */
+            width: 150px;
             display: block;
             margin: 0 auto;
         }
@@ -41,14 +41,14 @@
         }
         .menu-bar-container {
             width: 100%;
-            max-width: 1200px; /* Match the width of the container */
+            max-width: 1200px;
             margin: 0 auto;
             padding: 10px 0;
             display: flex;
             justify-content: center;
             background: #333;
-            border-radius: 0; /* Remove rounded corners */
-            box-shadow: none; /* Remove box shadow if any */
+            border-radius: 0;
+            box-shadow: none;
         }
         .menu-bar {
             display: flex;
@@ -93,7 +93,7 @@
             border-radius: 8px;
             text-align: center;
             cursor: pointer;
-            flex: 1; /* Ensures even spacing */
+            flex: 1;
         }
         .form-field {
             margin-bottom: 15px;
@@ -164,7 +164,7 @@
                 display: block;
                 font-size: 24px;
                 cursor: pointer;
-                color: lightgrey; /* Change hamburger icon color to light grey */
+                color: lightgrey;
             }
             .menu-links.active {
                 display: flex;
@@ -234,7 +234,7 @@
 
             if (cardName && !isNaN(cardBalance) && cardType) {
                 await db.collection('credit_cards').add({
-                    userId: auth.currentUser.uid,
+                    uid: auth.currentUser.uid,
                     name: cardName,
                     balance: cardBalance,
                     type: cardType
@@ -250,7 +250,7 @@
         async function loadCards(uid) {
             const cardsContainer = document.getElementById('cards-container');
             cardsContainer.innerHTML = '';
-            const snapshot = await db.collection('credit_cards').where('userId', '==', uid).get();
+            const snapshot = await db.collection('credit_cards').where('uid', '==', uid).get();
             snapshot.forEach(doc => {
                 const card = doc.data();
                 const cardTile = document.createElement('div');
@@ -289,7 +289,7 @@
     </div>
     <div class="menu-bar-container" style="background: #000; padding: 0;">
         <div class="menu-bar" style="max-width: 1200px; margin: 0 auto;">
-            <div class="menu-links">
+            <div class="menu-links" id="menu-links">
                 <a href="index.html">Summary</a>
                 <a href="details.html">Balance Sheet</a>
                 <a href="calendar.html">Cash Flow</a>
@@ -331,6 +331,7 @@
     </div>
 </body>
 </html>
+
 
 
 
