@@ -367,7 +367,7 @@
                 return;
             }
 
-            const description = descriptionInput.value;
+            const description = descriptionInput.value.trim();
             const value = parseFloat(valueInput.value.replace(/[$,]/g, ''));
 
             if (description && !isNaN(value)) {
@@ -377,12 +377,16 @@
                     previousValue: 0,
                     uid: auth.currentUser.uid // Add UID to the document
                 };
-                const docRef = await db.collection(collection).add(newItem);
-                newItem.id = docRef.id;
-                console.log(`Added ${collection} item with ID ${newItem.id}`);
-                loadData(auth.currentUser.uid);
-                descriptionInput.value = '';
-                valueInput.value = '';
+                try {
+                    const docRef = await db.collection(collection).add(newItem);
+                    newItem.id = docRef.id;
+                    console.log(`Added ${collection} item with ID ${newItem.id}`);
+                    loadData(auth.currentUser.uid);
+                    descriptionInput.value = '';
+                    valueInput.value = '';
+                } catch (error) {
+                    console.log(`Failed to add item to ${collection}:`, error.message);
+                }
             } else {
                 console.log(`Failed to add item to ${collection}: Invalid input`);
             }
@@ -573,6 +577,7 @@
     </script>
 </body>
 </html>
+
 
 
 
