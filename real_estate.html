@@ -314,6 +314,7 @@
                     await db.collection('real_estate').doc(currentEditId).update({ photos: photoUrls });
                 }
 
+                console.log('Address data saved:', addressData);
                 closeAddAddressPopover();
                 loadAddresses();
             } else {
@@ -340,8 +341,13 @@
             }
             container.innerHTML = ''; // Clear the container
             const snapshot = await db.collection('real_estate').get();
+            if (snapshot.empty) {
+                console.log('No matching documents.');
+                return;
+            }
             snapshot.forEach(doc => {
                 const data = doc.data();
+                console.log('Loaded address data:', data);
                 if (data.name && data.address) {
                     const equity = data.currentMarketValue - data.mortgageBalance;
                     const ror = (equity !== 0) ? ((data.downPayment / (equity - data.downPayment)) * 100).toFixed(2) : 0;
@@ -532,6 +538,7 @@
     <div id="details-popover" class="details-popover"></div>
 </body>
 </html>
+
 
 
 
