@@ -167,7 +167,7 @@
             cursor: pointer;
             border-radius: 4px;
         }
-        .image-carousel {
+        .image-gallery {
             position: relative;
             width: 600px;
             height: 600px;
@@ -175,12 +175,16 @@
             border-radius: 8px;
             margin-left: 20px;
         }
-        .image-carousel img {
+        .image-gallery img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: none;
         }
-        .carousel-arrow {
+        .image-gallery img.active {
+            display: block;
+        }
+        .gallery-arrow {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
@@ -191,10 +195,10 @@
             cursor: pointer;
             border-radius: 50%;
         }
-        .carousel-arrow.left {
+        .gallery-arrow.left {
             left: 5px;
         }
-        .carousel-arrow.right {
+        .gallery-arrow.right {
             right: 5px;
         }
         @media (max-width: 600px) {
@@ -350,17 +354,20 @@
                         </div>
                     `;
                     if (data.photos && data.photos.length > 0) {
-                        const carousel = document.createElement('div');
-                        carousel.classList.add('image-carousel');
-                        carousel.setAttribute('data-id', doc.id);
-                        carousel.innerHTML = `
-                            <img src="${data.photos[0]}" alt="Photo">
-                            <button class="carousel-arrow left" onclick="prevPhoto('${doc.id}')">&lt;</button>
-                            <button class="carousel-arrow right" onclick="nextPhoto('${doc.id}')">&gt;</button>
+                        const gallery = document.createElement('div');
+                        gallery.classList.add('image-gallery');
+                        gallery.setAttribute('data-id', doc.id);
+                        data.photos.forEach((photo, index) => {
+                            const img = document.createElement('img');
+                            img.src = photo;
+                            if (index === 0) img.classList.add('active');
+                            gallery.appendChild(img);
+                        });
+                        gallery.innerHTML += `
+                            <button class="gallery-arrow left" onclick="prevPhoto('${doc.id}')">&lt;</button>
+                            <button class="gallery-arrow right" onclick="nextPhoto('${doc.id}')">&gt;</button>
                         `;
-                        carousel.setAttribute('data-photo-index', '0');
-                        carousel.setAttribute('data-photo-urls', JSON.stringify(data.photos));
-                        section.appendChild(carousel);
+                        section.appendChild(gallery);
                     }
                     container.appendChild(section);
                 }
@@ -397,24 +404,40 @@
         }
 
         function prevPhoto(id) {
-            const carousel = document.querySelector(`.image-carousel[data-id="${id}"]`);
-            if (carousel) {
-                const photoUrls = JSON.parse(carousel.getAttribute('data-photo-urls'));
-                let index = parseInt(carousel.getAttribute('data-photo-index'));
-                index = (index > 0) ? index - 1 : photoUrls.length - 1;
-                carousel.setAttribute('data-photo-index', index);
-                carousel.querySelector('img').src = photoUrls[index];
+            const gallery = document.querySelector(`.image-gallery[data-id="${id}"]`);
+            if (gallery) {
+                const photos = gallery.querySelectorAll('img');
+                let activeIndex = -1;
+                photos.forEach((photo, index) => {
+                    if (photo.classList.contains('active')) {
+                        activeIndex = index;
+                        photo.classList.remove('active');
+                    }
+                });
+                if (activeIndex > 0) {
+                    photos[activeIndex - 1].classList.add('active');
+                } else {
+                    photos[photos.length - 1].classList.add('active');
+                }
             }
         }
 
         function nextPhoto(id) {
-            const carousel = document.querySelector(`.image-carousel[data-id="${id}"]`);
-            if (carousel) {
-                const photoUrls = JSON.parse(carousel.getAttribute('data-photo-urls'));
-                let index = parseInt(carousel.getAttribute('data-photo-index'));
-                index = (index < photoUrls.length - 1) ? index + 1 : 0;
-                carousel.setAttribute('data-photo-index', index);
-                carousel.querySelector('img').src = photoUrls[index];
+            const gallery = document.querySelector(`.image-gallery[data-id="${id}"]`);
+            if (gallery) {
+                const photos = gallery.querySelectorAll('img');
+                let activeIndex = -1;
+                photos.forEach((photo, index) => {
+                    if (photo.classList.contains('active')) {
+                        activeIndex = index;
+                        photo.classList.remove('active');
+                    }
+                });
+                if (activeIndex < photos.length - 1) {
+                    photos[activeIndex + 1].classList.add('active');
+                } else {
+                    photos[0].classList.add('active');
+                }
             }
         }
 
