@@ -287,7 +287,7 @@
 
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
-                row.insertCell(0).innerText = item.description;
+                row.insertCell(0).innerText = item.description || item.name; // Modified to handle different fields
                 const previousValueCell = row.insertCell(1);
                 const valueCell = row.insertCell(2);
                 if (collection === 'liabilities') {
@@ -297,17 +297,17 @@
                     valueCell.style.color = 'red';
                 } else {
                     previousValueCell.innerText = `$${formatNumber(item.previousValue || 0)}`;
-                    valueCell.innerText = `$${formatNumber(item.value)}`;
+                    valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`; // Modified to handle different fields
                 }
-                const delta = item.value - (item.previousValue || 0);
+                const delta = (item.value || item.currentMarketValue) - (item.previousValue || 0); // Modified to handle different fields
                 const deltaCell = document.createElement('span');
                 deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
                 deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
                 deltaCell.style.fontSize = '0.8em';
                 deltaCell.style.fontStyle = 'italic';
                 valueCell.appendChild(deltaCell);
-                valueCell.onclick = (event) => showPopover(event, collection, item.id, item.value, item.description);
-                previousValueCell.onclick = (event) => showPopover(event, collection, item.id, item.previousValue, item.description);
+                valueCell.onclick = (event) => showPopover(event, collection, item.id, item.value || item.currentMarketValue, item.description || item.name); // Modified to handle different fields
+                previousValueCell.onclick = (event) => showPopover(event, collection, item.id, item.previousValue, item.description || item.name); // Modified to handle different fields
                 row.appendChild(previousValueCell);
                 row.appendChild(valueCell);
             });
@@ -389,7 +389,7 @@
 
         function updateSummary() {
             const totalStocksAndBonds = stocksAndBonds.reduce((sum, item) => sum + item.value, 0);
-            const totalRealEstate = realEstate.reduce((sum, item) => sum + item.value, 0);
+            const totalRealEstate = realEstate.reduce((sum, item) => sum + (item.value || item.currentMarketValue), 0); // Modified to handle different fields
             const totalMiscAssets = miscAssets.reduce((sum, item) => sum + item.value, 0);
             const totalLiabilities = liabilities.reduce((sum, item) => sum + item.value, 0);
             const totalAssets = totalStocksAndBonds + totalRealEstate + totalMiscAssets;
@@ -572,7 +572,6 @@
     </script>
 </body>
 </html>
-
 
 
 
