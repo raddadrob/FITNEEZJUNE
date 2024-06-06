@@ -316,7 +316,9 @@
 
             const subtotalRow = tableBody.insertRow();
             subtotalRow.insertCell(0).innerText = '';
-            subtotalRow.insertCell(1).innerText = 'Subtotal';
+            const subtotalTextCell = subtotalRow.insertCell(1);
+            subtotalTextCell.innerText = 'Subtotal';
+            subtotalTextCell.style.fontWeight = 'bold';
             const subtotalCell = subtotalRow.insertCell(2);
             subtotalCell.innerText = `$${formatNumber(subtotal)}`;
             subtotalCell.style.fontWeight = 'bold';
@@ -592,8 +594,6 @@
     </script>
 </body>
 </html>
-
-
 
 
 
