@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Cards - Fitneez</title>
+    <title>Credit Cards</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -29,11 +29,9 @@
             display: block;
             margin: 0 auto;
         }
-        h1, h2 {
+        h1 {
             text-align: center;
             color: #0f0;
-        }
-        h1 {
             font-size: 1.5rem;
         }
         h2 {
@@ -87,102 +85,120 @@
             margin-bottom: 20px;
             width: 100%;
         }
-        .form-tile {
-            background: #444;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            flex: 1;
-        }
-        .form-field {
-            margin-bottom: 15px;
+        table {
             width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-bottom: 20px;
         }
-        .form-field label {
-            display: block;
+        th, td {
+            border: 1px solid #555;
+            padding: 8px;
             text-align: left;
-            margin-bottom: 5px;
-            color: #0f0;
+            font-size: 0.875rem;
         }
-        .form-field input, .form-field select {
-            width: 100%;
-            padding: 10px;
+        th {
+            background-color: #444;
+        }
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .form-group input {
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #222;
+            color: #fff;
+            font-size: 0.875rem;
+        }
+        .form-group button {
+            padding: 8px 16px;
+            background-color: #0f0;
+            color: #000;
             border: none;
             border-radius: 4px;
-            background: #333;
-            color: #fff;
+            cursor: pointer;
+            font-size: 0.875rem;
         }
-        .form-field input:focus, .form-field select:focus {
-            outline: none;
-            box-shadow: 0 0 5px #0f0;
+        .form-group button:hover {
+            background-color: #0c0;
         }
-        .cards-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-            width: 100%;
+        .delta-positive {
+            color: green;
         }
-        .card-tile {
+        .delta-negative {
+            color: red;
+        }
+        th:nth-child(1), td:nth-child(1) {
+            width: 50%;
+        }
+        th:nth-child(2), td:nth-child(2) {
+            width: 25%;
+        }
+        th:nth-child(3), td:nth-child(3) {
+            width: 25%;
+        }
+        .popover {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
             background: #444;
+            color: #fff;
             padding: 20px;
             border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            font-size: 0.875rem;
+            width: 50%;
+            max-width: 300px;
         }
-        .card-tile div {
-            flex: 1;
-            text-align: left;
+        .popover input {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #222;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
         }
-        .card-tile div:last-child {
-            text-align: right;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .update-button, .delete-button {
+        .popover button {
+            padding: 8px;
             background: #0f0;
             color: #000;
-            padding: 5px 10px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.75rem;
         }
-        .update-button:hover, .delete-button:hover {
+        .popover button:hover {
             background: #0c0;
         }
         @media (max-width: 600px) {
             .menu-links {
                 display: none;
                 flex-direction: column;
-                width: 100%;
-            }
-            .menu-icon {
-                display: block;
-                font-size: 24px;
-                cursor: pointer;
-                color: lightgrey;
             }
             .menu-links.active {
                 display: flex;
             }
-            .form-tile {
-                width: 100%;
-            }
-            .card-tile {
+            .form-group {
                 flex-direction: column;
-                text-align: center;
+                align-items: flex-start;
             }
-            .card-tile div {
-                text-align: center;
+            .form-group input, .form-group button {
+                width: 100%;
                 margin-bottom: 10px;
             }
-            .card-tile div:last-child {
-                margin-bottom: 0;
-                flex-direction: column;
+            table {
+                font-size: 0.75rem;
+            }
+            .popover {
+                width: 90%;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
         }
     </style>
@@ -204,6 +220,8 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        let creditCards = [];
+
         function logOff() {
             auth.signOut().then(() => {
                 window.location.href = 'login.html';
@@ -212,82 +230,96 @@
             });
         }
 
-        function toggleMenu() {
-            const menuLinks = document.getElementById('menu-links');
-            menuLinks.classList.toggle('active');
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    window.location.href = 'login.html';
+                if (user) {
+                    loadData(user.uid);
                 } else {
-                    loadCards(user.uid);
+                    window.location.href = 'login.html';
                 }
             });
         });
 
-        async function addCard() {
-            const cardName = document.getElementById('card-name').value.trim();
-            const cardBalance = parseFloat(document.getElementById('card-balance').value.trim());
-            const cardType = document.getElementById('card-type').value;
-
-            if (cardName && !isNaN(cardBalance) && cardType) {
-                await db.collection('credit_cards').add({
-                    uid: auth.currentUser.uid,
-                    name: cardName,
-                    balance: cardBalance,
-                    type: cardType
-                });
-                alert('Card added successfully!');
-                document.getElementById('add-card-form').reset();
-                loadCards(auth.currentUser.uid); // Reload cards to show the newly added card
+        async function loadData(uid) {
+            if (auth.currentUser) {
+                await loadCollection('credit_cards', creditCards, uid);
+                updateTable();
             } else {
-                alert('Please fill out all fields correctly.');
+                window.location.href = 'login.html';
             }
         }
 
-        async function loadCards(uid) {
-            const cardsContainer = document.getElementById('cards-container');
-            cardsContainer.innerHTML = '';
-            const snapshot = await db.collection('credit_cards').where('uid', '==', uid).get();
-            snapshot.forEach(doc => {
-                const card = doc.data();
-                const cardTile = document.createElement('div');
-                cardTile.classList.add('card-tile');
-                cardTile.innerHTML = `
-                    <div>${card.name}</div>
-                    <div>${card.type}</div>
-                    <div>$${formatNumber(card.balance)}</div>
-                    <button class="update-button" onclick="updateBalance('${doc.id}')">Update</button>
-                    <button class="delete-button" onclick="deleteCard('${doc.id}')">Delete</button>
-                `;
-                cardsContainer.appendChild(cardTile);
+        async function loadCollection(collection, dataArray, uid) {
+            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
+            dataArray.length = 0;
+            snapshot.docs.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                dataArray.push(data);
             });
+            dataArray.sort((a, b) => b.balance - a.balance);
+        }
+
+        function updateTable() {
+            const tableBody = document.getElementById('credit-cards-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            let totalBalance = 0;
+            creditCards.forEach((card) => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).innerText = card.name;
+                row.insertCell(1).innerText = `$${formatNumber(card.limit)}`;
+                row.insertCell(2).innerText = `$${formatNumber(card.balance)}`;
+                totalBalance += card.balance;
+            });
+
+            const totalRow = tableBody.insertRow();
+            const totalTextCell = totalRow.insertCell(0);
+            totalTextCell.innerText = 'Total';
+            totalTextCell.style.fontWeight = 'bold';
+            totalRow.insertCell(1).innerText = '';
+            const totalCell = totalRow.insertCell(2);
+            totalCell.innerText = `$${formatNumber(totalBalance)}`;
+            totalCell.style.fontWeight = 'bold';
         }
 
         function formatNumber(value) {
-            return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        async function updateBalance(cardId) {
-            const newBalance = parseFloat(prompt("Enter the new balance:").trim());
-            if (!isNaN(newBalance)) {
-                await db.collection('credit_cards').doc(cardId).update({
-                    balance: newBalance
-                });
-                alert('Balance updated successfully!');
-                loadCards(auth.currentUser.uid); // Reload cards to show the updated balance
-            } else {
-                alert('Please enter a valid number.');
+            if (typeof value !== 'number' || isNaN(value)) {
+                console.error('Invalid number:', value);
+                return '0';
             }
+            return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        async function deleteCard(cardId) {
-            if (confirm("Are you sure you want to delete this card?")) {
-                await db.collection('credit_cards').doc(cardId).delete();
-                alert('Card deleted successfully!');
-                loadCards(auth.currentUser.uid); // Reload cards to show the updated list
+        async function addCreditCard() {
+            const nameInput = document.getElementById('credit-card-name');
+            const limitInput = document.getElementById('credit-card-limit');
+            const balanceInput = document.getElementById('credit-card-balance');
+
+            const name = nameInput.value.trim();
+            const limit = parseFloat(limitInput.value.replace(/[$,]/g, ''));
+            const balance = parseFloat(balanceInput.value.replace(/[$,]/g, ''));
+
+            if (name && !isNaN(limit) && !isNaN(balance)) {
+                const newCard = {
+                    name,
+                    limit,
+                    balance,
+                    uid: auth.currentUser.uid
+                };
+                try {
+                    const docRef = await db.collection('credit_cards').add(newCard);
+                    newCard.id = docRef.id;
+                    console.log(`Added credit card with ID ${newCard.id}`);
+                    loadData(auth.currentUser.uid);
+                    nameInput.value = '';
+                    limitInput.value = '';
+                    balanceInput.value = '';
+                } catch (error) {
+                    console.log(`Failed to add credit card:`, error.message);
+                }
+            } else {
+                console.log(`Failed to add credit card: Invalid input`);
             }
         }
     </script>
@@ -305,42 +337,37 @@
                 <a href="real_estate.html">Real Estate</a>
                 <a href="credit_cards.html">Credit Cards</a>
                 <a href="admin.html">Admin</a>
+                <button class="logoff-button" onclick="logOff()">Log Off</button>
             </div>
-            <button class="logoff-button" onclick="logOff()">Log Off</button>
         </div>
     </div>
-    <div id="credit-cards" class="container">
-        <div class="section">
-            <h2>Add Card</h2>
-            <div class="form-tile">
-                <form id="add-card-form" onsubmit="event.preventDefault(); addCard();">
-                    <div class="form-field">
-                        <label for="card-name">Card Name:</label>
-                        <input type="text" id="card-name" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="card-balance">Initial Balance:</label>
-                        <input type="number" id="card-balance" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="card-type">Card Type:</label>
-                        <select id="card-type" required>
-                            <option value="">Select Type</option>
-                            <option value="MasterCard">MasterCard</option>
-                            <option value="Visa">Visa</option>
-                            <option value="Amex">Amex</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="logoff-button">Add Card</button>
-                </form>
+    <div id="finance-tracker" class="container">
+        <div id="content" style="flex: 1;">
+            <div class="section" id="credit-cards-section">
+                <h2>Credit Cards</h2>
+                <table id="credit-cards-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Limit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="form-group">
+                    <input type="text" id="credit-card-name" placeholder="Credit Card Name">
+                    <input type="text" id="credit-card-limit" placeholder="Credit Card Limit">
+                    <input type="text" id="credit-card-balance" placeholder="Credit Card Balance">
+                    <button onclick="addCreditCard()">Add Credit Card</button>
+                </div>
             </div>
-        </div>
-        <div id="cards-container" class="cards-container">
-            <!-- Cards will be loaded here dynamically -->
         </div>
     </div>
 </body>
 </html>
+
 
 
 
