@@ -315,11 +315,16 @@
             });
 
             const subtotalRow = tableBody.insertRow();
-            subtotalRow.insertCell(0).innerText = 'Subtotal';
-            subtotalRow.insertCell(1).innerText = '';
+            subtotalRow.insertCell(0).innerText = '';
+            subtotalRow.insertCell(1).innerText = 'Subtotal';
             const subtotalCell = subtotalRow.insertCell(2);
             subtotalCell.innerText = `$${formatNumber(subtotal)}`;
             subtotalCell.style.fontWeight = 'bold';
+            if (collection === 'liabilities') {
+                subtotalRow.style.color = 'red';
+            } else {
+                subtotalRow.style.color = 'green';
+            }
         }
 
         function formatNumber(value) {
@@ -587,8 +592,6 @@
     </script>
 </body>
 </html>
-
-
 
 
 
