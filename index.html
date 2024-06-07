@@ -133,6 +133,7 @@
         }
         .chart-container {
             width: 100%;
+            padding: 20px; /* Added padding */
         }
         .chart-container canvas {
             background: #333;
@@ -188,6 +189,14 @@
             }
             .half-width {
                 width: 100%;
+            }
+
+            .tile {
+                padding: 10px; /* Reduce padding on mobile */
+            }
+
+            body, .menu-links a, .menu-links button, .logoff-button, .mobile-menu-button, .summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td, .popover {
+                font-size: 0.7rem; /* Reduce font size on mobile */
             }
         }
 
@@ -705,7 +714,6 @@
     </div>
 </body>
 </html>
-
 
 
 
