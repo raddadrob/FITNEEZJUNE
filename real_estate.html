@@ -56,15 +56,19 @@
             display: flex;
             gap: 15px;
         }
-        .menu-links a {
+        .menu-links a,
+        .menu-links button {
             color: #0f0;
             text-decoration: none;
             padding: 10px 20px;
             background: #000;
             border-radius: 4px;
             font-size: 0.875rem;
+            border: none;
+            cursor: pointer;
         }
-        .menu-links a:hover {
+        .menu-links a:hover,
+        .menu-links button:hover {
             background: #444;
         }
         .logoff-button {
@@ -106,7 +110,9 @@
         .add-address-button:hover {
             background: #0c0;
         }
-        .edit-button, .delete-button, .details-button {
+        .edit-button,
+        .delete-button,
+        .details-button {
             background: #0f0;
             color: #000;
             padding: 5px 10px;
@@ -116,10 +122,13 @@
             font-size: 0.75rem;
             margin-top: 10px;
         }
-        .edit-button:hover, .delete-button:hover, .details-button:hover {
+        .edit-button:hover,
+        .delete-button:hover,
+        .details-button:hover {
             background: #0c0;
         }
-        .popover, .details-popover {
+        .popover,
+        .details-popover {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -223,6 +232,30 @@
                 left: 50%;
                 transform: translate(-50%, -50%);
             }
+        }
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #333;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-menu-button {
+            color: #0f0;
+            text-decoration: none;
+            padding: 7px 14px;
+            background: #000;
+            border-radius: 4px;
+            font-size: 0.6125rem;
+            border: none;
+            cursor: pointer;
+        }
+        .mobile-menu-button:hover {
+            background: #444;
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -547,20 +580,31 @@
     </div>
     <div class="menu-bar-container" style="background: #000; padding: 0;">
         <div class="menu-bar" style="max-width: 1200px; margin: 0 auto;">
-            <div class="menu-links">
+            <div class="menu-links" id="menu-links">
                 <a href="index.html">Summary</a>
                 <a href="details.html">Balance Sheet</a>
                 <a href="calendar.html">Cash Flow</a>
                 <a href="real_estate.html">Real Estate</a>
                 <a href="credit_cards.html">Credit Cards</a>
                 <a href="admin.html">Admin</a>
+                <button class="logoff-button" onclick="logOff()">Log Off</button>
             </div>
-            <button class="logoff-button" onclick="logOff()">Log Off</button>
         </div>
     </div>
     <div id="finance-tracker" class="container">
         <button class="add-address-button" onclick="showAddAddressPopover()">Add Address</button>
         <div id="address-container"></div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <a href="index.html" class="mobile-menu-button">Home</a>
+        <a href="details.html" class="mobile-menu-button">Balance Sheet</a>
+        <a href="calendar.html" class="mobile-menu-button">Cash Flow</a>
+        <a href="real_estate.html" class="mobile-menu-button">Real Estate</a>
+        <a href="credit_cards.html" class="mobile-menu-button">Credit Cards</a>
+        <a href="admin.html" class="mobile-menu-button">Admin</a>
+        <button class="mobile-menu-button logoff-button" onclick="logOff()">Log Off</button>
     </div>
 
     <!-- Popover for Adding/Editing Address -->
@@ -587,7 +631,6 @@
     <div id="spinner" class="spinner"></div>
 </body>
 </html>
-
 
 
 
