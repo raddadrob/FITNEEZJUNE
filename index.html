@@ -133,7 +133,6 @@
         }
         .chart-container {
             width: 100%;
-            padding: 0 20px; /* Adjusted padding */
             margin-bottom: 20px;
             display: flex;
             justify-content: center;
@@ -142,7 +141,7 @@
         .chart-container canvas {
             background: #333;
             border-radius: 8px;
-            width: 100%;
+            width: calc(100% - 40px); /* Ensure padding is accounted for */
         }
         .dropdown {
             display: flex;
@@ -609,7 +608,7 @@
         </div>
     </div>
     <div id="finance-tracker" class="container">
-        <div class="section">
+        <div class="section" style="padding: 20px;">
             <h2>Cash Flow</h2>
             <div class="dropdown">
                 <label>Select Month: </label>
@@ -635,7 +634,7 @@
                     <option value="2024">2024</option>
                 </select>
             </div>
-            <div class="chart-container" style="margin-left: auto; margin-right: auto;">
+            <div class="chart-container">
                 <canvas id="cashFlowChart"></canvas>
             </div>
         </div>
@@ -716,8 +715,6 @@
     </div>
 </body>
 </html>
-
-
 
 
 
