@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitneez</title>
+    <title>Finance Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -16,48 +16,41 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: #333;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+        .large-logo {
+            width: 150px;
+            display: block;
+            margin: 0 auto;
+        }
         .menu-bar-container {
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 10px 0;
-            display: flex;
-            justify-content: center;
             background: #333;
-            border-radius: 0;
-            box-shadow: none;
+            padding: 10px 0;
         }
         .menu-bar {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 15px;
         }
         .menu-links {
             display: flex;
             gap: 15px;
         }
-        .menu-links a,
-        .menu-links button {
+        .menu-links a {
             color: #0f0;
             text-decoration: none;
             padding: 10px 20px;
             background: #000;
             border-radius: 4px;
             font-size: 0.875rem;
-            border: none;
-            cursor: pointer;
         }
-        .menu-links a:hover,
-        .menu-links button:hover {
+        .menu-links a:hover {
             background: #444;
         }
         .logoff-button {
@@ -76,204 +69,88 @@
             margin-bottom: 20px;
             width: 100%;
         }
+        .content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
         .tile {
-            background: #444;
-            border-radius: 8px;
+            background: #333;
             padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+        .half-width {
+            flex: 0 0 48%;
+        }
+        .chart-container {
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
         }
         .summary-table, .credit-cards-table {
             width: 100%;
             border-collapse: collapse;
-            background: #444;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .summary-table td:nth-child(1) {
-            width: 70%;
-        }
-        .summary-table td:nth-child(2) {
-            width: 30%;
         }
         .summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td {
             padding: 10px;
-            text-align: center;
+            text-align: left;
+            border-bottom: 1px solid #444;
         }
-        #total-liabilities {
-            color: red;
-        }
-        #net-worth {
-            color: #0f0;
+        .summary-table .subtotal, .credit-cards-table .credit-card-total {
             font-weight: bold;
         }
-        .summary-table th {
-            background: #0f0;
-            color: #000;
-            text-transform: uppercase;
-        }
-        .summary-table .category-header {
-            background: #0f0;
-            color: #000;
-            text-transform: uppercase;
-        }
-        .summary-table .subtotal {
-            font-weight: bold;
-            text-align: right;
-            color: #fff;
-        }
-        .summary-table td:nth-child(2) {
-            text-align: right;
-        }
-        .summary-table tr {
-            border-bottom: 1px solid #666;
-        }
-        .credit-card-total {
-            color: red;
-            font-weight: bold;
-        }
-        .chart-container {
-            width: 100%;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .chart-container canvas {
-            background: #333;
-            border-radius: 8px;
-            width: calc(100% - 40px); /* Ensure padding is accounted for */
-        }
-        .dropdown {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-        .dropdown label {
-            margin-right: 10px;
-            color: #0f0;
-        }
-        .dropdown select {
-            padding: 10px;
-            background: #444;
-            color: #0f0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .dropdown select:focus {
-            outline: none;
-            box-shadow: 0 0 5px #0f0;
-        }
-        .content {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            width: 100%;
-        }
-        .full-width {
-            width: 100%;
-        }
-        .half-width {
-            width: 48%;
-        }
-        @media (max-width: 768px) {
-            .menu-links {
-                display: none; /* Hide desktop menu on mobile */
-            }
-
-            .mobile-menu {
-                display: flex; /* Show mobile menu on mobile */
-            }
-
-            .content {
-                flex-direction: column;
-            }
-            .half-width {
-                width: 100%;
-            }
-
-            .tile {
-                padding: 10px; /* Reduce padding on mobile */
-            }
-
-            body, .menu-links a, .menu-links button, .logoff-button, .mobile-menu-button, .summary-table th, .summary-table td, .credit-cards-table th, .credit-cards-table td, .popover {
-                font-size: 0.7rem; /* Reduce font size on mobile */
-            }
-        }
-
-        @media (min-width: 769px) {
-            .mobile-menu {
-                display: none; /* Hide mobile menu on desktop */
-            }
-        }
-
         .mobile-menu {
-            display: none; /* Hide mobile menu by default */
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #333;
-            display: flex;
-            justify-content: space-around;
+            display: none;
+            flex-direction: column;
+            align-items: center;
             padding: 10px;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            background: #333;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
         }
-
         .mobile-menu-button {
             color: #0f0;
             text-decoration: none;
-            padding: 7px 14px; /* Reduce size by 30% */
+            padding: 10px 20px;
             background: #000;
             border-radius: 4px;
-            font-size: 0.6125rem; /* Reduce size by 30% */
-            border: none;
-            cursor: pointer;
+            font-size: 0.875rem;
+            margin-bottom: 10px;
         }
-
         .mobile-menu-button:hover {
             background: #444;
         }
-
-        .popover {
+        .spinner {
             display: none;
-            position: absolute;
-            background: #444;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #0f0;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             z-index: 1000;
-            max-width: 80%;
-            font-size: 0.7rem;
         }
-        .popover h2 {
-            margin-top: 0;
-            color: #0f0;
-        }
-        .popover table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .popover table, .popover th, .popover td {
-            border: 1px solid #666;
-        }
-        .popover th, .popover td {
-            padding: 8px;
-            text-align: left;
-            color: #fff;
-        }
-        .large-logo {
-            width: 150px;
-            display: block;
-            margin: 0 auto;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
@@ -288,6 +165,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+
         let chart;
 
         function logOff() {
@@ -307,17 +185,6 @@
                     loadCreditCards(user.uid);
                     document.getElementById('month-select').addEventListener('change', () => updateChart(user.uid));
                     document.getElementById('year-select').addEventListener('change', () => updateChart(user.uid));
-
-                    document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds', user.uid));
-                    document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-real_estate-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate', user.uid));
-                    document.getElementById('total-real_estate-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-misc_assets-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets', user.uid));
-                    document.getElementById('total-misc_assets-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-assets').addEventListener('mouseenter', (event) => showDetails(event, 'Total Assets', 'assets', user.uid));
-                    document.getElementById('total-assets').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-liabilities-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities', user.uid));
-                    document.getElementById('total-liabilities-amount').addEventListener('mouseleave', closePopover);
 
                     window.addEventListener('resize', handleResize);
                     handleResize();
@@ -339,6 +206,7 @@
         }
 
         async function loadSummary(uid) {
+            showSpinner();
             const stocksAndBonds = await getTotal('stocks_and_bonds', uid);
             const realEstate = await getRealEstateTotal(uid);
             const miscAssets = await getTotal('misc_assets', uid);
@@ -359,6 +227,7 @@
             document.getElementById('month-select').value = monthName;
             document.getElementById('year-select').value = currentYear;
             await loadChartData(currentYear, currentMonth, uid);
+            hideSpinner();
         }
 
         async function getTotal(collection, uid) {
@@ -368,176 +237,65 @@
 
         async function getRealEstateTotal(uid) {
             const snapshot = await db.collection('real_estate').where('uid', '==', uid).get();
-            return snapshot.docs.reduce((total, doc) => {
-                const data = doc.data();
-                return total + (data.currentMarketValue || 0);
-            }, 0);
+            return snapshot.docs.reduce((total, doc) => total + doc.data().currentMarketValue, 0);
         }
 
         async function loadChartData(year, month, uid) {
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const credits = Array(daysInMonth).fill(0);
-            const debits = Array(daysInMonth).fill(0);
-            const creditDescriptions = Array(daysInMonth).fill("");
-            const debitDescriptions = Array(daysInMonth).fill("");
-            const cashBalances = Array(daysInMonth).fill(0);
+            showSpinner();
+            const data = await getCashFlowData(year, month, uid);
+            renderChart(data);
+            hideSpinner();
+        }
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const doc = await db.collection('calendar').doc(`${uid}-${year}-${month}-day-${day}`).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    credits[day - 1] = data.credit;
-                    debits[day - 1] = data.debit;
-                    cashBalances[day - 1] = data.cash;
-                    creditDescriptions[day - 1] = data.creditDescription || "";
-                    debitDescriptions[day - 1] = data.debitDescription || "";
-                }
-            }
+        async function getCashFlowData(year, month, uid) {
+            const snapshot = await db.collection('cash_flow').where('uid', '==', uid).where('year', '==', year).where('month', '==', month).get();
+            const data = Array.from({ length: 31 }, () => ({ credits: 0, debits: 0 }));
+            snapshot.forEach(doc => {
+                const docData = doc.data();
+                const day = docData.day - 1;
+                data[day].credits += docData.credits;
+                data[day].debits += docData.debits;
+            });
+            return data;
+        }
 
-            const labels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        function renderChart(data) {
+            const ctx = document.getElementById('cashFlowChart').getContext('2d');
             if (chart) {
                 chart.destroy();
             }
-
-            const ctx = document.getElementById('cashFlowChart').getContext('2d');
             chart = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
-                    labels: labels,
+                    labels: Array.from({ length: 31 }, (_, i) => i + 1),
                     datasets: [
                         {
                             label: 'Credits',
-                            backgroundColor: 'rgba(0, 255, 0, 0.5)',
-                            borderColor: 'rgba(0, 255, 0, 1)',
-                            borderWidth: 1,
-                            data: credits
+                            data: data.map(day => day.credits),
+                            borderColor: 'green',
+                            fill: false
                         },
                         {
                             label: 'Debits',
-                            backgroundColor: 'rgba(255, 0, 0, 0.5)',
-                            borderColor: 'rgba(255, 0, 0, 1)',
-                            borderWidth: 1,
-                            data: debits
-                        },
-                        {
-                            label: 'Daily Cash Balance',
-                            type: 'line',
-                            backgroundColor: 'rgba(0, 255, 0, 0.5)',
-                            borderColor: 'rgba(0, 255, 0, 1)',
-                            fill: false,
-                            data: cashBalances
+                            data: data.map(day => day.debits),
+                            borderColor: 'red',
+                            fill: false
                         }
                     ]
                 },
                 options: {
                     scales: {
-                        x: {
-                            ticks: {
-                                color: '#0f0'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#0f0',
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 255, 0, 0.2)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#0f0'
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const dataIndex = context.dataIndex;
-                                    const datasetIndex = context.datasetIndex;
-                                    const value = context.raw;
-                                    if (datasetIndex === 0) {
-                                        return `Credit: $${value.toLocaleString()} - ${creditDescriptions[dataIndex]}`;
-                                    } else if (datasetIndex === 1) {
-                                        return `Debit: $${value.toLocaleString()} - ${debitDescriptions[dataIndex]}`;
-                                    } else {
-                                        return `Cash Balance: $${value.toLocaleString()}`;
-                                    }
-                                }
-                            }
-                        }
+                        x: { title: { display: true, text: 'Day' } },
+                        y: { title: { display: true, text: 'Amount ($)' } }
                     }
                 }
             });
         }
 
         async function updateChart(uid) {
-            const selectedMonth = document.getElementById('month-select').value;
-            const selectedYear = document.getElementById('year-select').value;
-            const monthIndex = new Date(Date.parse(selectedMonth + " 1, 2021")).getMonth();
-            await loadChartData(selectedYear, monthIndex, uid);
-        }
-
-        function formatNumber(value) {
-            return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        }
-
-        async function showDetails(event, title, collection, uid) {
-            const dataArray = await getCollectionData(collection, uid);
-            dataArray.sort((a, b) => b.value - a.value);
-            const popover = document.getElementById('details-popover');
-            const popoverTitle = document.getElementById('details-title');
-            const popoverContent = document.getElementById('details-content');
-
-            popoverTitle.innerText = title;
-            popoverContent.innerHTML = '';
-
-            const table = document.createElement('table');
-            const thead = document.createElement('thead');
-            const tbody = document.createElement('tbody');
-
-            const headerRow = document.createElement('tr');
-            const th1 = document.createElement('th');
-            th1.innerText = 'Description';
-            const th2 = document.createElement('th');
-            th2.innerText = 'Value';
-
-            headerRow.appendChild(th1);
-            headerRow.appendChild(th2);
-            thead.appendChild(headerRow);
-
-            dataArray.forEach(item => {
-                const row = document.createElement('tr');
-                const td1 = document.createElement('td');
-                td1.innerText = item.description;
-                const td2 = document.createElement('td');
-                td2.innerText = `$${formatNumber(item.value)}`;
-
-                row.appendChild(td1);
-                row.appendChild(td2);
-                tbody.appendChild(row);
-            });
-
-            table.appendChild(thead);
-            table.appendChild(tbody);
-            popoverContent.appendChild(table);
-
-            popover.style.display = 'block';
-            positionPopover(popover, event);
-        }
-
-        async function getCollectionData(collection, uid) {
-            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
-            return snapshot.docs.map(doc => doc.data());
-        }
-
-        function closePopover() {
-            document.getElementById('details-popover').style.display = 'none';
+            const month = document.getElementById('month-select').selectedIndex;
+            const year = parseInt(document.getElementById('year-select').value, 10);
+            await loadChartData(year, month, uid);
         }
 
         async function loadCreditCards(uid) {
@@ -564,30 +322,20 @@
             creditCardsContainer.appendChild(totalRow);
         }
 
-        window.onclick = function(event) {
-            const popover = document.getElementById('details-popover');
-            if (!event.target.closest('.popover') && !event.target.closest('.summary-tile')) {
-                popover.style.display = 'none';
+        function formatNumber(value) {
+            if (typeof value !== 'number' || isNaN(value)) {
+                console.error('Invalid number:', value);
+                return '0';
             }
+            return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        function positionPopover(popover, event) {
-            const rect = event.target.getBoundingClientRect();
-            const popoverRect = popover.getBoundingClientRect();
-            let top = rect.top + window.scrollY - popoverRect.height - 10;
-            let left = rect.left + window.scrollX - (popoverRect.width / 2) + (rect.width / 2);
+        function showSpinner() {
+            document.getElementById('spinner').style.display = 'block';
+        }
 
-            if (top < 0) {
-                top = rect.bottom + window.scrollY + 10;
-            }
-            if (left < 0) {
-                left = 10;
-            } else if (left + popoverRect.width > window.innerWidth) {
-                left = window.innerWidth - popoverRect.width - 10;
-            }
-
-            popover.style.top = `${top}px`;
-            popover.style.left = `${left}px`;
+        function hideSpinner() {
+            document.getElementById('spinner').style.display = 'none';
         }
     </script>
 </head>
@@ -596,7 +344,7 @@
         <img src="logo.png" alt="Fitneez Logo" class="large-logo">
     </div>
     <div class="menu-bar-container" style="background: #000; padding: 0;">
-        <div class="menu-bar" style="max-width: 1200px; margin: 0 auto;">
+        <div class="menu-bar">
             <div class="menu-links">
                 <a href="index.html">Summary</a>
                 <a href="details.html">Balance Sheet</a>
@@ -608,7 +356,7 @@
         </div>
     </div>
     <div id="finance-tracker" class="container">
-        <div class="section" style="padding: 20px;">
+        <div class="section">
             <h2>Cash Flow</h2>
             <div class="dropdown">
                 <label>Select Month: </label>
@@ -713,6 +461,9 @@
         <h2 id="details-title"></h2>
         <div id="details-content"></div>
     </div>
+
+    <!-- Spinner -->
+    <div id="spinner" class="spinner"></div>
 </body>
 </html>
 
