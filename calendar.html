@@ -158,9 +158,9 @@
             background: #444;
             padding: 10px;
             border-radius: 4px;
-        }
-        .current-day {
-            border: 2px solid #0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .day header {
             font-weight: bold;
@@ -174,6 +174,7 @@
             border-radius: 4px;
             background: #222;
             color: #fff;
+            text-align: center;
         }
         .day input.credit {
             color: green;
@@ -217,6 +218,9 @@
             .calendar-header {
                 grid-template-columns: repeat(2, 1fr);
             }
+        }
+        .current-day {
+            border: 2px solid #0f0;
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -471,7 +475,6 @@
     </div>
 </body>
 </html>
-
 
 
 
