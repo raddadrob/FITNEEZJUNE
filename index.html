@@ -171,7 +171,7 @@
         .full-width {
             grid-column: span 2;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .menu-links {
                 display: none; /* Hide desktop menu on mobile */
             }
@@ -185,7 +185,7 @@
             }
         }
 
-        @media (min-width: 601px) {
+        @media (min-width: 769px) {
             .mobile-menu {
                 display: none; /* Hide mobile menu on desktop */
             }
@@ -301,14 +301,23 @@
                     document.getElementById('total-liabilities-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities', user.uid));
                     document.getElementById('total-liabilities-amount').addEventListener('mouseleave', closePopover);
 
-                    document.querySelector('.menu-icon').addEventListener('click', toggleMenu);
+                    window.addEventListener('resize', handleResize);
+                    handleResize();
                 }
             });
         });
 
-        function toggleMenu() {
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            const mobileMenu = document.querySelector('.mobile-menu');
             const menuLinks = document.querySelector('.menu-links');
-            menuLinks.classList.toggle('active');
+            if (isMobile) {
+                mobileMenu.style.display = 'flex';
+                menuLinks.style.display = 'none';
+            } else {
+                mobileMenu.style.display = 'none';
+                menuLinks.style.display = 'flex';
+            }
         }
 
         async function loadSummary(uid) {
@@ -614,7 +623,7 @@
             </div>
         </div>
         <div class="content">
-            <div class="section tile">
+            <div class="section tile half-width">
                 <h2>Summary Balance Sheet</h2>
                 <table class="summary-table">
                     <thead>
@@ -664,7 +673,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="section tile">
+            <div class="section tile half-width">
                 <h2>Credit Cards</h2>
                 <table class="credit-cards-table" id="credit-cards-container">
                     <!-- Credit card balances will be dynamically loaded here -->
@@ -690,8 +699,6 @@
     </div>
 </body>
 </html>
-
-
 
 
 
