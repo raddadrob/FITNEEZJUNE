@@ -76,6 +76,18 @@
             margin-bottom: 20px;
             width: 100%;
         }
+        .tile {
+            background: #444;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .full-width {
+            width: 100%;
+        }
+        .half-width {
+            width: 45%;
+        }
         .summary-table, .credit-cards-table {
             width: 100%;
             border-collapse: collapse;
@@ -126,7 +138,6 @@
             font-weight: bold;
         }
         .chart-container {
-            margin-top: 20px;
             width: 100%;
         }
         .chart-container canvas {
@@ -157,6 +168,11 @@
             outline: none;
             box-shadow: 0 0 5px #0f0;
         }
+        .content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
         @media (max-width: 600px) {
             .menu-links {
                 display: none; /* Hide desktop menu on mobile */
@@ -169,6 +185,9 @@
             .container .chart-container {
                 width: 100%; /* Ensure chart takes full width on mobile */
             }
+            .half-width {
+                width: 100%;
+            }
         }
 
         @media (min-width: 601px) {
@@ -177,7 +196,7 @@
             }
 
             .container .chart-container {
-                width: calc(100% - 40px); /* Ensure chart takes full width minus padding on desktop */
+                width: 100%; /* Ensure chart takes full width on desktop */
             }
         }
 
@@ -571,7 +590,7 @@
         </div>
     </div>
     <div id="finance-tracker" class="container">
-        <div class="chart-pane">
+        <div class="chart-pane tile full-width">
             <div class="section">
                 <h2>Cash Flow</h2>
                 <div class="dropdown">
@@ -604,7 +623,7 @@
             </div>
         </div>
         <div class="content">
-            <div class="left-pane section">
+            <div class="left-pane section tile half-width">
                 <h2>Summary Balance Sheet</h2>
                 <table class="summary-table">
                     <thead>
@@ -654,7 +673,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="right-pane section">
+            <div class="right-pane section tile half-width">
                 <h2>Credit Cards</h2>
                 <table class="credit-cards-table" id="credit-cards-container">
                     <!-- Credit card balances will be dynamically loaded here -->
