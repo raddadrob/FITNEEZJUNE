@@ -58,15 +58,17 @@
             display: flex;
             gap: 15px;
         }
-        .menu-links a {
+        .menu-links a, .menu-links button {
             color: #0f0;
             text-decoration: none;
             padding: 10px 20px;
             background: #000;
             border-radius: 4px;
             font-size: 0.875rem;
+            border: none;
+            cursor: pointer;
         }
-        .menu-links a:hover {
+        .menu-links a:hover, .menu-links button:hover {
             background: #444;
         }
         .logoff-button {
@@ -230,6 +232,11 @@
             });
         }
 
+        function toggleMenu() {
+            const menuLinks = document.getElementById('menu-links');
+            menuLinks.classList.toggle('active');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -365,8 +372,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <a href="index.html" class="mobile-menu-button">Home</a>
+        <a href="details.html" class="mobile-menu-button">Balance Sheet</a>
+        <a href="calendar.html" class="mobile-menu-button">Cash Flow</a>
+        <a href="real_estate.html" class="mobile-menu-button">Real Estate</a>
+        <a href="credit_cards.html" class="mobile-menu-button">Credit Cards</a>
+        <a href="admin.html" class="mobile-menu-button">Admin</a>
+        <button class="mobile-menu-button logoff-button" onclick="logOff()">Log Off</button>
+    </div>
+
+    <!-- Popover for Editing -->
+    <div id="popover" class="popover">
+        <div id="popover-description"></div>
+        <input type="text" id="popover-value" placeholder="Enter value">
+        <button id="saveEditButton">Save</button>
+        <button id="deleteRowButton">Delete Row</button>
+        <button onclick="closePopover()">Cancel</button>
+    </div>
 </body>
 </html>
+
 
 
 
