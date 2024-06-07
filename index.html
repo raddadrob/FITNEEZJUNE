@@ -133,10 +133,11 @@
         }
         .chart-container {
             width: 100%;
-            padding: 20px; /* Added padding */
-            background: #333; /* Updated background to match the main container */
-            border-radius: 8px; /* Added border-radius */
-            margin-bottom: 20px; /* Added margin-bottom */
+            padding: 0 20px; /* Adjusted padding */
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .chart-container canvas {
             background: #333;
@@ -608,36 +609,34 @@
         </div>
     </div>
     <div id="finance-tracker" class="container">
-        <div class="chart-container" style="margin-left: auto; margin-right: auto;">
-            <div class="section">
-                <h2>Cash Flow</h2>
-                <div class="dropdown">
-                    <label>Select Month: </label>
-                    <select id="month-select">
-                        <option value="January">January</option>
-                        <option value="February">February</option>
-                        <option value="March">March</option>
-                        <option value="April">April</option>
-                        <option value="May">May</option>
-                        <option value="June">June</option>
-                        <option value="July">July</option>
-                        <option value="August">August</option>
-                        <option value="September">September</option>
-                        <option value="October">October</option>
-                        <option value="November">November</option>
-                        <option value="December">December</option>
-                    </select>
-                    <select id="year-select">
-                        <option value="2020">2020</option>
-                        <option value="2021">2021</option>
-                        <option value="2022">2022</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                    </select>
-                </div>
-                <div class="chart-container">
-                    <canvas id="cashFlowChart"></canvas>
-                </div>
+        <div class="section">
+            <h2>Cash Flow</h2>
+            <div class="dropdown">
+                <label>Select Month: </label>
+                <select id="month-select">
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+                <select id="year-select">
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+            <div class="chart-container" style="margin-left: auto; margin-right: auto;">
+                <canvas id="cashFlowChart"></canvas>
             </div>
         </div>
         <div class="content">
