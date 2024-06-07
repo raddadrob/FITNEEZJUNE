@@ -215,6 +215,29 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #333;
+            justify-content: space-around;
+            padding: 10px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-menu-button {
+            color: #0f0;
+            text-decoration: none;
+            padding: 7px 14px;
+            background: #000;
+            border-radius: 4px;
+            font-size: 0.6125rem;
+            border: none;
+            cursor: pointer;
+        }
+        .mobile-menu-button:hover {
+            background: #444;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -413,6 +436,22 @@
         function formatNumber(value) {
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
+
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const menuLinks = document.querySelector('.menu-links');
+            if (isMobile) {
+                mobileMenu.style.display = 'flex';
+                menuLinks.style.display = 'none';
+            } else {
+                mobileMenu.style.display = 'none';
+                menuLinks.style.display = 'flex';
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
     </script>
 </head>
 <body>
@@ -431,6 +470,14 @@
                 <button class="logoff-button" onclick="logOff()">Log Off</button>
             </div>
         </div>
+    </div>
+    <div class="mobile-menu">
+        <a href="index.html" class="mobile-menu-button">Home</a>
+        <a href="details.html" class="mobile-menu-button">Balance Sheet</a>
+        <a href="calendar.html" class="mobile-menu-button">Cash Flow</a>
+        <a href="real_estate.html" class="mobile-menu-button">Real Estate</a>
+        <a href="credit_cards.html" class="mobile-menu-button">Credit Cards</a>
+        <button class="mobile-menu-button logoff-button" onclick="logOff()">Log Off</button>
     </div>
     <div id="finance-tracker" class="container">
         <div id="content" style="flex: 1;">
