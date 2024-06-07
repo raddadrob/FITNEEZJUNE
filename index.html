@@ -153,392 +153,406 @@
             cursor: pointer;
             margin-right: 10px;
         }
-        .dropdown select:focus {
-            outline: none;
-            box-shadow: 0 0 5px #0f0;
+        .dropdown select
+        {
+        outline: none;
+        box-shadow: 0 0 5px #0f0;
         }
         @media (max-width: 600px) {
-            .menu-links {
-                display: none; /* Hide desktop menu on mobile */
-            }
-            .mobile-menu {
-                display: flex; /* Show mobile menu on mobile */
-            }
-        }
-        @media (min-width: 601px) {
-            .mobile-menu {
-                display: none; /* Hide mobile menu on desktop */
-            }
+        .menu-links {
+        display: none; /* Hide desktop menu on mobile */
         }
         .mobile-menu {
-            display: none; /* Hide mobile menu by default */
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #333;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .mobile-menu-button {
-            color: #0f0;
-            text-decoration: none;
-            padding: 10px 20px;
-            background: #000;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            border: none;
-            cursor: pointer;
-        }
-        .mobile-menu-button:hover {
-            background: #444;
-        }
-        .popover {
-            display: none;
-            position: absolute;
-            background: #444;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            max-width: 80%;
-            font-size: 0.7rem;
-        }
-        .popover h2 {
-            margin-top: 0;
-            color: #0f0;
-        }
-        .popover table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .popover table, .popover th, .popover td {
-            border: 1px solid #666;
-        }
-        .popover th, .popover td {
-            padding: 8px;
-            text-align: left;
-            color: #fff;
-        }
-        .large-logo {
-            width: 150px;
-            display: block;
-            margin: 0 auto;
-        }
-    </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
-            authDomain: "cockrumfinance.firebaseapp.com",
-            projectId: "cockrumfinance",
-            storageBucket: "cockrumfinance.appspot.com",
-            messagingSenderId: "446623626941",
-            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
-            measurementId: "G-JFRC4K0BBF"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        let chart;
-
-        function logOff() {
-            auth.signOut().then(() => {
-                window.location.href = 'login.html';
-            }).catch((error) => {
-                console.error('Error signing out:', error);
-            });
+            display: flex; /* Show mobile menu on mobile */
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    window.location.href = 'login.html';
-                } else {
-                    loadSummary(user.uid);
-                    loadCreditCards(user.uid);
-                    document.getElementById('month-select').addEventListener('change', () => updateChart(user.uid));
-                    document.getElementById('year-select').addEventListener('change', () => updateChart(user.uid));
+        .container .chart-container {
+            width: 100%; /* Ensure chart takes full width on mobile */
+        }
+    }
 
-                    document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds', user.uid));
-                    document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-real_estate-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate', user.uid));
-                    document.getElementById('total-real_estate-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-misc_assets-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets', user.uid));
-                    document.getElementById('total-misc_assets-amount').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-assets').addEventListener('mouseenter', (event) => showDetails(event, 'Total Assets', 'assets', user.uid));
-                    document.getElementById('total-assets').addEventListener('mouseleave', closePopover);
-                    document.getElementById('total-liabilities-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities', user.uid));
-                    document.getElementById('total-liabilities-amount').addEventListener('mouseleave', closePopover);
+    @media (min-width: 601px) {
+        .mobile-menu {
+            display: none; /* Hide mobile menu on desktop */
+        }
 
-                    document.querySelector('.menu-icon').addEventListener('click', toggleMenu);
-                }
-            });
+        .container .chart-container {
+            width: calc(100% - 40px); /* Ensure chart takes full width minus padding on desktop */
+        }
+    }
+
+    .mobile-menu {
+        display: none; /* Hide mobile menu by default */
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: #333;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-menu-button {
+        color: #0f0;
+        text-decoration: none;
+        padding: 7px 14px; /* Reduce size by 30% */
+        background: #000;
+        border-radius: 4px;
+        font-size: 0.6125rem; /* Reduce size by 30% */
+        border: none;
+        cursor: pointer;
+    }
+
+    .mobile-menu-button:hover {
+        background: #444;
+    }
+
+    .popover {
+        display: none;
+        position: absolute;
+        background: #444;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-width: 80%;
+        font-size: 0.7rem;
+    }
+    .popover h2 {
+        margin-top: 0;
+        color: #0f0;
+    }
+    .popover table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    .popover table, .popover th, .popover td {
+        border: 1px solid #666;
+    }
+    .popover th, .popover td {
+        padding: 8px;
+        text-align: left;
+        color: #fff;
+    }
+    .large-logo {
+        width: 150px;
+        display: block;
+        margin: 0 auto;
+    }
+</style>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+        authDomain: "cockrumfinance.firebaseapp.com",
+        projectId: "cockrumfinance",
+        storageBucket: "cockrumfinance.appspot.com",
+        messagingSenderId: "446623626941",
+        appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
+        measurementId: "G-JFRC4K0BBF"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    let chart;
+
+    function logOff() {
+        auth.signOut().then(() => {
+            window.location.href = 'login.html';
+        }).catch((error) => {
+            console.error('Error signing out:', error);
         });
+    }
 
-        function toggleMenu() {
-            const menuLinks = document.querySelector('.menu-links');
-            menuLinks.classList.toggle('active');
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                loadSummary(user.uid);
+                loadCreditCards(user.uid);
+                document.getElementById('month-select').addEventListener('change', () => updateChart(user.uid));
+                document.getElementById('year-select').addEventListener('change', () => updateChart(user.uid));
 
-        async function loadSummary(uid) {
-            const stocksAndBonds = await getTotal('stocks_and_bonds', uid);
-            const realEstate = await getRealEstateTotal(uid);
-            const miscAssets = await getTotal('misc_assets', uid);
-            const liabilities = await getTotal('liabilities', uid);
-            const totalAssets = stocksAndBonds + realEstate + miscAssets;
-            const netWorth = totalAssets - liabilities;
+                document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds', user.uid));
+                document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseleave', closePopover);
+                document.getElementById('total-real_estate-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate', user.uid));
+                document.getElementById('total-real_estate-amount').addEventListener('mouseleave', closePopover);
+                document.getElementById('total-misc_assets-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Misc. Assets', 'misc_assets', user.uid));
+                document.getElementById('total-misc_assets-amount').addEventListener('mouseleave', closePopover);
+                document.getElementById('total-assets').addEventListener('mouseenter', (event) => showDetails(event, 'Total Assets', 'assets', user.uid));
+                document.getElementById('total-assets').addEventListener('mouseleave', closePopover);
+                document.getElementById('total-liabilities-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities', user.uid));
+                document.getElementById('total-liabilities-amount').addEventListener('mouseleave', closePopover);
 
-            document.getElementById('total-stocks_and_bonds-amount').innerText = `$${formatNumber(stocksAndBonds)}`;
-            document.getElementById('total-real_estate-amount').innerText = `$${formatNumber(realEstate)}`;
-            document.getElementById('total-misc_assets-amount').innerText = `$${formatNumber(miscAssets)}`;
-            document.getElementById('total-assets').innerText = `$${formatNumber(totalAssets)}`;
-            document.getElementById('total-liabilities-amount').innerText = `-$${formatNumber(Math.abs(liabilities))}`;
-            document.getElementById('net-worth-amount').innerText = `$${formatNumber(netWorth)}`;
+                document.querySelector('.menu-icon').addEventListener('click', toggleMenu);
+            }
+        });
+    });
 
-            const currentMonth = new Date().getMonth();
-            const monthName = new Date().toLocaleString('default', { month: 'long' });
-            const currentYear = new Date().getFullYear();
-            document.getElementById('month-select').value = monthName;
-            document.getElementById('year-select').value = currentYear;
-            await loadChartData(currentYear, currentMonth, uid);
-        }
+    function toggleMenu() {
+        const menuLinks = document.querySelector('.menu-links');
+        menuLinks.classList.toggle('active');
+    }
 
-        async function getTotal(collection, uid) {
-            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
-            return snapshot.docs.reduce((total, doc) => total + doc.data().value, 0);
-        }
+    async function loadSummary(uid) {
+        const stocksAndBonds = await getTotal('stocks_and_bonds', uid);
+        const realEstate = await getRealEstateTotal(uid);
+        const miscAssets = await getTotal('misc_assets', uid);
+        const liabilities = await getTotal('liabilities', uid);
+        const totalAssets = stocksAndBonds + realEstate + miscAssets;
+        const netWorth = totalAssets - liabilities;
 
-        async function getRealEstateTotal(uid) {
-            const snapshot = await db.collection('real_estate').where('uid', '==', uid).get();
-            return snapshot.docs.reduce((total, doc) => {
+        document.getElementById('total-stocks_and_bonds-amount').innerText = `$${formatNumber(stocksAndBonds)}`;
+        document.getElementById('total-real_estate-amount').innerText = `$${formatNumber(realEstate)}`;
+        document.getElementById('total-misc_assets-amount').innerText = `$${formatNumber(miscAssets)}`;
+        document.getElementById('total-assets').innerText = `$${formatNumber(totalAssets)}`;
+        document.getElementById('total-liabilities-amount').innerText = `-$${formatNumber(Math.abs(liabilities))}`;
+        document.getElementById('net-worth-amount').innerText = `$${formatNumber(netWorth)}`;
+
+        const currentMonth = new Date().getMonth();
+        const monthName = new Date().toLocaleString('default', { month: 'long' });
+        const currentYear = new Date().getFullYear();
+        document.getElementById('month-select').value = monthName;
+        document.getElementById('year-select').value = currentYear;
+        await loadChartData(currentYear, currentMonth, uid);
+    }
+
+    async function getTotal(collection, uid) {
+        const snapshot = await db.collection(collection).where('uid', '==', uid).get();
+        return snapshot.docs.reduce((total, doc) => total + doc.data().value, 0);
+    }
+
+    async function getRealEstateTotal(uid) {
+        const snapshot = await db.collection('real_estate').where('uid', '==', uid).get();
+        return snapshot.docs.reduce((total, doc) => {
+            const data = doc.data();
+            return total + (data.currentMarketValue || 0);
+        }, 0);
+    }
+
+    async function loadChartData(year, month, uid) {
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const credits = Array(daysInMonth).fill(0);
+        const debits = Array(daysInMonth).fill(0);
+        const creditDescriptions = Array(daysInMonth).fill("");
+        const debitDescriptions = Array(daysInMonth).fill("");
+        const cashBalances = Array(daysInMonth).fill(0);
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const doc = await db.collection('calendar').doc(`${uid}-${year}-${month}-day-${day}`).get();
+            if (doc.exists) {
                 const data = doc.data();
-                return total + (data.currentMarketValue || 0);
-            }, 0);
+                credits[day - 1] = data.credit;
+                debits[day - 1] = data.debit;
+                cashBalances[day - 1] = data.cash;
+                creditDescriptions[day - 1] = data.creditDescription || "";
+                debitDescriptions[day - 1] = data.debitDescription || "";
+            }
         }
 
-        async function loadChartData(year, month, uid) {
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const credits = Array(daysInMonth).fill(0);
-            const debits = Array(daysInMonth).fill(0);
-            const creditDescriptions = Array(daysInMonth).fill("");
-            const debitDescriptions = Array(daysInMonth).fill("");
-            const cashBalances = Array(daysInMonth).fill(0);
+        const labels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        if (chart) {
+            chart.destroy();
+        }
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const doc = await db.collection('calendar').doc(`${uid}-${year}-${month}-day-${day}`).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    credits[day - 1] = data.credit;
-                    debits[day - 1] = data.debit;
-                    cashBalances[day - 1] = data.cash;
-                    creditDescriptions[day - 1] = data.creditDescription || "";
-                    debitDescriptions[day - 1] = data.debitDescription || "";
-                }
-            }
-
-            const labels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-            if (chart) {
-                chart.destroy();
-            }
-
-            const ctx = document.getElementById('cashFlowChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Credits',
-                            backgroundColor: 'rgba(0, 255, 0, 0.5)',
-                            borderColor: 'rgba(0, 255, 0, 1)',
-                            borderWidth: 1,
-                            data: credits
-                        },
-                        {
-                            label: 'Debits',
-                            backgroundColor: 'rgba(255, 0, 0, 0.5)',
-                            borderColor: 'rgba(255, 0, 0, 1)',
-                            borderWidth: 1,
-                            data: debits
-                        },
-                        {
-                            label: 'Daily Cash Balance',
-                            type: 'line',
-                            backgroundColor: 'rgba(0, 255, 0, 0.5)',
-                            borderColor: 'rgba(0, 255, 0, 1)',
-                            fill: false,
-                            data: cashBalances
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            ticks: {
-                                color: '#0f0'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#0f0',
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 255, 0, 0.2)'
-                            }
+        const ctx = document.getElementById('cashFlowChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Credits',
+                        backgroundColor: 'rgba(0, 255, 0, 0.5)',
+                        borderColor: 'rgba(0, 255, 0, 1)',
+                        borderWidth: 1,
+                        data: credits
+                    },
+                    {
+                        label: 'Debits',
+                        backgroundColor: 'rgba(255, 0, 0, 0.5)',
+                        borderColor: 'rgba(255, 0, 0, 1)',
+                        borderWidth: 1,
+                        data: debits
+                    },
+                    {
+                        label: 'Daily Cash Balance',
+                        type: 'line',
+                        backgroundColor: 'rgba(0, 255, 0, 0.5)',
+                        borderColor: 'rgba(0, 255, 0, 1)',
+                        fill: false,
+                        data: cashBalances
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#0f0'
                         }
                     },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#0f0'
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#0f0',
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
                             }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const dataIndex = context.dataIndex;
-                                    const datasetIndex = context.datasetIndex;
-                                    const value = context.raw;
-                                    if (datasetIndex === 0) {
-                                        return `Credit: $${value.toLocaleString()} - ${creditDescriptions[dataIndex]}`;
-                                    } else if (datasetIndex === 1) {
-                                        return `Debit: $${value.toLocaleString()} - ${debitDescriptions[dataIndex]}`;
-                                    } else {
-                                        return `Cash Balance: $${value.toLocaleString()}`;
-                                    }
+                        grid: {
+                            color: 'rgba(0, 255, 0, 0.2)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#0f0'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const dataIndex = context.dataIndex;
+                                const datasetIndex = context.datasetIndex;
+                                const value = context.raw;
+                                if (datasetIndex === 0) {
+                                    return `Credit: $${value.toLocaleString()} - ${creditDescriptions[dataIndex]}`;
+                                } else if (datasetIndex === 1) {
+                                    return `Debit: $${value.toLocaleString()} - ${debitDescriptions[dataIndex]}`;
+                                } else {
+                                    return `Cash Balance: $${value.toLocaleString()}`;
                                 }
                             }
                         }
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        async function updateChart(uid) {
-            const selectedMonth = document.getElementById('month-select').value;
-            const selectedYear = document.getElementById('year-select').value;
-            const monthIndex = new Date(Date.parse(selectedMonth + " 1, 2021")).getMonth();
-            await loadChartData(selectedYear, monthIndex, uid);
-        }
+    async function updateChart(uid) {
+        const selectedMonth = document.getElementById('month-select').value;
+        const selectedYear = document.getElementById('year-select').value;
+        const monthIndex = new Date(Date.parse(selectedMonth + " 1, 2021")).getMonth();
+        await loadChartData(selectedYear, monthIndex, uid);
+    }
 
-        function formatNumber(value) {
-            return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        }
+    function formatNumber(value) {
+        return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
 
-        async function showDetails(event, title, collection, uid) {
-            const dataArray = await getCollectionData(collection, uid);
-            dataArray.sort((a, b) => b.value - a.value);
-            const popover = document.getElementById('details-popover');
-            const popoverTitle = document.getElementById('details-title');
-            const popoverContent = document.getElementById('details-content');
+    async function showDetails(event, title, collection, uid) {
+        const dataArray = await getCollectionData(collection, uid);
+        dataArray.sort((a, b) => b.value - a.value);
+        const popover = document.getElementById('details-popover');
+        const popoverTitle = document.getElementById('details-title');
+        const popoverContent = document.getElementById('details-content');
 
-            popoverTitle.innerText = title;
-            popoverContent.innerHTML = '';
+        popoverTitle.innerText = title;
+        popoverContent.innerHTML = '';
 
-            const table = document.createElement('table');
-            const thead = document.createElement('thead');
-            const tbody = document.createElement('tbody');
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
 
-            const headerRow = document.createElement('tr');
-            const th1 = document.createElement('th');
-            th1.innerText = 'Description';
-            const th2 = document.createElement('th');
-            th2.innerText = 'Value';
+        const headerRow = document.createElement('tr');
+        const th1 = document.createElement('th');
+        th1.innerText = 'Description';
+        const th2 = document.createElement('th');
+        th2.innerText = 'Value';
 
-            headerRow.appendChild(th1);
-            headerRow.appendChild(th2);
-            thead.appendChild(headerRow);
+        headerRow.appendChild(th1);
+        headerRow.appendChild(th2);
+        thead.appendChild(headerRow);
 
-            dataArray.forEach(item => {
-                const row = document.createElement('tr');
-                const td1 = document.createElement('td');
-                td1.innerText = item.description;
-                const td2 = document.createElement('td');
-                td2.innerText = `$${formatNumber(item.value)}`;
+        dataArray.forEach(item => {
+            const row = document.createElement('tr');
+            const td1 = document.createElement('td');
+            td1.innerText = item.description;
+            const td2 = document.createElement('td');
+            td2.innerText = `$${formatNumber(item.value)}`;
 
-                row.appendChild(td1);
-                row.appendChild(td2);
-                tbody.appendChild(row);
-            });
+            row.appendChild(td1);
+            row.appendChild(td2);
+            tbody.appendChild(row);
+        });
 
-            table.appendChild(thead);
-            table.appendChild(tbody);
-            popoverContent.appendChild(table);
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        popoverContent.appendChild(table);
 
-            popover.style.display = 'block';
-            positionPopover(popover, event);
-        }
+        popover.style.display = 'block';
+        positionPopover(popover, event);
+    }
 
-        async function getCollectionData(collection, uid) {
-            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
-            return snapshot.docs.map(doc => doc.data());
-        }
+    async function getCollectionData(collection, uid) {
+        const snapshot = await db.collection(collection).where('uid', '==', uid).get();
+        return snapshot.docs.map(doc => doc.data());
+    }
 
-        function closePopover() {
-            document.getElementById('details-popover').style.display = 'none';
-        }
+    function closePopover() {
+        document.getElementById('details-popover').style.display = 'none';
+    }
 
-        async function loadCreditCards(uid) {
-            const creditCardsContainer = document.getElementById('credit-cards-container');
-            creditCardsContainer.innerHTML = '';
-            let totalBalance = 0;
-            const snapshot = await db.collection('credit_cards').where('uid', '==', uid).get();
-            snapshot.forEach(doc => {
-                const card = doc.data();
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${card.name}</td>
-                    <td style="color: red;">$${formatNumber(card.balance)}</td>
-                `;
-                totalBalance += card.balance;
-                creditCardsContainer.appendChild(row);
-            });
-
-            const totalRow = document.createElement('tr');
-            totalRow.innerHTML = `
-                <td>Total</td>
-                <td class="credit-card-total">$${formatNumber(totalBalance)}</td>
+    async function loadCreditCards(uid) {
+        const creditCardsContainer = document.getElementById('credit-cards-container');
+        creditCardsContainer.innerHTML = '';
+        let totalBalance = 0;
+        const snapshot = await db.collection('credit_cards').where('uid', '==', uid).get();
+        snapshot.forEach(doc => {
+            const card = doc.data();
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${card.name}</td>
+                <td style="color: red;">$${formatNumber(card.balance)}</td>
             `;
-            creditCardsContainer.appendChild(totalRow);
+            totalBalance += card.balance;
+            creditCardsContainer.appendChild(row);
+        });
+
+        const totalRow = document.createElement('tr');
+        totalRow.innerHTML = `
+            <td>Total</td>
+            <td class="credit-card-total">$${formatNumber(totalBalance)}</td>
+        `;
+        creditCardsContainer.appendChild(totalRow);
+    }
+
+    window.onclick = function(event) {
+        const popover = document.getElementById('details-popover');
+        if (!event.target.closest('.popover') && !event.target.closest('.summary-tile')) {
+            popover.style.display = 'none';
+        }
+    }
+
+    function positionPopover(popover, event) {
+        const rect = event.target.getBoundingClientRect();
+        const popoverRect = popover.getBoundingClientRect();
+        let top = rect.top + window.scrollY - popoverRect.height - 10;
+        let left = rect.left + window.scrollX - (popoverRect.width / 2) + (rect.width / 2);
+
+        if (top < 0) {
+            top = rect.bottom + window.scrollY + 10;
+        }
+        if (left < 0) {
+            left = 10;
+        } else if (left + popoverRect.width > window.innerWidth) {
+            left = window.innerWidth - popoverRect.width - 10;
         }
 
-        window.onclick = function(event) {
-            const popover = document.getElementById('details-popover');
-            if (!event.target.closest('.popover') && !event.target.closest('.summary-tile')) {
-                popover.style.display = 'none';
-            }
-        }
-
-        function positionPopover(popover, event) {
-            const rect = event.target.getBoundingClientRect();
-            const popoverRect = popover.getBoundingClientRect();
-            let top = rect.top + window.scrollY - popoverRect.height - 10;
-            let left = rect.left + window.scrollX - (popoverRect.width / 2) + (rect.width / 2);
-
-            if (top < 0) {
-                top = rect.bottom + window.scrollY + 10;
-            }
-            if (left < 0) {
-                left = 10;
-            } else if (left + popoverRect.width > window.innerWidth) {
-                left = window.innerWidth - popoverRect.width - 10;
-            }
-
-            popover.style.top = `${top}px`;
-            popover.style.left = `${left}px`;
-        }
-    </script>
+        popover.style.top = `${top}px`;
+        popover.style.left = `${left}px`;
+    }
+</script>
 </head>
 <body>
     <div class="container">
@@ -648,22 +662,21 @@
             </div>
         </div>
     </div>
-
     <!-- Mobile Menu -->
-    <div class="mobile-menu">
-        <a href="index.html" class="mobile-menu-button">Home</a>
-        <a href="details.html" class="mobile-menu-button">Balance Sheet</a>
-        <a href="calendar.html" class="mobile-menu-button">Cash Flow</a>
-        <a href="real_estate.html" class="mobile-menu-button">Real Estate</a>
-        <a href="credit_cards.html" class="mobile-menu-button">Credit Cards</a>
-        <button class="mobile-menu-button logoff-button" onclick="logOff()">Log Off</button>
-    </div>
+<div class="mobile-menu">
+    <a href="index.html" class="mobile-menu-button">Home</a>
+    <a href="details.html" class="mobile-menu-button">Balance Sheet</a>
+    <a href="calendar.html" class="mobile-menu-button">Cash Flow</a>
+    <a href="real_estate.html" class="mobile-menu-button">Real Estate</a>
+    <a href="credit_cards.html" class="mobile-menu-button">Credit Cards</a>
+    <button class="mobile-menu-button logoff-button" onclick="logOff()">Log Off</button>
+</div>
 
-    <!-- Popover for Details -->
-    <div id="details-popover" class="popover">
-        <h2 id="details-title"></h2>
-        <div id="details-content"></div>
-    </div>
+<!-- Popover for Details -->
+<div id="details-popover" class="popover">
+    <h2 id="details-title"></h2>
+    <div id="details-content"></div>
+</div>
 </body>
 </html>
 
