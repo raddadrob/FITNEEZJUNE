@@ -163,13 +163,16 @@
             box-shadow: 0 0 5px #0f0;
         }
         .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            justify-content: space-between;
             gap: 20px;
             width: 100%;
         }
         .full-width {
-            grid-column: span 2;
+            width: 100%;
+        }
+        .half-width {
+            width: 48%;
         }
         @media (max-width: 768px) {
             .menu-links {
@@ -181,7 +184,10 @@
             }
 
             .content {
-                grid-template-columns: 1fr;
+                flex-direction: column;
+            }
+            .half-width {
+                width: 100%;
             }
         }
 
@@ -699,6 +705,7 @@
     </div>
 </body>
 </html>
+
 
 
 
