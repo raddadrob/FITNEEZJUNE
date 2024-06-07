@@ -29,6 +29,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            z-index: 1; /* Ensure it's above the hyperspace effect */
         }
         .large-logo {
             max-width: 150px;
@@ -126,6 +127,9 @@
             color: #0f0;
             margin-bottom: 20px;
         }
+        .hidden {
+            display: none;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -184,14 +188,17 @@
         function forgotPassword() {
             const email = document.getElementById('login-email').value;
 
-            auth.sendPasswordResetEmail(email)
-                .then(() => {
-                    alert('Password reset email sent.');
-                    window.location.reload();
-                })
-                .catch((error) => {
-                    alert(`Error sending password reset email: ${error.message}`);
-                });
+            if (email) {
+                auth.sendPasswordResetEmail(email)
+                    .then(() => {
+                        alert('Password reset email sent.');
+                    })
+                    .catch((error) => {
+                        alert(`Error sending password reset email: ${error.message}`);
+                    });
+            } else {
+                alert('Please enter your email address.');
+            }
         }
 
         function deleteUser() {
@@ -323,7 +330,6 @@
     </div>
 </body>
 </html>
-
 
 
 
