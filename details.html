@@ -131,18 +131,6 @@
         .delta-negative {
             color: red;
         }
-        th:nth-child(1), td:nth-child(1) {
-            width: 40%;
-        }
-        th:nth-child(2), td:nth-child(2) {
-            width: 20%;
-        }
-        th:nth-child(3), td:nth-child(3) {
-            width: 20%;
-        }
-        th:nth-child(4), td:nth-child(4) {
-            width: 10%;
-        }
         .popover {
             position: fixed;
             top: 50%;
@@ -350,59 +338,53 @@
             const tableBody = document.getElementById(`${collection}-table`).getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
 
-            let subtotal = 0;
+            let subtotalCostBasis = 0;
+            let subtotalCurrentValue = 0;
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
                 const costBasisCell = row.insertCell(1);
-                const previousValueCell = row.insertCell(2);
-                const valueCell = row.insertCell(3);
-                const returnCell = row.insertCell(4);
-
-                costBasisCell.innerText = item.costBasis ? `$${formatNumber(item.costBasis)}` : '$0';
-
-                if (collection === 'liabilities') {
-                    previousValueCell.innerText = item.previousValue ? `-$${formatNumber(item.previousValue)}` : '$0';
-                    previousValueCell.style.color = 'red';
-                    valueCell.innerText = item.value ? `-$${formatNumber(item.value)}` : '$0';
-                    valueCell.style.color = 'red';
-                } else {
-                    previousValueCell.innerText = `$${formatNumber(item.previousValue || 0)}`;
-                    valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
-                }
-
-                const returnPercent = ((item.value - item.costBasis) / item.costBasis) * 100;
-                returnCell.innerText = item.costBasis ? `${returnPercent.toFixed(2)}%` : '0%';
-
-                const delta = (item.value || item.currentMarketValue) - (item.previousValue || 0);
+                const valueCell = row.insertCell(2);
+                const returnCell = row.insertCell(3);
+                costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
+                costBasisCell.contentEditable = true;
+                valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
+                const delta = (item.value || item.currentMarketValue) - (item.costBasis || 0);
+                const returnPercentage = item.costBasis ? ((delta / item.costBasis) * 100).toFixed(2) : 0;
                 const deltaCell = document.createElement('span');
                 deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
                 deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
                 deltaCell.style.fontSize = '0.8em';
                 deltaCell.style.fontStyle = 'italic';
                 valueCell.appendChild(deltaCell);
+                returnCell.innerText = `${returnPercentage}%`;
+                returnCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
+
                 valueCell.onclick = (event) => showPopover(event, collection, item.id, item.value || item.currentMarketValue, item.description || item.name);
-                previousValueCell.onclick = (event) => showPopover(event, collection, item.id, item.previousValue, item.description || item.name);
+                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, item.costBasis || 0, item.description || item.name, 'costBasis');
+
+                subtotalCostBasis += item.costBasis || 0;
+                subtotalCurrentValue += item.value || item.currentMarketValue;
+
                 row.appendChild(costBasisCell);
-                row.appendChild(previousValueCell);
                 row.appendChild(valueCell);
                 row.appendChild(returnCell);
-                subtotal += item.value || item.currentMarketValue;
             });
 
             const subtotalRow = tableBody.insertRow();
-            subtotalRow.insertCell(0).innerText = '';
-            const subtotalTextCell = subtotalRow.insertCell(1);
-            subtotalTextCell.innerText = 'Subtotal';
-            subtotalTextCell.style.fontWeight = 'bold';
-            const subtotalCell = subtotalRow.insertCell(2);
-            subtotalCell.innerText = `$${formatNumber(subtotal)}`;
-            subtotalCell.style.fontWeight = 'bold';
-            if (collection === 'liabilities') {
-                subtotalRow.style.color = 'red';
-            } else {
-                subtotalRow.style.color = 'green';
-            }
+            subtotalRow.insertCell(0).innerText = 'Subtotal';
+            const subtotalCostBasisCell = subtotalRow.insertCell(1);
+            const subtotalCurrentValueCell = subtotalRow.insertCell(2);
+            const subtotalReturnCell = subtotalRow.insertCell(3);
+            subtotalCostBasisCell.innerText = `$${formatNumber(subtotalCostBasis)}`;
+            subtotalCostBasisCell.style.fontWeight = 'bold';
+            subtotalCurrentValueCell.innerText = `$${formatNumber(subtotalCurrentValue)}`;
+            subtotalCurrentValueCell.style.fontWeight = 'bold';
+            const subtotalDelta = subtotalCurrentValue - subtotalCostBasis;
+            const subtotalReturnPercentage = subtotalCostBasis ? ((subtotalDelta / subtotalCostBasis) * 100).toFixed(2) : 0;
+            subtotalReturnCell.innerText = `${subtotalReturnPercentage}%`;
+            subtotalReturnCell.style.fontWeight = 'bold';
+            subtotalReturnCell.className = subtotalDelta >= 0 ? 'delta-positive' : 'delta-negative';
         }
 
         function formatNumber(value) {
@@ -413,7 +395,7 @@
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        function showPopover(event, collection, id, value, description) {
+        function showPopover(event, collection, id, value, description, field = 'value') {
             const popover = document.getElementById('popover');
             const popoverDescription = document.getElementById('popover-description');
             const popoverValue = document.getElementById('popover-value');
@@ -422,7 +404,7 @@
 
             popoverDescription.innerText = description;
             popoverValue.value = formatNumber(value);
-            saveButton.onclick = () => saveEditItem(collection, id);
+            saveButton.onclick = () => saveEditItem(collection, id, field);
             deleteButton.onclick = () => deleteRow(collection, id);
 
             popover.style.display = 'flex';
@@ -432,13 +414,12 @@
             document.getElementById('popover').style.display = 'none';
         }
 
-        async function saveEditItem(collection, id) {
+        async function saveEditItem(collection, id, field) {
             const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
             if (!isNaN(value)) {
-                await db.collection(collection).doc(id).update({
-                    value: collection === 'liabilities' ? Math.abs(value) : value,
-                    previousValue: getItemById(collection, id).value
-                });
+                const updateData = {};
+                updateData[field] = value;
+                await db.collection(collection).doc(id).update(updateData);
                 loadData(auth.currentUser.uid);
                 closePopover();
             }
@@ -466,7 +447,7 @@
                 const newItem = {
                     description,
                     value: collection === 'liabilities' ? Math.abs(value) : value,
-                    previousValue: 0,
+                    costBasis: 0,
                     uid: auth.currentUser.uid
                 };
                 try {
@@ -585,7 +566,6 @@
                         <tr>
                             <th>Description</th>
                             <th>Cost Basis</th>
-                            <th>Previous Value</th>
                             <th>Current Value</th>
                             <th>Return %</th>
                         </tr>
@@ -607,7 +587,6 @@
                         <tr>
                             <th>Description</th>
                             <th>Cost Basis</th>
-                            <th>Previous Value</th>
                             <th>Current Value</th>
                             <th>Return %</th>
                         </tr>
@@ -629,7 +608,6 @@
                         <tr>
                             <th>Description</th>
                             <th>Cost Basis</th>
-                            <th>Previous Value</th>
                             <th>Current Value</th>
                             <th>Return %</th>
                         </tr>
@@ -651,7 +629,6 @@
                         <tr>
                             <th>Description</th>
                             <th>Cost Basis</th>
-                            <th>Previous Value</th>
                             <th>Current Value</th>
                             <th>Return %</th>
                         </tr>
