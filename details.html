@@ -237,21 +237,35 @@
         }
 
         #timeout-warning {
-            display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
             z-index: 1000;
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
         }
-
         #timeout-warning p {
-            margin: 0 0 10px;
+            margin: 0 0 10px 0;
+            color: #0f0;
+        }
+        #timeout-warning button {
+            padding: 8px 16px;
+            background: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #timeout-warning button:hover {
+            background: #0c0;
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -289,11 +303,11 @@
             auth.onAuthStateChanged((user) => {
                 if (user) {
                     loadData(user.uid);
-                    inactivityTime();
                 } else {
                     window.location.href = 'login.html';
                 }
             });
+            inactivityTime();
         });
 
         async function loadData(uid) {
@@ -495,44 +509,39 @@
         }
 
         function inactivityTime() {
-            let timeoutWarning = document.getElementById('timeout-warning');
-            let countdownElement = document.getElementById('countdown');
-            let warningTimeout;
-            let logoutTimeout;
-            let countdownInterval;
-
-            function startLogoutTimer() {
-                clearTimeout(warningTimeout);
-                clearTimeout(logoutTimeout);
-                clearInterval(countdownInterval);
-
-                warningTimeout = setTimeout(() => {
-                    timeoutWarning.style.display = 'block';
-                    let countdown = 15;
-                    countdownElement.innerText = countdown;
-                    countdownInterval = setInterval(() => {
-                        countdown--;
-                        countdownElement.innerText = countdown;
-                        if (countdown <= 0) {
-                            clearInterval(countdownInterval);
-                            logOff();
-                        }
-                    }, 1000);
-
-                    logoutTimeout = setTimeout(() => {
+            let time;
+            let countdownNumber = 15;
+            const timeoutWarning = document.getElementById('timeout-warning');
+            const countdown = document.getElementById('countdown');
+            
+            function startCountdown() {
+                countdownNumber = 15;
+                countdown.innerText = countdownNumber;
+                timeoutWarning.style.display = 'flex';
+                const interval = setInterval(() => {
+                    countdownNumber--;
+                    countdown.innerText = countdownNumber;
+                    if (countdownNumber <= 0) {
+                        clearInterval(interval);
                         logOff();
-                    }, 15000);
-                }, 60000);
+                    }
+                }, 1000);
+            }
+
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+            
+            function logoutPopup() {
+                timeoutWarning.style.display = 'none';
+                startCountdown();
             }
 
             function resetTimer() {
+                clearTimeout(time);
                 timeoutWarning.style.display = 'none';
-                startLogoutTimer();
+                time = setTimeout(logoutPopup, 60000);
             }
-
-            document.onload = resetTimer;
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
         }
     </script>
 </head>
@@ -686,11 +695,9 @@
         <button id="deleteRowButton">Delete Row</button>
         <button onclick="closePopover()">Cancel</button>
     </div>
-
-    <!-- Timeout Warning Popup -->
     <div id="timeout-warning">
         <p>Are you still here? You will be signed out in <span id="countdown">15</span> seconds.</p>
-        <button onclick="document.getElementById('timeout-warning').style.display = 'none'; resetTimer();">I'm still here</button>
+        <button onclick="resetTimer()">Yes, I'm here</button>
     </div>
     <script>
         document.getElementById('popover-value').addEventListener('input', function(e) {
@@ -716,8 +723,6 @@
     </script>
 </body>
 </html>
-
-
 
 
 
