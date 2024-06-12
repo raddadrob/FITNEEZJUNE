@@ -502,35 +502,33 @@
         }
 
         // Inactivity Timer
-        let inactivityTime = () => {
-            let time;
-            const warningTime = 60000; // 1 minute
-            const logoffTime = 15000; // 15 seconds
+        let time;
+        const warningTime = 60000; // 1 minute
+        const logoffTime = 15000; // 15 seconds
 
-            function resetTimer() {
-                clearTimeout(time);
-                document.getElementById('timeout-warning').style.display = 'none';
-                time = setTimeout(showWarning, warningTime);
-            }
+        function resetTimer() {
+            clearTimeout(time);
+            document.getElementById('timeout-warning').style.display = 'none';
+            time = setTimeout(showWarning, warningTime);
+        }
 
-            function showWarning() {
-                document.getElementById('timeout-warning').style.display = 'block';
-                let countdown = logoffTime / 1000;
+        function showWarning() {
+            document.getElementById('timeout-warning').style.display = 'block';
+            let countdown = logoffTime / 1000;
+            document.getElementById('countdown').innerText = countdown;
+            const countdownInterval = setInterval(() => {
+                countdown -= 1;
                 document.getElementById('countdown').innerText = countdown;
-                const countdownInterval = setInterval(() => {
-                    countdown -= 1;
-                    document.getElementById('countdown').innerText = countdown;
-                    if (countdown <= 0) {
-                        clearInterval(countdownInterval);
-                        logOff();
-                    }
-                }, 1000);
-            }
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    logOff();
+                }
+            }, 1000);
+        }
 
-            window.onload = resetTimer;
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
-        };
+        window.onload = resetTimer;
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
 
     </script>
 </head>
@@ -712,44 +710,9 @@
 
         window.addEventListener('resize', handleResize);
         handleResize();
-
-        // Inactivity Timer
-        let inactivityTime = () => {
-            let time;
-            const warningTime = 60000; // 1 minute
-            const logoffTime = 15000; // 15 seconds
-
-            function resetTimer() {
-                clearTimeout(time);
-                document.getElementById('timeout-warning').style.display = 'none';
-                time = setTimeout(showWarning, warningTime);
-            }
-
-            function showWarning() {
-                document.getElementById('timeout-warning').style.display = 'block';
-                let countdown = logoffTime / 1000;
-                document.getElementById('countdown').innerText = countdown;
-                const countdownInterval = setInterval(() => {
-                    countdown -= 1;
-                    document.getElementById('countdown').innerText = countdown;
-                    if (countdown <= 0) {
-                        clearInterval(countdownInterval);
-                        logOff();
-                    }
-                }, 1000);
-            }
-
-            window.onload = resetTimer;
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
-        };
-
-        inactivityTime(); // Initialize the inactivity timer
     </script>
 </body>
 </html>
-
-
 
 
 
