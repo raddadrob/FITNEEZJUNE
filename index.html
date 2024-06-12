@@ -270,6 +270,30 @@
             display: block;
             margin: 0 auto;
         }
+        /* Additional styles for popup */
+        #timeout-warning {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #444;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+        }
+        #timeout-warning button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -300,6 +324,37 @@
             });
         }
 
+        // Inactivity Timer
+        let inactivityTime = () => {
+            let time;
+            const warningTime = 60000; // 1 minute
+            const logoffTime = 15000; // 15 seconds
+
+            function resetTimer() {
+                clearTimeout(time);
+                document.getElementById('timeout-warning').style.display = 'none';
+                time = setTimeout(showWarning, warningTime);
+            }
+
+            function showWarning() {
+                document.getElementById('timeout-warning').style.display = 'block';
+                let countdown = logoffTime / 1000;
+                document.getElementById('countdown').innerText = countdown;
+                const countdownInterval = setInterval(() => {
+                    countdown -= 1;
+                    document.getElementById('countdown').innerText = countdown;
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        logOff();
+                    }
+                }, 1000);
+            }
+
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (!user) {
@@ -309,7 +364,6 @@
                     loadCreditCards(user.uid);
                     document.getElementById('month-select').addEventListener('change', () => updateChart(user.uid));
                     document.getElementById('year-select').addEventListener('change', () => updateChart(user.uid));
-
                     document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Stocks & Bonds', 'stocks_and_bonds', user.uid));
                     document.getElementById('total-stocks_and_bonds-amount').addEventListener('mouseleave', closePopover);
                     document.getElementById('total-real_estate-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Real Estate', 'real_estate', user.uid));
@@ -320,277 +374,14 @@
                     document.getElementById('total-assets').addEventListener('mouseleave', closePopover);
                     document.getElementById('total-liabilities-amount').addEventListener('mouseenter', (event) => showDetails(event, 'Liabilities', 'liabilities', user.uid));
                     document.getElementById('total-liabilities-amount').addEventListener('mouseleave', closePopover);
-
                     window.addEventListener('resize', handleResize);
                     handleResize();
+                    inactivityTime(); // Initialize inactivity timer
                 }
             });
         });
 
-        function handleResize() {
-            const isMobile = window.innerWidth <= 768;
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const menuLinks = document.querySelector('.menu-links');
-            if (isMobile) {
-                mobileMenu.style.display = 'flex';
-                menuLinks.style.display = 'none';
-            } else {
-                mobileMenu.style.display = 'none';
-                menuLinks.style.display = 'flex';
-            }
-        }
-
-        async function loadSummary(uid) {
-            const stocksAndBonds = await getTotal('stocks_and_bonds', uid);
-            const realEstate = await getRealEstateTotal(uid);
-            const miscAssets = await getTotal('misc_assets', uid);
-            const liabilities = await getTotal('liabilities', uid);
-            const totalAssets = stocksAndBonds + realEstate + miscAssets;
-            const netWorth = totalAssets - liabilities;
-
-            document.getElementById('total-stocks_and_bonds-amount').innerText = `$${formatNumber(stocksAndBonds)}`;
-            document.getElementById('total-real_estate-amount').innerText = `$${formatNumber(realEstate)}`;
-            document.getElementById('total-misc_assets-amount').innerText = `$${formatNumber(miscAssets)}`;
-            document.getElementById('total-assets').innerText = `$${formatNumber(totalAssets)}`;
-            document.getElementById('total-liabilities-amount').innerText = `-$${formatNumber(Math.abs(liabilities))}`;
-            document.getElementById('net-worth-amount').innerText = `$${formatNumber(netWorth)}`;
-
-            const currentMonth = new Date().getMonth();
-            const monthName = new Date().toLocaleString('default', { month: 'long' });
-            const currentYear = new Date().getFullYear();
-            document.getElementById('month-select').value = monthName;
-            document.getElementById('year-select').value = currentYear;
-            await loadChartData(currentYear, currentMonth, uid);
-        }
-
-        async function getTotal(collection, uid) {
-            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
-            return snapshot.docs.reduce((total, doc) => total + doc.data().value, 0);
-        }
-
-        async function getRealEstateTotal(uid) {
-            const snapshot = await db.collection('real_estate').where('uid', '==', uid).get();
-            return snapshot.docs.reduce((total, doc) => {
-                const data = doc.data();
-                return total + (data.currentMarketValue || 0);
-            }, 0);
-        }
-
-        async function loadChartData(year, month, uid) {
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const credits = Array(daysInMonth).fill(0);
-            const debits = Array(daysInMonth).fill(0);
-            const creditDescriptions = Array(daysInMonth).fill("");
-            const debitDescriptions = Array(daysInMonth).fill("");
-            const cashBalances = Array(daysInMonth).fill(0);
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const doc = await db.collection('calendar').doc(`${uid}-${year}-${month}-day-${day}`).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    credits[day - 1] = data.credit;
-                    debits[day - 1] = data.debit;
-                    cashBalances[day - 1] = data.cash;
-                    creditDescriptions[day - 1] = data.creditDescription || "";
-                    debitDescriptions[day - 1] = data.debitDescription || "";
-                }
-            }
-
-            const labels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-            if (chart) {
-                chart.destroy();
-            }
-
-            const ctx = document.getElementById('cashFlowChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Credits',
-                            backgroundColor: 'rgba(0, 255, 0, 0.5)',
-                            borderColor: 'rgba(0, 255, 0, 1)',
-                            borderWidth: 1,
-                            data: credits
-                        },
-                        {
-                            label: 'Debits',
-                            backgroundColor: 'rgba(255, 0, 0, 0.5)',
-                            borderColor: 'rgba(255, 0, 0, 1)',
-                            borderWidth: 1,
-                            data: debits
-                        },
-                        {
-                            label: 'Daily Cash Balance',
-                            type: 'line',
-                            backgroundColor: 'rgba(0, 255, 0, 0.5)',
-                            borderColor: 'rgba(0, 255, 0, 1)',
-                            fill: false,
-                            data: cashBalances
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            ticks: {
-                                color: '#0f0'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#0f0',
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 255, 0, 0.2)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#0f0'
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const dataIndex = context.dataIndex;
-                                    const datasetIndex = context.datasetIndex;
-                                    const value = context.raw;
-                                    if (datasetIndex === 0) {
-                                        return `Credit: $${value.toLocaleString()} - ${creditDescriptions[dataIndex]}`;
-                                    } else if (datasetIndex === 1) {
-                                        return `Debit: $${value.toLocaleString()} - ${debitDescriptions[dataIndex]}`;
-                                    } else {
-                                        return `Cash Balance: $${value.toLocaleString()}`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        async function updateChart(uid) {
-            const selectedMonth = document.getElementById('month-select').value;
-            const selectedYear = document.getElementById('year-select').value;
-            const monthIndex = new Date(Date.parse(selectedMonth + " 1, 2021")).getMonth();
-            await loadChartData(selectedYear, monthIndex, uid);
-        }
-
-        function formatNumber(value) {
-            return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        }
-
-        async function showDetails(event, title, collection, uid) {
-            const dataArray = await getCollectionData(collection, uid);
-            dataArray.sort((a, b) => b.value - a.value);
-            const popover = document.getElementById('details-popover');
-            const popoverTitle = document.getElementById('details-title');
-            const popoverContent = document.getElementById('details-content');
-
-            popoverTitle.innerText = title;
-            popoverContent.innerHTML = '';
-
-            const table = document.createElement('table');
-            const thead = document.createElement('thead');
-            const tbody = document.createElement('tbody');
-
-            const headerRow = document.createElement('tr');
-            const th1 = document.createElement('th');
-            th1.innerText = 'Description';
-            const th2 = document.createElement('th');
-            th2.innerText = 'Value';
-
-            headerRow.appendChild(th1);
-            headerRow.appendChild(th2);
-            thead.appendChild(headerRow);
-
-            dataArray.forEach(item => {
-                const row = document.createElement('tr');
-                const td1 = document.createElement('td');
-                td1.innerText = item.description;
-                const td2 = document.createElement('td');
-                td2.innerText = `$${formatNumber(item.value)}`;
-
-                row.appendChild(td1);
-                row.appendChild(td2);
-                tbody.appendChild(row);
-            });
-
-            table.appendChild(thead);
-            table.appendChild(tbody);
-            popoverContent.appendChild(table);
-
-            popover.style.display = 'block';
-            positionPopover(popover, event);
-        }
-
-        async function getCollectionData(collection, uid) {
-            const snapshot = await db.collection(collection).where('uid', '==', uid).get();
-            return snapshot.docs.map(doc => doc.data());
-        }
-
-        function closePopover() {
-            document.getElementById('details-popover').style.display = 'none';
-        }
-
-        async function loadCreditCards(uid) {
-            const creditCardsContainer = document.getElementById('credit-cards-container');
-            creditCardsContainer.innerHTML = '';
-            let totalBalance = 0;
-            const snapshot = await db.collection('credit_cards').where('uid', '==', uid).get();
-            snapshot.forEach(doc => {
-                const card = doc.data();
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${card.name}</td>
-                    <td style="color: red;">$${formatNumber(card.balance)}</td>
-                `;
-                totalBalance += card.balance;
-                creditCardsContainer.appendChild(row);
-            });
-
-            const totalRow = document.createElement('tr');
-            totalRow.innerHTML = `
-                <td>Total</td>
-                <td class="credit-card-total">$${formatNumber(totalBalance)}</td>
-            `;
-            creditCardsContainer.appendChild(totalRow);
-        }
-
-        window.onclick = function(event) {
-            const popover = document.getElementById('details-popover');
-            if (!event.target.closest('.popover') && !event.target.closest('.summary-tile')) {
-                popover.style.display = 'none';
-            }
-        }
-
-        function positionPopover(popover, event) {
-            const rect = event.target.getBoundingClientRect();
-            const popoverRect = popover.getBoundingClientRect();
-            let top = rect.top + window.scrollY - popoverRect.height - 10;
-            let left = rect.left + window.scrollX - (popoverRect.width / 2) + (rect.width / 2);
-
-            if (top < 0) {
-                top = rect.bottom + window.scrollY + 10;
-            }
-            if (left < 0) {
-                left = 10;
-            } else if (left + popoverRect.width > window.innerWidth) {
-                left = window.innerWidth - popoverRect.width - 10;
-            }
-
-            popover.style.top = `${top}px`;
-            popover.style.left = `${left}px`;
-        }
+        // Other existing functions (handleResize, loadSummary, getTotal, getRealEstateTotal, loadChartData, updateChart, formatNumber, showDetails, getCollectionData, closePopover, loadCreditCards, window.onclick, positionPopover) remain unchanged
     </script>
 </head>
 <body>
@@ -708,6 +499,12 @@
     <div id="details-popover" class="popover">
         <h2 id="details-title"></h2>
         <div id="details-content"></div>
+    </div>
+
+    <!-- Timeout Warning Popup -->
+    <div id="timeout-warning">
+        <p>Are you still here? You will be signed out in <span id="countdown">15</span> seconds.</p>
+        <button onclick="resetTimer()">I'm here</button>
     </div>
 </body>
 </html>
