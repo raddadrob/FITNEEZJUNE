@@ -131,6 +131,18 @@
         .delta-negative {
             color: red;
         }
+        th:nth-child(1), td:nth-child(1) {
+            width: 40%;
+        }
+        th:nth-child(2), td:nth-child(2) {
+            width: 20%;
+        }
+        th:nth-child(3), td:nth-child(3) {
+            width: 20%;
+        }
+        th:nth-child(4), td:nth-child(4) {
+            width: 20%;
+        }
         .popover {
             position: fixed;
             top: 50%;
@@ -340,51 +352,49 @@
 
             let subtotalCostBasis = 0;
             let subtotalCurrentValue = 0;
+
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
                 const costBasisCell = row.insertCell(1);
                 const valueCell = row.insertCell(2);
                 const returnCell = row.insertCell(3);
+
                 costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
-                costBasisCell.contentEditable = true;
-                valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
-                const delta = (item.value || item.currentMarketValue) - (item.costBasis || 0);
-                const returnPercentage = item.costBasis ? ((delta / item.costBasis) * 100).toFixed(2) : 0;
-                const deltaCell = document.createElement('span');
-                deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
-                deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
-                deltaCell.style.fontSize = '0.8em';
-                deltaCell.style.fontStyle = 'italic';
-                valueCell.appendChild(deltaCell);
-                returnCell.innerText = `${returnPercentage}%`;
+                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, 'costBasis', item.costBasis || 0, item.description || item.name);
+
+                if (collection === 'liabilities') {
+                    valueCell.innerText = item.value ? `-$${formatNumber(item.value)}` : '$0';
+                    valueCell.style.color = 'red';
+                } else {
+                    valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
+                }
+
+                const delta = ((item.value || item.currentMarketValue) - (item.costBasis || 0)) / (item.costBasis || 1) * 100;
+                returnCell.innerText = `${delta.toFixed(2)}%`;
                 returnCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
+                returnCell.style.fontSize = '0.8em';
+                returnCell.style.fontStyle = 'italic';
 
-                valueCell.onclick = (event) => showPopover(event, collection, item.id, item.value || item.currentMarketValue, item.description || item.name);
-                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, item.costBasis || 0, item.description || item.name, 'costBasis');
-
+                valueCell.onclick = (event) => showPopover(event, collection, item.id, 'value', item.value || item.currentMarketValue, item.description || item.name);
                 subtotalCostBasis += item.costBasis || 0;
                 subtotalCurrentValue += item.value || item.currentMarketValue;
-
-                row.appendChild(costBasisCell);
-                row.appendChild(valueCell);
-                row.appendChild(returnCell);
             });
 
             const subtotalRow = tableBody.insertRow();
             subtotalRow.insertCell(0).innerText = 'Subtotal';
             const subtotalCostBasisCell = subtotalRow.insertCell(1);
-            const subtotalCurrentValueCell = subtotalRow.insertCell(2);
-            const subtotalReturnCell = subtotalRow.insertCell(3);
             subtotalCostBasisCell.innerText = `$${formatNumber(subtotalCostBasis)}`;
             subtotalCostBasisCell.style.fontWeight = 'bold';
-            subtotalCurrentValueCell.innerText = `$${formatNumber(subtotalCurrentValue)}`;
-            subtotalCurrentValueCell.style.fontWeight = 'bold';
-            const subtotalDelta = subtotalCurrentValue - subtotalCostBasis;
-            const subtotalReturnPercentage = subtotalCostBasis ? ((subtotalDelta / subtotalCostBasis) * 100).toFixed(2) : 0;
-            subtotalReturnCell.innerText = `${subtotalReturnPercentage}%`;
+            const subtotalValueCell = subtotalRow.insertCell(2);
+            subtotalValueCell.innerText = `$${formatNumber(subtotalCurrentValue)}`;
+            subtotalValueCell.style.fontWeight = 'bold';
+
+            const subtotalReturnCell = subtotalRow.insertCell(3);
+            const totalReturn = ((subtotalCurrentValue - subtotalCostBasis) / (subtotalCostBasis || 1)) * 100;
+            subtotalReturnCell.innerText = `${totalReturn.toFixed(2)}%`;
             subtotalReturnCell.style.fontWeight = 'bold';
-            subtotalReturnCell.className = subtotalDelta >= 0 ? 'delta-positive' : 'delta-negative';
+            subtotalReturnCell.className = totalReturn >= 0 ? 'delta-positive' : 'delta-negative';
         }
 
         function formatNumber(value) {
@@ -395,14 +405,14 @@
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        function showPopover(event, collection, id, value, description, field = 'value') {
+        function showPopover(event, collection, id, field, value, description) {
             const popover = document.getElementById('popover');
             const popoverDescription = document.getElementById('popover-description');
             const popoverValue = document.getElementById('popover-value');
             const saveButton = document.getElementById('saveEditButton');
             const deleteButton = document.getElementById('deleteRowButton');
 
-            popoverDescription.innerText = description;
+            popoverDescription.innerText = `${description} (${field})`;
             popoverValue.value = formatNumber(value);
             saveButton.onclick = () => saveEditItem(collection, id, field);
             deleteButton.onclick = () => deleteRow(collection, id);
@@ -417,8 +427,10 @@
         async function saveEditItem(collection, id, field) {
             const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
             if (!isNaN(value)) {
-                const updateData = {};
-                updateData[field] = value;
+                const updateData = { [field]: value };
+                if (field === 'value' && collection !== 'liabilities') {
+                    updateData.previousValue = getItemById(collection, id).value;
+                }
                 await db.collection(collection).doc(id).update(updateData);
                 loadData(auth.currentUser.uid);
                 closePopover();
@@ -528,8 +540,10 @@
             document.onkeypress = resetTimer;
             
             function logoutPopup() {
-                timeoutWarning.style.display = 'none';
-                startCountdown();
+                timeoutWarning.style.display = 'flex';
+                const timeoutWarningElement = document.getElementById('timeout-warning');
+                timeoutWarningElement.onmouseenter = () => clearTimeout(time);
+                timeoutWarningElement.onmouseleave = startCountdown;
             }
 
             function resetTimer() {
@@ -722,6 +736,7 @@
     </script>
 </body>
 </html>
+
 
 
 
