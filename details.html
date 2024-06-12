@@ -132,13 +132,16 @@
             color: red;
         }
         th:nth-child(1), td:nth-child(1) {
-            width: 50%;
+            width: 40%;
         }
         th:nth-child(2), td:nth-child(2) {
-            width: 25%;
+            width: 20%;
         }
         th:nth-child(3), td:nth-child(3) {
-            width: 25%;
+            width: 20%;
+        }
+        th:nth-child(4), td:nth-child(4) {
+            width: 10%;
         }
         .popover {
             position: fixed;
@@ -351,8 +354,13 @@
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
-                const previousValueCell = row.insertCell(1);
-                const valueCell = row.insertCell(2);
+                const costBasisCell = row.insertCell(1);
+                const previousValueCell = row.insertCell(2);
+                const valueCell = row.insertCell(3);
+                const returnCell = row.insertCell(4);
+
+                costBasisCell.innerText = item.costBasis ? `$${formatNumber(item.costBasis)}` : '$0';
+
                 if (collection === 'liabilities') {
                     previousValueCell.innerText = item.previousValue ? `-$${formatNumber(item.previousValue)}` : '$0';
                     previousValueCell.style.color = 'red';
@@ -362,6 +370,10 @@
                     previousValueCell.innerText = `$${formatNumber(item.previousValue || 0)}`;
                     valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
                 }
+
+                const returnPercent = ((item.value - item.costBasis) / item.costBasis) * 100;
+                returnCell.innerText = item.costBasis ? `${returnPercent.toFixed(2)}%` : '0%';
+
                 const delta = (item.value || item.currentMarketValue) - (item.previousValue || 0);
                 const deltaCell = document.createElement('span');
                 deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
@@ -371,8 +383,10 @@
                 valueCell.appendChild(deltaCell);
                 valueCell.onclick = (event) => showPopover(event, collection, item.id, item.value || item.currentMarketValue, item.description || item.name);
                 previousValueCell.onclick = (event) => showPopover(event, collection, item.id, item.previousValue, item.description || item.name);
+                row.appendChild(costBasisCell);
                 row.appendChild(previousValueCell);
                 row.appendChild(valueCell);
+                row.appendChild(returnCell);
                 subtotal += item.value || item.currentMarketValue;
             });
 
@@ -570,8 +584,10 @@
                     <thead>
                         <tr>
                             <th>Description</th>
+                            <th>Cost Basis</th>
                             <th>Previous Value</th>
-                            <th>Value</th>
+                            <th>Current Value</th>
+                            <th>Return %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -590,8 +606,10 @@
                     <thead>
                         <tr>
                             <th>Description</th>
+                            <th>Cost Basis</th>
                             <th>Previous Value</th>
-                            <th>Value</th>
+                            <th>Current Value</th>
+                            <th>Return %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -610,8 +628,10 @@
                     <thead>
                         <tr>
                             <th>Description</th>
+                            <th>Cost Basis</th>
                             <th>Previous Value</th>
-                            <th>Value</th>
+                            <th>Current Value</th>
+                            <th>Return %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -630,8 +650,10 @@
                     <thead>
                         <tr>
                             <th>Description</th>
+                            <th>Cost Basis</th>
                             <th>Previous Value</th>
-                            <th>Value</th>
+                            <th>Current Value</th>
+                            <th>Return %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -723,7 +745,6 @@
     </script>
 </body>
 </html>
-
 
 
 
