@@ -717,7 +717,7 @@
     <!-- Popover for Editing -->
     <div id="popover" class="popover">
         <div id="popover-description"></div>
-        <input type="text" id="popover-value" placeholder="Enter value">
+        <input type="text" id="popover-input" id="popover-value" placeholder="Enter value">
         <button id="saveEditButton">Save</button>
         <button id="deleteRowButton">Delete Row</button>
         <button onclick="closePopover()">Cancel</button>
@@ -769,8 +769,8 @@
             }
 
             window.onload = resetTimer;
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
+           document.onmousemove = function(event) { resetTimer(event); };
+           document.onkeypress = function(event) { resetTimer(event); };
 
             function logoutPopup() {
                 timeoutWarning.style.display = 'flex';
@@ -784,12 +784,14 @@
                 }, 1000);
             }
 
-            function resetTimer() {
-                clearTimeout(time);
-                timeoutWarning.style.display = 'none';
-                time = setTimeout(logoutPopup, 60000);
-            }
-
+           function resetTimer(event) {
+    if (event.target !== document.getElementById('popover') &&
+        event.target !== document.getElementById('popover-input')) {
+        clearTimeout(time);
+        timeoutWarning.style.display = 'none';
+        time = setTimeout(logoutPopup, 60000);
+    }
+}
             timeoutWarning.querySelector('button').onclick = function() {
                 clearTimeout(time);
                 timeoutWarning.style.display = 'none';
