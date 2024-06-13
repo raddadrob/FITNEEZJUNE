@@ -132,13 +132,16 @@
             color: red;
         }
         th:nth-child(1), td:nth-child(1) {
-            width: 50%;
+            width: 40%;
         }
         th:nth-child(2), td:nth-child(2) {
-            width: 25%;
+            width: 20%;
         }
         th:nth-child(3), td:nth-child(3) {
-            width: 25%;
+            width: 20%;
+        }
+        th:nth-child(4), td:nth-child(4) {
+            width: 20%;
         }
         .popover {
             position: fixed;
@@ -347,50 +350,56 @@
             const tableBody = document.getElementById(`${collection}-table`).getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
 
-            let subtotal = 0;
-            let costBasisTotal = 0;
+            let subtotalCost = 0;
+            let subtotalCurrent = 0;
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
                 const costBasisCell = row.insertCell(1);
-                costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
-                costBasisCell.contentEditable = true;
-                costBasisCell.onblur = () => saveEditItem(collection, item.id, 'costBasis', costBasisCell.innerText.replace(/[$,]/g, ''));
-                const valueCell = row.insertCell(2);
-                valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
+                const currentValueCell = row.insertCell(2);
                 const returnCell = row.insertCell(3);
-                if (collection !== 'misc_assets' && collection !== 'liabilities') {
-                    const costBasis = item.costBasis || 0;
-                    const currentValue = item.value || item.currentMarketValue;
-                    const returnPercentage = costBasis ? ((currentValue - costBasis) / costBasis) * 100 : 0;
-                    returnCell.innerText = `${returnPercentage.toFixed(2)}%`;
+
+                costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
+                currentValueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
+
+                const costBasis = item.costBasis || 0;
+                const currentValue = item.value || item.currentMarketValue;
+                const returnPercentage = costBasis ? ((currentValue - costBasis) / costBasis * 100).toFixed(2) : 'N/A';
+
+                if (collection === 'liabilities') {
+                    costBasisCell.style.color = 'red';
+                    currentValueCell.style.color = 'red';
+                    returnCell.style.color = 'red';
                 } else {
-                    returnCell.innerText = 'N/A';
+                    costBasisCell.style.color = '#fff';
+                    currentValueCell.style.color = '#fff';
+                    returnCell.style.color = '#fff';
                 }
-                const delta = (item.value || item.currentMarketValue) - (item.previousValue || 0);
-                const deltaCell = document.createElement('span');
-                deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
-                deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
-                deltaCell.style.fontSize = '0.8em';
-                deltaCell.style.fontStyle = 'italic';
-                valueCell.appendChild(deltaCell);
-                valueCell.onclick = (event) => showPopover(event, collection, item.id, item.value || item.currentMarketValue, item.description || item.name);
-                costBasisTotal += item.costBasis || 0;
-                subtotal += item.value || item.currentMarketValue;
+
+                returnCell.innerText = returnPercentage !== 'N/A' ? `${returnPercentage}%` : 'N/A';
+
+                if (collection !== 'liabilities') {
+                    subtotalCost += costBasis;
+                    subtotalCurrent += currentValue;
+                }
             });
 
             const subtotalRow = tableBody.insertRow();
             subtotalRow.insertCell(0).innerText = 'Subtotal';
-            const subtotalCostBasisCell = subtotalRow.insertCell(1);
-            subtotalCostBasisCell.innerText = `$${formatNumber(costBasisTotal)}`;
-            const subtotalCell = subtotalRow.insertCell(2);
-            subtotalCell.innerText = `$${formatNumber(subtotal)}`;
+            const subtotalCostCell = subtotalRow.insertCell(1);
+            const subtotalCurrentCell = subtotalRow.insertCell(2);
             const subtotalReturnCell = subtotalRow.insertCell(3);
-            if (collection !== 'misc_assets' && collection !== 'liabilities') {
-                const subtotalReturnPercentage = costBasisTotal ? ((subtotal - costBasisTotal) / costBasisTotal) * 100 : 0;
-                subtotalReturnCell.innerText = `${subtotalReturnPercentage.toFixed(2)}%`;
+
+            subtotalCostCell.innerText = `$${formatNumber(subtotalCost)}`;
+            subtotalCurrentCell.innerText = `$${formatNumber(subtotalCurrent)}`;
+            const subtotalReturnPercentage = subtotalCost ? ((subtotalCurrent - subtotalCost) / subtotalCost * 100).toFixed(2) : 'N/A';
+            subtotalReturnCell.innerText = subtotalReturnPercentage !== 'N/A' ? `${subtotalReturnPercentage}%` : 'N/A';
+
+            subtotalRow.style.fontWeight = 'bold';
+            if (collection === 'liabilities') {
+                subtotalRow.style.color = 'red';
             } else {
-                subtotalReturnCell.innerText = 'N/A';
+                subtotalRow.style.color = '#fff';
             }
         }
 
@@ -411,7 +420,7 @@
 
             popoverDescription.innerText = description;
             popoverValue.value = formatNumber(value);
-            saveButton.onclick = () => saveEditItem(collection, id, 'value', popoverValue.value.replace(/[$,]/g, ''));
+            saveButton.onclick = () => saveEditItem(collection, id);
             deleteButton.onclick = () => deleteRow(collection, id);
 
             popover.style.display = 'flex';
@@ -421,11 +430,13 @@
             document.getElementById('popover').style.display = 'none';
         }
 
-        async function saveEditItem(collection, id, field, value) {
-            value = parseFloat(value);
+        async function saveEditItem(collection, id) {
+            const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
             if (!isNaN(value)) {
-                const updateData = { [field]: value };
-                await db.collection(collection).doc(id).update(updateData);
+                await db.collection(collection).doc(id).update({
+                    value: collection === 'liabilities' ? Math.abs(value) : value,
+                    previousValue: getItemById(collection, id).value
+                });
                 loadData(auth.currentUser.uid);
                 closePopover();
             }
@@ -453,7 +464,6 @@
                 const newItem = {
                     description,
                     value: collection === 'liabilities' ? Math.abs(value) : value,
-                    costBasis: 0,
                     previousValue: 0,
                     uid: auth.currentUser.uid
                 };
@@ -505,10 +515,8 @@
         }
 
         window.onclick = function(event) {
-            const timeoutWarning = document.getElementById('timeout-warning');
-            if (!event.target.closest('.popover') && !event.target.closest('td') && event.target !== timeoutWarning) {
+            if (!event.target.closest('.popover') && !event.target.closest('td')) {
                 closePopover();
-                resetTimer();
             }
         }
 
@@ -532,19 +540,32 @@
                 }, 1000);
             }
 
-            function logoutPopup() {
-                timeoutWarning.style.display = 'flex';
-                startCountdown();
-            }
-
             window.onload = resetTimer;
             document.onmousemove = resetTimer;
             document.onkeypress = resetTimer;
+
+            function logoutPopup() {
+                timeoutWarning.style.display = 'flex';
+                const interval = setInterval(() => {
+                    countdownNumber--;
+                    countdown.innerText = countdownNumber;
+                    if (countdownNumber <= 0) {
+                        clearInterval(interval);
+                        logOff();
+                    }
+                }, 1000);
+            }
 
             function resetTimer() {
                 clearTimeout(time);
                 timeoutWarning.style.display = 'none';
                 time = setTimeout(logoutPopup, 60000);
+            }
+
+            timeoutWarning.querySelector('button').onclick = function() {
+                clearTimeout(time);
+                timeoutWarning.style.display = 'none';
+                resetTimer();
             }
         }
     </script>
@@ -726,9 +747,59 @@
 
         window.addEventListener('resize', handleResize);
         handleResize();
+
+        function inactivityTime() {
+            let time;
+            let countdownNumber = 15;
+            const timeoutWarning = document.getElementById('timeout-warning');
+            const countdown = document.getElementById('countdown');
+
+            function startCountdown() {
+                countdownNumber = 15;
+                countdown.innerText = countdownNumber;
+                timeoutWarning.style.display = 'flex';
+                const interval = setInterval(() => {
+                    countdownNumber--;
+                    countdown.innerText = countdownNumber;
+                    if (countdownNumber <= 0) {
+                        clearInterval(interval);
+                        logOff();
+                    }
+                }, 1000);
+            }
+
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+
+            function logoutPopup() {
+                timeoutWarning.style.display = 'flex';
+                const interval = setInterval(() => {
+                    countdownNumber--;
+                    countdown.innerText = countdownNumber;
+                    if (countdownNumber <= 0) {
+                        clearInterval(interval);
+                        logOff();
+                    }
+                }, 1000);
+            }
+
+            function resetTimer() {
+                clearTimeout(time);
+                timeoutWarning.style.display = 'none';
+                time = setTimeout(logoutPopup, 60000);
+            }
+
+            timeoutWarning.querySelector('button').onclick = function() {
+                clearTimeout(time);
+                timeoutWarning.style.display = 'none';
+                resetTimer();
+            }
+        }
     </script>
 </body>
 </html>
+
 
 
 
