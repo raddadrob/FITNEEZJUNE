@@ -132,13 +132,16 @@
             color: red;
         }
         th:nth-child(1), td:nth-child(1) {
-            width: 50%;
+            width: 40%;
         }
         th:nth-child(2), td:nth-child(2) {
-            width: 25%;
+            width: 20%;
         }
         th:nth-child(3), td:nth-child(3) {
-            width: 25%;
+            width: 20%;
+        }
+        th:nth-child(4), td:nth-child(4) {
+            width: 20%;
         }
         .popover {
             position: fixed;
@@ -349,50 +352,40 @@
 
             let subtotalCostBasis = 0;
             let subtotalCurrentValue = 0;
+
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
                 const costBasisCell = row.insertCell(1);
-                const valueCell = row.insertCell(2);
+                const currentValueCell = row.insertCell(2);
                 const returnCell = row.insertCell(3);
-                
+
                 costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
-                costBasisCell.contentEditable = "true";
-                costBasisCell.onblur = () => saveEditItem(collection, item.id, 'costBasis', parseFloat(costBasisCell.innerText.replace(/[$,]/g, '')));
+                currentValueCell.innerText = `$${formatNumber(item.currentValue || item.value || item.currentMarketValue)}`;
 
-                valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
-                valueCell.contentEditable = "true";
-                valueCell.onblur = () => saveEditItem(collection, item.id, 'value', parseFloat(valueCell.innerText.replace(/[$,]/g, '')));
-                
-                const returnValue = item.costBasis ? ((item.value - item.costBasis) / item.costBasis * 100).toFixed(2) : 0;
-                returnCell.innerText = `${returnValue}%`;
-
-                const delta = (item.value || item.currentMarketValue) - (item.previousValue || 0);
-                const deltaCell = document.createElement('span');
-                deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
-                deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
-                deltaCell.style.fontSize = '0.8em';
-                deltaCell.style.fontStyle = 'italic';
-                valueCell.appendChild(deltaCell);
+                const returnValue = item.costBasis ? ((item.currentValue - item.costBasis) / item.costBasis) * 100 : 0;
+                returnCell.innerText = `${returnValue.toFixed(2)}%`;
+                returnCell.style.color = returnValue >= 0 ? 'green' : 'red';
 
                 subtotalCostBasis += item.costBasis || 0;
-                subtotalCurrentValue += item.value || item.currentMarketValue;
+                subtotalCurrentValue += item.currentValue || item.value || item.currentMarketValue;
+
+                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, 'costBasis', item.costBasis);
+                currentValueCell.onclick = (event) => showPopover(event, collection, item.id, 'currentValue', item.currentValue || item.value || item.currentMarketValue);
             });
 
             const subtotalRow = tableBody.insertRow();
-            const subtotalTextCell = subtotalRow.insertCell(0);
-            subtotalTextCell.innerText = 'Subtotal';
-            subtotalTextCell.style.fontWeight = 'bold';
+            subtotalRow.insertCell(0).innerText = 'Subtotal';
             const subtotalCostBasisCell = subtotalRow.insertCell(1);
-            subtotalCostBasisCell.innerText = `$${formatNumber(subtotalCostBasis)}`;
-            subtotalCostBasisCell.style.fontWeight = 'bold';
-            const subtotalValueCell = subtotalRow.insertCell(2);
-            subtotalValueCell.innerText = `$${formatNumber(subtotalCurrentValue)}`;
-            subtotalValueCell.style.fontWeight = 'bold';
+            const subtotalCurrentValueCell = subtotalRow.insertCell(2);
             const subtotalReturnCell = subtotalRow.insertCell(3);
-            const subtotalReturnValue = subtotalCostBasis ? ((subtotalCurrentValue - subtotalCostBasis) / subtotalCostBasis * 100).toFixed(2) : 0;
-            subtotalReturnCell.innerText = `${subtotalReturnValue}%`;
-            subtotalReturnCell.style.fontWeight = 'bold';
+
+            subtotalCostBasisCell.innerText = `$${formatNumber(subtotalCostBasis)}`;
+            subtotalCurrentValueCell.innerText = `$${formatNumber(subtotalCurrentValue)}`;
+
+            const subtotalReturnValue = subtotalCostBasis ? ((subtotalCurrentValue - subtotalCostBasis) / subtotalCostBasis) * 100 : 0;
+            subtotalReturnCell.innerText = `${subtotalReturnValue.toFixed(2)}%`;
+            subtotalReturnCell.style.color = subtotalReturnValue >= 0 ? 'green' : 'red';
         }
 
         function formatNumber(value) {
@@ -403,16 +396,16 @@
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        function showPopover(event, collection, id, value, description) {
+        function showPopover(event, collection, id, field, value) {
             const popover = document.getElementById('popover');
             const popoverDescription = document.getElementById('popover-description');
             const popoverValue = document.getElementById('popover-value');
             const saveButton = document.getElementById('saveEditButton');
             const deleteButton = document.getElementById('deleteRowButton');
 
-            popoverDescription.innerText = description;
+            popoverDescription.innerText = `${field.charAt(0).toUpperCase() + field.slice(1)}`;
             popoverValue.value = formatNumber(value);
-            saveButton.onclick = () => saveEditItem(collection, id, 'value', parseFloat(popoverValue.value.replace(/[$,]/g, '')));
+            saveButton.onclick = () => saveEditItem(collection, id, field);
             deleteButton.onclick = () => deleteRow(collection, id);
 
             popover.style.display = 'flex';
@@ -422,14 +415,13 @@
             document.getElementById('popover').style.display = 'none';
         }
 
-        async function saveEditItem(collection, id, field, value) {
+        async function saveEditItem(collection, id, field) {
+            const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
             if (!isNaN(value)) {
-                const updateData = {};
-                updateData[field] = field === 'value' || field === 'costBasis' ? Math.abs(value) : value;
-                if (field === 'value') {
-                    updateData.previousValue = getItemById(collection, id).value;
-                }
-                await db.collection(collection).doc(id).update(updateData);
+                await db.collection(collection).doc(id).update({
+                    [field]: field === 'liabilities' ? Math.abs(value) : value,
+                    previousValue: getItemById(collection, id).value
+                });
                 loadData(auth.currentUser.uid);
                 closePopover();
             }
@@ -458,7 +450,6 @@
                     description,
                     value: collection === 'liabilities' ? Math.abs(value) : value,
                     previousValue: 0,
-                    costBasis: 0,
                     uid: auth.currentUser.uid
                 };
                 try {
@@ -537,9 +528,10 @@
             window.onload = resetTimer;
             document.onmousemove = resetTimer;
             document.onkeypress = resetTimer;
+            document.onmouseover = resetTimer;
             
             function logoutPopup() {
-                timeoutWarning.style.display = 'none';
+                timeoutWarning.style.display = 'flex';
                 startCountdown();
             }
 
@@ -599,7 +591,6 @@
                             <th>Description</th>
                             <th>Cost Basis</th>
                             <th>Current Value</th>
-                            <th>Return %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -731,7 +722,6 @@
     </script>
 </body>
 </html>
-
 
 
 
