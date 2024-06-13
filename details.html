@@ -132,13 +132,16 @@
             color: red;
         }
         th:nth-child(1), td:nth-child(1) {
-            width: 50%;
+            width: 40%;
         }
         th:nth-child(2), td:nth-child(2) {
-            width: 25%;
+            width: 20%;
         }
         th:nth-child(3), td:nth-child(3) {
-            width: 25%;
+            width: 20%;
+        }
+        th:nth-child(4), td:nth-child(4) {
+            width: 20%;
         }
         .popover {
             position: fixed;
@@ -337,65 +340,67 @@
         }
 
         function updateTables() {
-            updateTable('stocks_and_bonds', stocksAndBonds);
-            updateTable('real_estate', realEstate);
-            updateTable('misc_assets', miscAssets);
-            updateTable('liabilities', liabilities);
+            updateTable('stocks_and_bonds', stocksAndBonds, true);
+            updateTable('real_estate', realEstate, true);
+            updateTable('misc_assets', miscAssets, false);
+            updateTable('liabilities', liabilities, false);
         }
 
-        function updateTable(collection, dataArray) {
+        function updateTable(collection, dataArray, showReturn) {
             const tableBody = document.getElementById(`${collection}-table`).getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
 
-            let subtotal = 0;
-            let costBasisSubtotal = 0;
+            let subtotalCostBasis = 0;
+            let subtotalCurrentValue = 0;
+
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
-
                 const costBasisCell = row.insertCell(1);
-                costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
-                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, 'costBasis', item.costBasis || 0, item.description || item.name);
-
                 const currentValueCell = row.insertCell(2);
-                currentValueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
-                currentValueCell.onclick = (event) => showPopover(event, collection, item.id, 'value', item.value || item.currentMarketValue, item.description || item.name);
+                const returnCell = showReturn ? row.insertCell(3) : null;
 
-                if (collection !== 'misc_assets' && collection !== 'liabilities') {
-                    const returnCell = row.insertCell(3);
-                    if (item.costBasis) {
-                        const returnValue = ((item.value - item.costBasis) / item.costBasis * 100).toFixed(2);
-                        returnCell.innerText = `${returnValue}%`;
-                        returnCell.className = returnValue >= 0 ? 'delta-positive' : 'delta-negative';
-                    } else {
-                        returnCell.innerText = '0.00%';
-                    }
+                costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
+                currentValueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
+
+                if (showReturn) {
+                    const returnPercentage = calculateReturnPercentage(item.costBasis, item.value || item.currentMarketValue);
+                    returnCell.innerText = returnPercentage;
+                    returnCell.style.color = returnPercentage.includes('-') ? 'red' : 'green';
                 }
 
-                subtotal += item.value || item.currentMarketValue;
-                costBasisSubtotal += item.costBasis || 0;
+                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, item.costBasis, item.description || item.name, 'costBasis');
+                currentValueCell.onclick = (event) => showPopover(event, collection, item.id, item.value || item.currentMarketValue, item.description || item.name, 'currentValue');
+                
+                subtotalCostBasis += item.costBasis || 0;
+                subtotalCurrentValue += item.value || item.currentMarketValue;
             });
 
             const subtotalRow = tableBody.insertRow();
             subtotalRow.insertCell(0).innerText = 'Subtotal';
-            const costBasisSubtotalCell = subtotalRow.insertCell(1);
-            costBasisSubtotalCell.innerText = `$${formatNumber(costBasisSubtotal)}`;
-            costBasisSubtotalCell.style.fontWeight = 'bold';
+            const subtotalCostBasisCell = subtotalRow.insertCell(1);
+            const subtotalCurrentValueCell = subtotalRow.insertCell(2);
+            const subtotalReturnCell = showReturn ? subtotalRow.insertCell(3) : null;
 
-            const subtotalCell = subtotalRow.insertCell(2);
-            subtotalCell.innerText = `$${formatNumber(subtotal)}`;
-            subtotalCell.style.fontWeight = 'bold';
+            subtotalCostBasisCell.innerText = `$${formatNumber(subtotalCostBasis)}`;
+            subtotalCurrentValueCell.innerText = `$${formatNumber(subtotalCurrentValue)}`;
 
-            if (collection !== 'misc_assets' && collection !== 'liabilities') {
-                const returnSubtotalCell = subtotalRow.insertCell(3);
-                if (costBasisSubtotal > 0) {
-                    const returnSubtotalValue = ((subtotal - costBasisSubtotal) / costBasisSubtotal * 100).toFixed(2);
-                    returnSubtotalCell.innerText = `${returnSubtotalValue}%`;
-                    returnSubtotalCell.className = returnSubtotalValue >= 0 ? 'delta-positive' : 'delta-negative';
-                } else {
-                    returnSubtotalCell.innerText = 'N/A';
-                }
+            if (showReturn) {
+                const subtotalReturnPercentage = calculateReturnPercentage(subtotalCostBasis, subtotalCurrentValue);
+                subtotalReturnCell.innerText = subtotalReturnPercentage;
+                subtotalReturnCell.style.color = subtotalReturnPercentage.includes('-') ? 'red' : 'green';
             }
+
+            subtotalCostBasisCell.style.fontWeight = 'bold';
+            subtotalCurrentValueCell.style.fontWeight = 'bold';
+            if (showReturn) {
+                subtotalReturnCell.style.fontWeight = 'bold';
+            }
+        }
+
+        function calculateReturnPercentage(costBasis, currentValue) {
+            if (!costBasis || costBasis === 0) return 'N/A';
+            return ((currentValue - costBasis) / costBasis * 100).toFixed(2) + '%';
         }
 
         function formatNumber(value) {
@@ -406,7 +411,7 @@
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        function showPopover(event, collection, id, field, value, description) {
+        function showPopover(event, collection, id, value, description, field) {
             const popover = document.getElementById('popover');
             const popoverDescription = document.getElementById('popover-description');
             const popoverValue = document.getElementById('popover-value');
@@ -428,7 +433,7 @@
         async function saveEditItem(collection, id, field) {
             const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
             if (!isNaN(value)) {
-                const updateData = { [field]: value };
+                const updateData = field === 'costBasis' ? { costBasis: value } : { value: value };
                 await db.collection(collection).doc(id).update(updateData);
                 loadData(auth.currentUser.uid);
                 closePopover();
@@ -456,8 +461,7 @@
             if (description && !isNaN(value)) {
                 const newItem = {
                     description,
-                    value: collection === 'liabilities' ? Math.abs(value) : value,
-                    previousValue: 0,
+                    value: value,
                     costBasis: 0,
                     uid: auth.currentUser.uid
                 };
