@@ -273,13 +273,13 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "API_KEY_HERE",
-            authDomain: "DOMAIN_HERE",
-            projectId: "PROJECT_ID_HERE",
-            storageBucket: "BUCKET_HERE",
-            messagingSenderId: "SENDER_ID_HERE",
-            appId: "APP_ID_HERE",
-            measurementId: "MEASUREMENT_ID_HERE"
+            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
+            authDomain: "cockrumfinance.firebaseapp.com",
+            projectId: "cockrumfinance",
+            storageBucket: "cockrumfinance.appspot.com",
+            messagingSenderId: "446623626941",
+            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
+            measurementId: "G-JFRC4K0BBF"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -347,53 +347,50 @@
             const tableBody = document.getElementById(`${collection}-table`).getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
 
-            let subtotalCost = 0;
-            let subtotalValue = 0;
+            let subtotal = 0;
+            let costBasisTotal = 0;
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
                 const costBasisCell = row.insertCell(1);
-                const currentValueCell = row.insertCell(2);
-
-                costBasisCell.innerText = item.costBasis ? `$${formatNumber(item.costBasis)}` : '$0';
-                currentValueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
-
-                const delta = ((item.value || item.currentMarketValue) - (item.costBasis || 0)) / (item.costBasis || 1) * 100;
+                costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
+                costBasisCell.contentEditable = true;
+                costBasisCell.onblur = () => saveEditItem(collection, item.id, 'costBasis', costBasisCell.innerText.replace(/[$,]/g, ''));
+                const valueCell = row.insertCell(2);
+                valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
+                const returnCell = row.insertCell(3);
+                if (collection !== 'misc_assets' && collection !== 'liabilities') {
+                    const costBasis = item.costBasis || 0;
+                    const currentValue = item.value || item.currentMarketValue;
+                    const returnPercentage = costBasis ? ((currentValue - costBasis) / costBasis) * 100 : 0;
+                    returnCell.innerText = `${returnPercentage.toFixed(2)}%`;
+                } else {
+                    returnCell.innerText = 'N/A';
+                }
+                const delta = (item.value || item.currentMarketValue) - (item.previousValue || 0);
                 const deltaCell = document.createElement('span');
-                deltaCell.innerText = ` ${delta.toFixed(2)}%`;
+                deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
                 deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
                 deltaCell.style.fontSize = '0.8em';
                 deltaCell.style.fontStyle = 'italic';
-
-                if (collection === 'stocks_and_bonds' || collection === 'real_estate') {
-                    const returnCell = row.insertCell(3);
-                    returnCell.appendChild(deltaCell);
-                    costBasisCell.onclick = (event) => showPopover(event, collection, item.id, 'costBasis', item.costBasis || 0, item.description || item.name);
-                } else {
-                    currentValueCell.appendChild(deltaCell);
-                }
-
-                currentValueCell.onclick = (event) => showPopover(event, collection, item.id, 'value', item.value || item.currentMarketValue, item.description || item.name);
-
-                subtotalCost += item.costBasis || 0;
-                subtotalValue += item.value || item.currentMarketValue;
+                valueCell.appendChild(deltaCell);
+                valueCell.onclick = (event) => showPopover(event, collection, item.id, item.value || item.currentMarketValue, item.description || item.name);
+                costBasisTotal += item.costBasis || 0;
+                subtotal += item.value || item.currentMarketValue;
             });
 
             const subtotalRow = tableBody.insertRow();
             subtotalRow.insertCell(0).innerText = 'Subtotal';
-            const subtotalCostCell = subtotalRow.insertCell(1);
-            subtotalCostCell.innerText = `$${formatNumber(subtotalCost)}`;
-            const subtotalValueCell = subtotalRow.insertCell(2);
-            subtotalValueCell.innerText = `$${formatNumber(subtotalValue)}`;
-            if (collection === 'stocks_and_bonds' || collection === 'real_estate') {
-                const returnCell = subtotalRow.insertCell(3);
-                const delta = ((subtotalValue - subtotalCost) / (subtotalCost || 1)) * 100;
-                const deltaSpan = document.createElement('span');
-                deltaSpan.innerText = ` ${delta.toFixed(2)}%`;
-                deltaSpan.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
-                deltaSpan.style.fontSize = '0.8em';
-                deltaSpan.style.fontStyle = 'italic';
-                returnCell.appendChild(deltaSpan);
+            const subtotalCostBasisCell = subtotalRow.insertCell(1);
+            subtotalCostBasisCell.innerText = `$${formatNumber(costBasisTotal)}`;
+            const subtotalCell = subtotalRow.insertCell(2);
+            subtotalCell.innerText = `$${formatNumber(subtotal)}`;
+            const subtotalReturnCell = subtotalRow.insertCell(3);
+            if (collection !== 'misc_assets' && collection !== 'liabilities') {
+                const subtotalReturnPercentage = costBasisTotal ? ((subtotal - costBasisTotal) / costBasisTotal) * 100 : 0;
+                subtotalReturnCell.innerText = `${subtotalReturnPercentage.toFixed(2)}%`;
+            } else {
+                subtotalReturnCell.innerText = 'N/A';
             }
         }
 
@@ -405,7 +402,7 @@
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        function showPopover(event, collection, id, field, value, description) {
+        function showPopover(event, collection, id, value, description) {
             const popover = document.getElementById('popover');
             const popoverDescription = document.getElementById('popover-description');
             const popoverValue = document.getElementById('popover-value');
@@ -414,7 +411,7 @@
 
             popoverDescription.innerText = description;
             popoverValue.value = formatNumber(value);
-            saveButton.onclick = () => saveEditItem(collection, id, field);
+            saveButton.onclick = () => saveEditItem(collection, id, 'value', popoverValue.value.replace(/[$,]/g, ''));
             deleteButton.onclick = () => deleteRow(collection, id);
 
             popover.style.display = 'flex';
@@ -424,13 +421,11 @@
             document.getElementById('popover').style.display = 'none';
         }
 
-        async function saveEditItem(collection, id, field) {
-            const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
+        async function saveEditItem(collection, id, field, value) {
+            value = parseFloat(value);
             if (!isNaN(value)) {
-                await db.collection(collection).doc(id).update({
-                    [field]: value,
-                    previousValue: getItemById(collection, id).value
-                });
+                const updateData = { [field]: value };
+                await db.collection(collection).doc(id).update(updateData);
                 loadData(auth.currentUser.uid);
                 closePopover();
             }
@@ -458,6 +453,7 @@
                 const newItem = {
                     description,
                     value: collection === 'liabilities' ? Math.abs(value) : value,
+                    costBasis: 0,
                     previousValue: 0,
                     uid: auth.currentUser.uid
                 };
@@ -509,8 +505,10 @@
         }
 
         window.onclick = function(event) {
-            if (!event.target.closest('.popover') && !event.target.closest('td')) {
+            const timeoutWarning = document.getElementById('timeout-warning');
+            if (!event.target.closest('.popover') && !event.target.closest('td') && event.target !== timeoutWarning) {
                 closePopover();
+                resetTimer();
             }
         }
 
@@ -534,14 +532,14 @@
                 }, 1000);
             }
 
-            window.onload = resetTimer;
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
-
             function logoutPopup() {
                 timeoutWarning.style.display = 'flex';
                 startCountdown();
             }
+
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
 
             function resetTimer() {
                 clearTimeout(time);
@@ -703,7 +701,7 @@
         <button id="deleteRowButton">Delete Row</button>
         <button onclick="closePopover()">Cancel</button>
     </div>
-    <div id="timeout-warning" onmouseover="resetTimer()" style="display:none;">
+    <div id="timeout-warning">
         <p>Are you still here? You will be signed out in <span id="countdown">15</span> seconds.</p>
         <button onclick="resetTimer()">Yes, I'm here</button>
     </div>
@@ -731,7 +729,6 @@
     </script>
 </body>
 </html>
-
 
 
 
