@@ -132,16 +132,13 @@
             color: red;
         }
         th:nth-child(1), td:nth-child(1) {
-            width: 40%;
+            width: 50%;
         }
         th:nth-child(2), td:nth-child(2) {
-            width: 20%;
+            width: 25%;
         }
         th:nth-child(3), td:nth-child(3) {
-            width: 20%;
-        }
-        th:nth-child(4), td:nth-child(4) {
-            width: 20%;
+            width: 25%;
         }
         .popover {
             position: fixed;
@@ -276,13 +273,13 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDy0PPpo6xMukyahC4DBCQ_ILJNROdvPWM",
-            authDomain: "cockrumfinance.firebaseapp.com",
-            projectId: "cockrumfinance",
-            storageBucket: "cockrumfinance.appspot.com",
-            messagingSenderId: "446623626941",
-            appId: "1:446623626941:web:3dc1d2e435caf61d04e9d4",
-            measurementId: "G-JFRC4K0BBF"
+            apiKey: "API_KEY_HERE",
+            authDomain: "DOMAIN_HERE",
+            projectId: "PROJECT_ID_HERE",
+            storageBucket: "BUCKET_HERE",
+            messagingSenderId: "SENDER_ID_HERE",
+            appId: "APP_ID_HERE",
+            measurementId: "MEASUREMENT_ID_HERE"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -340,67 +337,64 @@
         }
 
         function updateTables() {
-            updateTable('stocks_and_bonds', stocksAndBonds, true);
-            updateTable('real_estate', realEstate, true);
-            updateTable('misc_assets', miscAssets, false);
-            updateTable('liabilities', liabilities, false);
+            updateTable('stocks_and_bonds', stocksAndBonds);
+            updateTable('real_estate', realEstate);
+            updateTable('misc_assets', miscAssets);
+            updateTable('liabilities', liabilities);
         }
 
-        function updateTable(collection, dataArray, showReturn) {
+        function updateTable(collection, dataArray) {
             const tableBody = document.getElementById(`${collection}-table`).getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
 
-            let subtotalCostBasis = 0;
-            let subtotalCurrentValue = 0;
-
+            let subtotalCost = 0;
+            let subtotalValue = 0;
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
                 const costBasisCell = row.insertCell(1);
                 const currentValueCell = row.insertCell(2);
-                const returnCell = showReturn ? row.insertCell(3) : null;
 
-                costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
+                costBasisCell.innerText = item.costBasis ? `$${formatNumber(item.costBasis)}` : '$0';
                 currentValueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
 
-                if (showReturn) {
-                    const returnPercentage = calculateReturnPercentage(item.costBasis, item.value || item.currentMarketValue);
-                    returnCell.innerText = returnPercentage;
-                    returnCell.style.color = returnPercentage.includes('-') ? 'red' : 'green';
+                const delta = ((item.value || item.currentMarketValue) - (item.costBasis || 0)) / (item.costBasis || 1) * 100;
+                const deltaCell = document.createElement('span');
+                deltaCell.innerText = ` ${delta.toFixed(2)}%`;
+                deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
+                deltaCell.style.fontSize = '0.8em';
+                deltaCell.style.fontStyle = 'italic';
+
+                if (collection === 'stocks_and_bonds' || collection === 'real_estate') {
+                    const returnCell = row.insertCell(3);
+                    returnCell.appendChild(deltaCell);
+                    costBasisCell.onclick = (event) => showPopover(event, collection, item.id, 'costBasis', item.costBasis || 0, item.description || item.name);
+                } else {
+                    currentValueCell.appendChild(deltaCell);
                 }
 
-                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, item.costBasis, item.description || item.name, 'costBasis');
-                currentValueCell.onclick = (event) => showPopover(event, collection, item.id, item.value || item.currentMarketValue, item.description || item.name, 'currentValue');
-                
-                subtotalCostBasis += item.costBasis || 0;
-                subtotalCurrentValue += item.value || item.currentMarketValue;
+                currentValueCell.onclick = (event) => showPopover(event, collection, item.id, 'value', item.value || item.currentMarketValue, item.description || item.name);
+
+                subtotalCost += item.costBasis || 0;
+                subtotalValue += item.value || item.currentMarketValue;
             });
 
             const subtotalRow = tableBody.insertRow();
             subtotalRow.insertCell(0).innerText = 'Subtotal';
-            const subtotalCostBasisCell = subtotalRow.insertCell(1);
-            const subtotalCurrentValueCell = subtotalRow.insertCell(2);
-            const subtotalReturnCell = showReturn ? subtotalRow.insertCell(3) : null;
-
-            subtotalCostBasisCell.innerText = `$${formatNumber(subtotalCostBasis)}`;
-            subtotalCurrentValueCell.innerText = `$${formatNumber(subtotalCurrentValue)}`;
-
-            if (showReturn) {
-                const subtotalReturnPercentage = calculateReturnPercentage(subtotalCostBasis, subtotalCurrentValue);
-                subtotalReturnCell.innerText = subtotalReturnPercentage;
-                subtotalReturnCell.style.color = subtotalReturnPercentage.includes('-') ? 'red' : 'green';
+            const subtotalCostCell = subtotalRow.insertCell(1);
+            subtotalCostCell.innerText = `$${formatNumber(subtotalCost)}`;
+            const subtotalValueCell = subtotalRow.insertCell(2);
+            subtotalValueCell.innerText = `$${formatNumber(subtotalValue)}`;
+            if (collection === 'stocks_and_bonds' || collection === 'real_estate') {
+                const returnCell = subtotalRow.insertCell(3);
+                const delta = ((subtotalValue - subtotalCost) / (subtotalCost || 1)) * 100;
+                const deltaSpan = document.createElement('span');
+                deltaSpan.innerText = ` ${delta.toFixed(2)}%`;
+                deltaSpan.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
+                deltaSpan.style.fontSize = '0.8em';
+                deltaSpan.style.fontStyle = 'italic';
+                returnCell.appendChild(deltaSpan);
             }
-
-            subtotalCostBasisCell.style.fontWeight = 'bold';
-            subtotalCurrentValueCell.style.fontWeight = 'bold';
-            if (showReturn) {
-                subtotalReturnCell.style.fontWeight = 'bold';
-            }
-        }
-
-        function calculateReturnPercentage(costBasis, currentValue) {
-            if (!costBasis || costBasis === 0) return 'N/A';
-            return ((currentValue - costBasis) / costBasis * 100).toFixed(2) + '%';
         }
 
         function formatNumber(value) {
@@ -411,7 +405,7 @@
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        function showPopover(event, collection, id, value, description, field) {
+        function showPopover(event, collection, id, field, value, description) {
             const popover = document.getElementById('popover');
             const popoverDescription = document.getElementById('popover-description');
             const popoverValue = document.getElementById('popover-value');
@@ -433,8 +427,10 @@
         async function saveEditItem(collection, id, field) {
             const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
             if (!isNaN(value)) {
-                const updateData = field === 'costBasis' ? { costBasis: value } : { value: value };
-                await db.collection(collection).doc(id).update(updateData);
+                await db.collection(collection).doc(id).update({
+                    [field]: value,
+                    previousValue: getItemById(collection, id).value
+                });
                 loadData(auth.currentUser.uid);
                 closePopover();
             }
@@ -461,8 +457,8 @@
             if (description && !isNaN(value)) {
                 const newItem = {
                     description,
-                    value: value,
-                    costBasis: 0,
+                    value: collection === 'liabilities' ? Math.abs(value) : value,
+                    previousValue: 0,
                     uid: auth.currentUser.uid
                 };
                 try {
@@ -523,7 +519,7 @@
             let countdownNumber = 15;
             const timeoutWarning = document.getElementById('timeout-warning');
             const countdown = document.getElementById('countdown');
-            
+
             function startCountdown() {
                 countdownNumber = 15;
                 countdown.innerText = countdownNumber;
@@ -541,9 +537,9 @@
             window.onload = resetTimer;
             document.onmousemove = resetTimer;
             document.onkeypress = resetTimer;
-            
+
             function logoutPopup() {
-                timeoutWarning.style.display = 'none';
+                timeoutWarning.style.display = 'flex';
                 startCountdown();
             }
 
@@ -707,7 +703,7 @@
         <button id="deleteRowButton">Delete Row</button>
         <button onclick="closePopover()">Cancel</button>
     </div>
-    <div id="timeout-warning">
+    <div id="timeout-warning" onmouseover="resetTimer()" style="display:none;">
         <p>Are you still here? You will be signed out in <span id="countdown">15</span> seconds.</p>
         <button onclick="resetTimer()">Yes, I'm here</button>
     </div>
@@ -735,6 +731,7 @@
     </script>
 </body>
 </html>
+
 
 
 
