@@ -132,16 +132,13 @@
             color: red;
         }
         th:nth-child(1), td:nth-child(1) {
-            width: 40%;
+            width: 50%;
         }
         th:nth-child(2), td:nth-child(2) {
-            width: 20%;
+            width: 25%;
         }
         th:nth-child(3), td:nth-child(3) {
-            width: 20%;
-        }
-        th:nth-child(4), td:nth-child(4) {
-            width: 20%;
+            width: 25%;
         }
         .popover {
             position: fixed;
@@ -352,49 +349,50 @@
 
             let subtotalCostBasis = 0;
             let subtotalCurrentValue = 0;
-
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
                 const costBasisCell = row.insertCell(1);
                 const valueCell = row.insertCell(2);
                 const returnCell = row.insertCell(3);
-
+                
                 costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
-                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, 'costBasis', item.costBasis || 0, item.description || item.name);
+                costBasisCell.contentEditable = "true";
+                costBasisCell.onblur = () => saveEditItem(collection, item.id, 'costBasis', parseFloat(costBasisCell.innerText.replace(/[$,]/g, '')));
 
-                if (collection === 'liabilities') {
-                    valueCell.innerText = item.value ? `-$${formatNumber(item.value)}` : '$0';
-                    valueCell.style.color = 'red';
-                } else {
-                    valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
-                }
+                valueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
+                valueCell.contentEditable = "true";
+                valueCell.onblur = () => saveEditItem(collection, item.id, 'value', parseFloat(valueCell.innerText.replace(/[$,]/g, '')));
+                
+                const returnValue = item.costBasis ? ((item.value - item.costBasis) / item.costBasis * 100).toFixed(2) : 0;
+                returnCell.innerText = `${returnValue}%`;
 
-                const delta = ((item.value || item.currentMarketValue) - (item.costBasis || 0)) / (item.costBasis || 1) * 100;
-                returnCell.innerText = `${delta.toFixed(2)}%`;
-                returnCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
-                returnCell.style.fontSize = '0.8em';
-                returnCell.style.fontStyle = 'italic';
+                const delta = (item.value || item.currentMarketValue) - (item.previousValue || 0);
+                const deltaCell = document.createElement('span');
+                deltaCell.innerText = ` (${delta >= 0 ? '+' : ''}${formatNumber(delta)})`;
+                deltaCell.className = delta >= 0 ? 'delta-positive' : 'delta-negative';
+                deltaCell.style.fontSize = '0.8em';
+                deltaCell.style.fontStyle = 'italic';
+                valueCell.appendChild(deltaCell);
 
-                valueCell.onclick = (event) => showPopover(event, collection, item.id, 'value', item.value || item.currentMarketValue, item.description || item.name);
                 subtotalCostBasis += item.costBasis || 0;
                 subtotalCurrentValue += item.value || item.currentMarketValue;
             });
 
             const subtotalRow = tableBody.insertRow();
-            subtotalRow.insertCell(0).innerText = 'Subtotal';
+            const subtotalTextCell = subtotalRow.insertCell(0);
+            subtotalTextCell.innerText = 'Subtotal';
+            subtotalTextCell.style.fontWeight = 'bold';
             const subtotalCostBasisCell = subtotalRow.insertCell(1);
             subtotalCostBasisCell.innerText = `$${formatNumber(subtotalCostBasis)}`;
             subtotalCostBasisCell.style.fontWeight = 'bold';
             const subtotalValueCell = subtotalRow.insertCell(2);
             subtotalValueCell.innerText = `$${formatNumber(subtotalCurrentValue)}`;
             subtotalValueCell.style.fontWeight = 'bold';
-
             const subtotalReturnCell = subtotalRow.insertCell(3);
-            const totalReturn = ((subtotalCurrentValue - subtotalCostBasis) / (subtotalCostBasis || 1)) * 100;
-            subtotalReturnCell.innerText = `${totalReturn.toFixed(2)}%`;
+            const subtotalReturnValue = subtotalCostBasis ? ((subtotalCurrentValue - subtotalCostBasis) / subtotalCostBasis * 100).toFixed(2) : 0;
+            subtotalReturnCell.innerText = `${subtotalReturnValue}%`;
             subtotalReturnCell.style.fontWeight = 'bold';
-            subtotalReturnCell.className = totalReturn >= 0 ? 'delta-positive' : 'delta-negative';
         }
 
         function formatNumber(value) {
@@ -405,16 +403,16 @@
             return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        function showPopover(event, collection, id, field, value, description) {
+        function showPopover(event, collection, id, value, description) {
             const popover = document.getElementById('popover');
             const popoverDescription = document.getElementById('popover-description');
             const popoverValue = document.getElementById('popover-value');
             const saveButton = document.getElementById('saveEditButton');
             const deleteButton = document.getElementById('deleteRowButton');
 
-            popoverDescription.innerText = `${description} (${field})`;
+            popoverDescription.innerText = description;
             popoverValue.value = formatNumber(value);
-            saveButton.onclick = () => saveEditItem(collection, id, field);
+            saveButton.onclick = () => saveEditItem(collection, id, 'value', parseFloat(popoverValue.value.replace(/[$,]/g, '')));
             deleteButton.onclick = () => deleteRow(collection, id);
 
             popover.style.display = 'flex';
@@ -424,11 +422,11 @@
             document.getElementById('popover').style.display = 'none';
         }
 
-        async function saveEditItem(collection, id, field) {
-            const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
+        async function saveEditItem(collection, id, field, value) {
             if (!isNaN(value)) {
-                const updateData = { [field]: value };
-                if (field === 'value' && collection !== 'liabilities') {
+                const updateData = {};
+                updateData[field] = field === 'value' || field === 'costBasis' ? Math.abs(value) : value;
+                if (field === 'value') {
                     updateData.previousValue = getItemById(collection, id).value;
                 }
                 await db.collection(collection).doc(id).update(updateData);
@@ -459,6 +457,7 @@
                 const newItem = {
                     description,
                     value: collection === 'liabilities' ? Math.abs(value) : value,
+                    previousValue: 0,
                     costBasis: 0,
                     uid: auth.currentUser.uid
                 };
@@ -540,10 +539,8 @@
             document.onkeypress = resetTimer;
             
             function logoutPopup() {
-                timeoutWarning.style.display = 'flex';
-                const timeoutWarningElement = document.getElementById('timeout-warning');
-                timeoutWarningElement.onmouseenter = () => clearTimeout(time);
-                timeoutWarningElement.onmouseleave = startCountdown;
+                timeoutWarning.style.display = 'none';
+                startCountdown();
             }
 
             function resetTimer() {
@@ -623,7 +620,6 @@
                             <th>Description</th>
                             <th>Cost Basis</th>
                             <th>Current Value</th>
-                            <th>Return %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -644,7 +640,6 @@
                             <th>Description</th>
                             <th>Cost Basis</th>
                             <th>Current Value</th>
-                            <th>Return %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -736,7 +731,6 @@
     </script>
 </body>
 </html>
-
 
 
 
