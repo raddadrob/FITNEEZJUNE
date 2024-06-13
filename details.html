@@ -352,40 +352,50 @@
             dataArray.forEach((item) => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).innerText = item.description || item.name;
+
                 const costBasisCell = row.insertCell(1);
-                const valueCell = row.insertCell(2);
-                const returnCell = row.insertCell(3);
+                costBasisCell.innerText = `$${formatNumber(item.costBasis || 0)}`;
+                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, 'costBasis', item.costBasis || 0, item.description || item.name);
 
-                const costBasis = item.costBasis || 0;
-                const currentValue = item.value || item.currentMarketValue;
-                const returnPercent = costBasis ? ((currentValue - costBasis) / costBasis * 100).toFixed(2) : 0;
-
-                costBasisCell.innerText = `$${formatNumber(costBasis)}`;
-                valueCell.innerText = `$${formatNumber(currentValue)}`;
+                const currentValueCell = row.insertCell(2);
+                currentValueCell.innerText = `$${formatNumber(item.value || item.currentMarketValue)}`;
+                currentValueCell.onclick = (event) => showPopover(event, collection, item.id, 'value', item.value || item.currentMarketValue, item.description || item.name);
 
                 if (collection !== 'misc_assets' && collection !== 'liabilities') {
-                    returnCell.innerText = `${returnPercent}%`;
-                    returnCell.className = returnPercent >= 0 ? 'delta-positive' : 'delta-negative';
-                } else {
-                    returnCell.innerText = 'N/A';
+                    const returnCell = row.insertCell(3);
+                    if (item.costBasis) {
+                        const returnValue = ((item.value - item.costBasis) / item.costBasis * 100).toFixed(2);
+                        returnCell.innerText = `${returnValue}%`;
+                        returnCell.className = returnValue >= 0 ? 'delta-positive' : 'delta-negative';
+                    } else {
+                        returnCell.innerText = '0.00%';
+                    }
                 }
 
-                valueCell.onclick = (event) => showPopover(event, collection, item.id, 'currentValue', currentValue, item.description || item.name);
-                costBasisCell.onclick = (event) => showPopover(event, collection, item.id, 'costBasis', costBasis, item.description || item.name);
-
-                subtotal += currentValue;
-                costBasisSubtotal += costBasis;
+                subtotal += item.value || item.currentMarketValue;
+                costBasisSubtotal += item.costBasis || 0;
             });
 
             const subtotalRow = tableBody.insertRow();
             subtotalRow.insertCell(0).innerText = 'Subtotal';
-            subtotalRow.insertCell(1).innerText = `$${formatNumber(costBasisSubtotal)}`;
-            subtotalRow.insertCell(2).innerText = `$${formatNumber(subtotal)}`;
-            const subtotalReturnCell = subtotalRow.insertCell(3);
+            const costBasisSubtotalCell = subtotalRow.insertCell(1);
+            costBasisSubtotalCell.innerText = `$${formatNumber(costBasisSubtotal)}`;
+            costBasisSubtotalCell.style.fontWeight = 'bold';
 
-            const subtotalReturnPercent = costBasisSubtotal ? ((subtotal - costBasisSubtotal) / costBasisSubtotal * 100).toFixed(2) : 0;
-            subtotalReturnCell.innerText = `${subtotalReturnPercent}%`;
-            subtotalReturnCell.className = subtotalReturnPercent >= 0 ? 'delta-positive' : 'delta-negative';
+            const subtotalCell = subtotalRow.insertCell(2);
+            subtotalCell.innerText = `$${formatNumber(subtotal)}`;
+            subtotalCell.style.fontWeight = 'bold';
+
+            if (collection !== 'misc_assets' && collection !== 'liabilities') {
+                const returnSubtotalCell = subtotalRow.insertCell(3);
+                if (costBasisSubtotal > 0) {
+                    const returnSubtotalValue = ((subtotal - costBasisSubtotal) / costBasisSubtotal * 100).toFixed(2);
+                    returnSubtotalCell.innerText = `${returnSubtotalValue}%`;
+                    returnSubtotalCell.className = returnSubtotalValue >= 0 ? 'delta-positive' : 'delta-negative';
+                } else {
+                    returnSubtotalCell.innerText = 'N/A';
+                }
+            }
         }
 
         function formatNumber(value) {
@@ -418,8 +428,7 @@
         async function saveEditItem(collection, id, field) {
             const value = parseFloat(document.getElementById('popover-value').value.replace(/[$,]/g, ''));
             if (!isNaN(value)) {
-                const updateData = {};
-                updateData[field] = value;
+                const updateData = { [field]: value };
                 await db.collection(collection).doc(id).update(updateData);
                 loadData(auth.currentUser.uid);
                 closePopover();
@@ -448,6 +457,7 @@
                 const newItem = {
                     description,
                     value: collection === 'liabilities' ? Math.abs(value) : value,
+                    previousValue: 0,
                     costBasis: 0,
                     uid: auth.currentUser.uid
                 };
@@ -721,6 +731,7 @@
     </script>
 </body>
 </html>
+
 
 
 
